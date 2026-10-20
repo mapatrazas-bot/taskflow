@@ -107,6 +107,22 @@ public class UserEntity implements UserDetails {
     @Override public boolean isCredentialsNonExpired(){ return true; }
     @Override public boolean isEnabled()              { return true; }
 
+    // ── Ciclo de vida JPA (Garantiza fechas no nulas en tests y producción) ──
+    @PrePersist
+    public void prePersist() {
+        if (fechaCreacion == null) {
+            fechaCreacion = LocalDateTime.now();
+        }
+        if (fechaActualizacion == null) {
+            fechaActualizacion = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        fechaActualizacion = LocalDateTime.now();
+    }
+
     // ── Getters y Setters ─────────────────────────────────────────────
     public Long getId()                        { return id; }
     public String getNombre()                  { return nombre; }
