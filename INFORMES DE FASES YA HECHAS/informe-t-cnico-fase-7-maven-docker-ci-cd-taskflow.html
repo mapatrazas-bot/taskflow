@@ -1,0 +1,321 @@
+
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TaskFlow — Fase 7: Maven, Docker &amp; CI/CD</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.6;background:#fff;color:#1f2328}
+.page{max-width:760px;margin:0 auto;padding:40px 24px 60px}
+
+/* Header */
+.header{border-bottom:2px solid #e5e7eb;padding-bottom:20px;margin-bottom:28px}
+.header h1{font-size:22px;font-weight:800;color:#1f2328;margin-bottom:4px}
+.header-meta{font-size:12px;color:#57606a;margin-bottom:12px}
+.badge-row{display:flex;flex-wrap:wrap;gap:6px}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px}
+.b-green{background:#dcfce7;color:#15803d}
+.b-blue{background:#dbeafe;color:#1d4ed8}
+.b-purple{background:#ede9fe;color:#6d28d9}
+.b-gray{background:#f1f5f9;color:#475569}
+.b-orange{background:#ffedd5;color:#c2410c}
+.b-yellow{background:#fef9c3;color:#92400e}
+
+/* Intro */
+.intro{background:#f7f8fa;border:1px solid #e5e7eb;border-radius:6px;padding:14px 16px;margin-bottom:24px;font-size:13px;color:#57606a;line-height:1.6}
+
+/* Títulos y Secciones */
+h2{font-size:15px;font-weight:700;color:#1f2328;border-left:3px solid #3b82d4;padding-left:10px;margin:26px 0 12px}
+h3{font-size:13px;font-weight:700;color:#1f2328;margin:18px 0 8px}
+
+table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px}
+thead{background:#f7f8fa}
+th{text-align:left;padding:8px 10px;font-weight:700;color:#57606a;border-bottom:1px solid #e5e7eb;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+td{padding:8px 10px;border-bottom:1px solid #f0f0f0;vertical-align:top}
+tr:last-child td{border-bottom:none}
+
+/* Resultado Hero */
+.result-hero{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:18px 20px;display:flex;align-items:center;gap:18px;margin-bottom:24px}
+.result-big{font-size:48px;font-weight:900;color:#15803d;line-height:1}
+.result-info strong{display:block;font-size:16px;color:#15803d;margin-bottom:4px}
+.result-info span{font-size:12px;color:#57606a}
+
+/* Diagrama de Flujo */
+.flow-diagram{display:flex;flex-direction:column;gap:6px;margin:16px 0 20px}
+.flow-step{background:#f7f8fa;border:1px solid #e5e7eb;border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:12px}
+.flow-num{background:#3b82d4;color:#fff;font-weight:700;font-size:11px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.flow-text strong{display:block;font-size:12px;color:#1f2328}
+.flow-text span{font-size:11px;color:#57606a}
+
+/* Árbol y Código */
+.tree{background:#1e1e1e;border-radius:6px;padding:14px 16px;font-family:"Cascadia Code",Consolas,monospace;font-size:12px;color:#d4d4d4;margin-bottom:16px;overflow-x:auto;line-height:1.7}
+.tree .new{color:#4ec9b0}.tree .mod{color:#dcdcaa}.tree .com{color:#6a9955}
+
+pre{background:#1e1e1e;border-radius:6px;padding:14px 16px;font-family:"Cascadia Code",Consolas,monospace;font-size:12px;color:#d4d4d4;overflow-x:auto;margin-bottom:16px;line-height:1.6}
+.kw{color:#569cd6}.ann{color:#dcdcaa}.str{color:#ce9178}.com{color:#6a9955}
+.cls{color:#4ec9b0}.met{color:#dcdcaa}.num{color:#b5cea8}
+code{font-family:"Cascadia Code",Consolas,monospace;font-size:11px;background:#f7f8fa;padding:1px 5px;border-radius:3px;color:#1d4ed8}
+
+/* Conceptos Tutorial */
+.concepto{margin-bottom:24px}
+.concepto-tag{display:inline-block;background:#3b82d4;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;margin-bottom:8px}
+.concepto p{font-size:13px;color:#57606a;margin-bottom:10px;line-height:1.6}
+
+/* Hallazgo y Solución */
+.finding{background:#fef9c3;border:1px solid #fde68a;border-radius:6px;padding:12px 14px;margin-bottom:8px}
+.finding h4{font-size:12px;font-weight:700;color:#92400e;margin-bottom:4px}
+.finding p{font-size:12px;color:#78350f;line-height:1.5}
+.solution{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:12px 14px;margin-bottom:16px}
+.solution h4{font-size:12px;font-weight:700;color:#15803d;margin-bottom:4px}
+.solution p{font-size:12px;color:#166534;line-height:1.5}
+
+/* Checklist */
+.cl-group{margin-bottom:18px}
+.cl-title{font-size:12px;font-weight:800;color:#57606a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #f0f0f0}
+.cl-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.ci{display:flex;align-items:center;gap:7px;padding:3px 0;font-size:12px}
+.ck-done{width:17px;height:17px;border-radius:3px;background:#dcfce7;color:#15803d;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.ck-pend{width:17px;height:17px;border-radius:3px;background:#f7f8fa;border:1px solid #e5e7eb;flex-shrink:0}
+
+/* Relaciones */
+.rel{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.rel-item{display:flex;align-items:flex-start;gap:10px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:5px;padding:9px 12px;font-size:12px}
+.rel-from{font-weight:700;color:#3b82d4;white-space:nowrap;min-width:180px}
+.rel-arrow{color:#9ca3af;flex-shrink:0;padding-top:1px}
+.rel-desc{color:#57606a;line-height:1.5}
+
+/* Próxima fase */
+.next{background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;padding:14px 16px;margin-top:24px}
+.next h4{font-size:13px;font-weight:700;color:#0369a1;margin-bottom:8px}
+.next ul{margin-left:18px;font-size:12px;color:#0c4a6e;line-height:1.8}
+
+footer{margin-top:48px;padding-top:16px;border-top:1px solid #e5e7eb;text-align:center;font-size:12px;color:#57606a}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="header">
+  <h1>⚙️ TaskFlow — Fase 7: Maven, Docker &amp; CI/CD</h1>
+  <div class="header-meta">Proyecto: TaskFlow API REST  |  Fase: 7 de 9  |  Fecha: 19/10/2026  |  Estado: COMPLETADA ✅</div>
+  <div class="badge-row">
+    <span class="badge b-orange">Java 21</span>
+    <span class="badge b-green">Spring Boot 4.1.1</span>
+    <span class="badge b-blue">Docker Multi-Stage</span>
+    <span class="badge b-blue">docker-compose</span>
+    <span class="badge b-purple">PostgreSQL 16 Alpine</span>
+    <span class="badge b-purple">GitHub Actions</span>
+    <span class="badge b-gray">Flyway Migrations</span>
+  </div>
+</div>
+
+<div class="intro">
+  <strong>Enunciado General del Proyecto (TaskFlow):</strong><br />
+  TaskFlow es una API REST empresarial para la gestión y categorización de tareas personales y de trabajo. Permite operaciones CRUD completas, estados controlados, prioridades, filtrado dinámico mediante Specifications, paginación, auditoría automática de fechas, autenticación/autorización mediante tokens JWT sin estado (stateless) y documentación automática con OpenAPI 3 / Swagger.
+</div>
+
+<h2>📊 Estado del Proyecto</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Fase</th>
+      <th>Tema Central</th>
+      <th>Estado</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Fase 1</td><td>Java Moderno — POO, Records, Enums, Streams, Lambdas, Optional</td><td>✅ Completada</td></tr>
+    <tr><td>Fase 2</td><td>Spring Boot Core — IoC, DI, Profiles, Actuator, @ConfigurationProperties</td><td>✅ Completada</td></tr>
+    <tr><td>Fase 3</td><td>REST API — DTOs, Validación, Swagger/OpenAPI, CORS, Exception Handling</td><td>✅ Completada</td></tr>
+    <tr><td>Fase 4</td><td>Spring Data JPA — Entidades, Repositorios, Flyway, H2, PostgreSQL</td><td>✅ Completada</td></tr>
+    <tr><td>Fase 5</td><td>Spring Security + JWT — Autenticación y Autorización por Roles</td><td>✅ Completada</td></tr>
+    <tr><td>Fase 6</td><td>Testing con JUnit 5 + Mockito — 35 tests (Unit, JPA, WebMvc, E2E)</td><td>✅ Completada</td></tr>
+    <tr><td><strong>Fase 7</strong></td><td><strong>Maven Lifecycle + Docker Multi-stage + docker-compose + GitHub Actions</strong></td><td><strong>✅ COMPLETADA</strong></td></tr>
+    <tr><td>Fase 8</td><td>Cloud AWS Básico — EC2, RDS, ECR, Elastic Beanstalk, CloudWatch</td><td>⬜ Pendiente</td></tr>
+    <tr><td>Fase 9</td><td>Kubernetes — Pods, Deployments, Services, Ingress, EKS</td><td>⬜ Pendiente</td></tr>
+  </tbody>
+</table>
+
+<h2>🏗️ ¿Qué se construyó en esta fase?</h2>
+<div class="result-hero">
+  <div class="result-big">UP</div>
+  <div class="result-info">
+    <strong>Stack Completo Operacional en Contenedores</strong>
+    <span>Docker Multi-stage Build • PostgreSQL 16 Alpine • Flyway V1-V3 • Actuator UP • GitHub Actions CI</span>
+  </div>
+</div>
+
+<div class="tree">
+<span class="com"># Estructura agregada y configurada en la Fase 7:</span>
+.github/
+└── workflows/
+    └── <span class="new">ci.yml</span>               <span class="com">← Pipeline CI en GitHub Actions (Java 21, test, docker build)</span>
+<span class="new">README.md</span>                   <span class="com">← Portafolio con Badges, arquitectura, guía Docker y endpoints</span>
+taskflow/
+├── <span class="new">Dockerfile</span>              <span class="com">← Multi-stage build (Builder: JDK 21 Alpine → Runtime: JRE 21)</span>
+├── <span class="new">docker-compose.yml</span>      <span class="com">← Orquestación local: App + PostgreSQL 16 con healthcheck</span>
+├── <span class="new">.dockerignore</span>           <span class="com">← Exclusión de target/, .git/, logs/ y caches de build</span>
+└── src/main/resources/
+    └── <span class="mod">application-prod.yml</span> <span class="com">← Configuración para PostgreSQL real + Flyway (ddl-auto: none)</span>
+</div>
+
+<h2>📚 Conceptos Aplicados — Tutorial</h2>
+
+<div class="concepto">
+  <span class="concepto-tag">1. Maven Lifecycle &amp; Fat JAR</span>
+  <p>Maven gestiona el ciclo de vida del proyecto mediante fases estándar (<code>compile → test → package</code>). Con el plugin <code>spring-boot-maven-plugin</code>, la fase <code>package</code> genera un <strong>Fat JAR</strong> (o Uber JAR) que incluye las clases compiladas y todas las dependencias embebidas junto con Tomcat.</p>
+</div>
+
+<div class="concepto">
+  <span class="concepto-tag">2. Docker Multi-Stage Build</span>
+  <p>El enfoque multi-etapa divide la creación de la imagen en dos entornos aislados:</p>
+  <div class="flow-diagram">
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <div class="flow-text">
+        <strong>Stage 1 (Builder - eclipse-temurin:21-jdk-alpine)</strong>
+        <span>Descarga dependencias Maven en capa cacheada y compila el Fat JAR mediante <code>./mvnw clean package -DskipTests</code>.</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <div class="flow-text">
+        <strong>Stage 2 (Runtime - eclipse-temurin:21-jre-alpine)</strong>
+        <span>Solo copia el artefacto <code>app.jar</code> generado. Crea un usuario no-root <code>appuser</code> por seguridad y define límites de memoria JVM con <code>JAVA_OPTS</code>.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="concepto">
+  <span class="concepto-tag">3. Orquestación con Docker Compose</span>
+  <p>Define una red privada virtual (<code>taskflow-network</code>) donde la API resuelve a la base de datos por su nombre de servicio <code>postgres-db:5432</code>. Implementa un <code>healthcheck</code> mediante <code>pg_isready</code> para garantizar que PostgreSQL esté listo antes de arrancar la aplicación Spring Boot.</p>
+</div>
+
+<div class="concepto">
+  <span class="concepto-tag">4. Automatización CI/CD con GitHub Actions</span>
+  <p>El archivo <code>.github/workflows/ci.yml</code> ejecuta en cada <code>push</code> y <code>pull request</code> sobre la rama <code>main</code> un runner Ubuntu con Java 21 Temurin, ejecutando los 35 tests automatizados y validando la construcción de la imagen Docker.</p>
+</div>
+
+<h2>⚠️ Hallazgo Técnico Crítico y Solución</h2>
+<div class="finding">
+  <h4>Problema: SchemaManagementException: missing table [tasks] en arranque PostgreSQL</h4>
+  <p>En el perfil de producción inicial se definió <code>ddl-auto: validate</code>. Al arrancar un contenedor nuevo de PostgreSQL vacío, Hibernate ejecutó la validación del esquema <strong>antes</strong> de que Flyway aplicara las migraciones SQL (<code>V1__crear_tablas.sql</code>), causando que el contenedor de la aplicación fallara y entrara en bucle de reinicio.</p>
+</div>
+<div class="solution">
+  <h4>Solución: Otorgar control exclusivo del esquema a Flyway con ddl-auto: none</h4>
+  <p>Se modificó <code>spring.jpa.hibernate.ddl-auto=none</code> en <code>application-prod.yml</code>. De este modo, Flyway ejecuta las migraciones <code>V1</code>, <code>V2</code> y <code>V3</code> de forma atómica y ordenada al inicio, garantizando la creación de tablas, índices y secuencias sin colisión con Hibernate.</p>
+</div>
+
+<h2>✅ Checklist de Conceptos Acumulados</h2>
+
+<div class="cl-group">
+  <div class="cl-title">☕ Java Moderno &amp; Spring Boot Core</div>
+  <div class="cl-grid">
+    <div class="ci"><div class="ck-done">✓</div> POO, Herencia e Interfaces</div>
+    <div class="ci"><div class="ck-done">✓</div> Records &amp; Enums con lógica</div>
+    <div class="ci"><div class="ck-done">✓</div> Streams, Lambdas &amp; Optional</div>
+    <div class="ci"><div class="ck-done">✓</div> Inyección por Constructor (DI/IoC)</div>
+    <div class="ci"><div class="ck-done">✓</div> Profiles (dev / prod)</div>
+    <div class="ci"><div class="ck-done">✓</div> Actuator Health &amp; Metrics</div>
+  </div>
+</div>
+
+<div class="cl-group">
+  <div class="cl-title">🌐 REST API, Persistencia &amp; Seguridad</div>
+  <div class="cl-grid">
+    <div class="ci"><div class="ck-done">✓</div> CRUD HTTP (GET, POST, PUT, PATCH, DELETE)</div>
+    <div class="ci"><div class="ck-done">✓</div> DTOs &amp; Bean Validation</div>
+    <div class="ci"><div class="ck-done">✓</div> Spring Data JPA &amp; Specifications</div>
+    <div class="ci"><div class="ck-done">✓</div> Flyway Migraciones Versionadas</div>
+    <div class="ci"><div class="ck-done">✓</div> Spring Security &amp; Stateless JWT</div>
+    <div class="ci"><div class="ck-done">✓</div> OpenAPI 3 / Swagger UI</div>
+  </div>
+</div>
+
+<div class="cl-group">
+  <div class="cl-title">🧪 Testing &amp; ⚙️ DevOps (Fase 6 + Fase 7)</div>
+  <div class="cl-grid">
+    <div class="ci"><div class="ck-done">✓</div> JUnit 5 &amp; Mockito Unit Tests</div>
+    <div class="ci"><div class="ck-done">✓</div> @WebMvcTest &amp; @DataJpaTest Slices</div>
+    <div class="ci"><div class="ck-done">✓</div> @SpringBootTest E2E Flow (35 tests)</div>
+    <div class="ci"><div class="ck-done">✓</div> Maven Lifecycle &amp; Fat JAR</div>
+    <div class="ci"><div class="ck-done">✓</div> Dockerfile Multi-Stage Build</div>
+    <div class="ci"><div class="ck-done">✓</div> docker-compose (App + PostgreSQL)</div>
+    <div class="ci"><div class="ck-done">✓</div> Non-root container security (appuser)</div>
+    <div class="ci"><div class="ck-done">✓</div> GitHub Actions CI Workflow</div>
+  </div>
+</div>
+
+<div class="cl-group">
+  <div class="cl-title">☁️ Próximas Fases (Pendientes)</div>
+  <div class="cl-grid">
+    <div class="ci"><div class="ck-pend"></div> AWS EC2, RDS &amp; ECR (Fase 8)</div>
+    <div class="ci"><div class="ck-pend"></div> AWS CloudWatch &amp; Secrets Manager (Fase 8)</div>
+    <div class="ci"><div class="ck-pend"></div> Kubernetes Pods, Deployments &amp; Services (Fase 9)</div>
+    <div class="ci"><div class="ck-pend"></div> Kubernetes Ingress, HPA &amp; EKS (Fase 9)</div>
+  </div>
+</div>
+
+<h2>🔗 Relación entre los Conceptos Aplicados</h2>
+<div class="rel">
+  <div class="rel-item">
+    <div class="rel-from">Maven Wrapper (<code>mvnw</code>)</div>
+    <div class="rel-arrow">→</div>
+    <div class="rel-desc">Garantiza reproducibilidad idéntica tanto en local, como dentro del contenedor Docker y en el runner de GitHub Actions sin requerir Maven preinstalado.</div>
+  </div>
+  <div class="rel-item">
+    <div class="rel-from">Multi-Stage Dockerfile</div>
+    <div class="rel-arrow">→</div>
+    <div class="rel-desc">Aísla el código fuente y el compilador JDK en la etapa <code>builder</code>, entregando una imagen final en base a <code>JRE Alpine</code> ligera y sin herramientas innecesarias.</div>
+  </div>
+  <div class="rel-item">
+    <div class="rel-from">Docker Compose Healthcheck</div>
+    <div class="rel-arrow">→</div>
+    <div class="rel-desc">Garantiza que PostgreSQL acepte conexiones de red antes de que Spring Boot arranque, sincronizando el orden de inicialización con Flyway.</div>
+  </div>
+  <div class="rel-item">
+    <div class="rel-from">Spring Profile <code>prod</code></div>
+    <div class="rel-arrow">→</div>
+    <div class="rel-desc">Inyecta dinámicamente las credenciales de PostgreSQL y el secreto JWT mediante variables de entorno en el contenedor.</div>
+  </div>
+</div>
+
+<h2>🎯 Resultados Verificados</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Componente / Prueba</th>
+      <th>Mecanismo de Validación</th>
+      <th>Resultado</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Maven Build &amp; Tests</td><td><code>.\mvnw clean package</code></td><td>✅ 35/35 Tests pasando • BUILD SUCCESS</td></tr>
+    <tr><td>Docker Image Build</td><td><code>docker build -t taskflow-api:latest .</code></td><td>✅ Multi-stage optimizado (JRE Alpine)</td></tr>
+    <tr><td>PostgreSQL Container</td><td><code>docker-compose up -d</code></td><td>✅ Up (healthy) en puerto 5432 con volumen persistente</td></tr>
+    <tr><td>Flyway en PostgreSQL</td><td>Migraciones automáticas al arranque</td><td>✅ V1 (tablas), V2 (datos), V3 (seguridad) aplicadas</td></tr>
+    <tr><td>Spring Actuator Health</td><td><code>GET http://localhost:8080/actuator/health</code></td><td>✅ <code>{"estado": "UP", "grupos": ["viveza", "disposición"]}</code></td></tr>
+    <tr><td>Swagger Documentation</td><td><code>http://localhost:8080/swagger-ui.html</code></td><td>✅ OpenAPI 3 accesible y documentado</td></tr>
+  </tbody>
+</table>
+
+<div class="next">
+  <h4>⏭️ Próxima Fase: Grupo 8 — Cloud Básico AWS</h4>
+  <ul>
+    <li>Arquitectura en la nube: Configuración de IAM, VPC y Security Groups.</li>
+    <li>Base de datos administrada en AWS RDS PostgreSQL.</li>
+    <li>Registro privado de imágenes Docker en AWS ECR.</li>
+    <li>Despliegue de la API en AWS EC2 / Elastic Beanstalk con monitoreo en CloudWatch.</li>
+  </ul>
+</div>
+
+<footer>
+  TaskFlow API • Fase 7 completada • Java 21 + Spring Boot 4.1.1 + Docker + CI/CD
+  <div style="margin-top:8px;font-size:11px;color:#8c959f;border-top:1px solid #f0f0f0;padding-top:8px">Made with IBM Bob</div>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: taskflow
+  profiles:
+    active: dev
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+  datasource:
+    url: jdbc:h2:mem:taskflowdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+taskflow:
+  app:
+    nombre: "TaskFlow API"
+    version: "4.0.0"
+    mensaje-bienvenida: "Bienvenido a TaskFlow - Gestion de Tareas REST API"
+  security:
+    jwt-secret: "taskflow-secret-key-must-be-at-least-256-bits-long-for-hs256!!"
+    jwt-expiration: 86400000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env
+  endpoint:
+    health:
+      show-details: always
+
+info:
+  app:
+    nombre: TaskFlow
+    version: 4.0.0
+    descripcion: "API REST de gestion de tareas"
+    fase: "Fase 5 - Spring Security + JWT"
+
+logging:
+  level:
+    com.taskflow: DEBUG
+    org.flywaydb: DEBUG

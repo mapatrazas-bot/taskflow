@@ -1,0 +1,476 @@
+
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TaskFlow — Fase 5: Spring Security + JWT</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; font-size: 14px; line-height: 1.6; background: #ffffff; color: #1f2328; }
+  .container { max-width: 760px; margin: 0 auto; padding: 32px 24px; }
+
+  /* Header */
+  .header { border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 28px; }
+  .header h1 { font-size: 22px; font-weight: 700; color: #1f2328; margin-bottom: 4px; }
+  .header .meta { color: #57606a; font-size: 13px; margin-bottom: 12px; }
+  .header .desc { color: #57606a; font-size: 13px; }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .badge { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 4px; padding: 2px 8px; font-size: 12px; color: #57606a; }
+  .badge.green { background: #e6f4ea; border-color: #a8d5b0; color: #1a7f37; }
+
+  /* Estado del proyecto */
+  .section { margin-bottom: 32px; }
+  .section h2 { font-size: 16px; font-weight: 700; color: #1f2328; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; }
+  .section h3 { font-size: 14px; font-weight: 700; color: #1f2328; margin: 20px 0 8px; }
+  .section h4 { font-size: 13px; font-weight: 700; color: #3b82d4; margin: 16px 0 6px; }
+
+  table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 13px; }
+  th { background: #f7f8fa; border: 1px solid #e5e7eb; padding: 7px 10px; text-align: left; font-weight: 600; color: #57606a; }
+  td { border: 1px solid #e5e7eb; padding: 7px 10px; }
+  tr:hover td { background: #fafbfc; }
+  .ok { color: #1a7f37; font-weight: 600; }
+  .pending { color: #57606a; }
+
+  /* Código */
+  pre { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px; overflow-x: auto; margin: 10px 0; font-size: 12px; line-height: 1.5; }
+  code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; background: #f7f8fa; padding: 1px 4px; border-radius: 3px; border: 1px solid #e5e7eb; }
+
+  /* Árbol de archivos */
+  .file-tree { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px; font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; line-height: 1.8; }
+  .new { color: #1a7f37; font-weight: 600; }
+  .mod { color: #9a6700; font-weight: 600; }
+
+  /* Concepto box */
+  .concept { border-left: 3px solid #3b82d4; padding: 10px 14px; margin: 12px 0; background: #f7f8fa; border-radius: 0 6px 6px 0; }
+  .concept p { margin: 0; font-size: 13px; color: #1f2328; }
+
+  /* Checklist */
+  .checklist { list-style: none; margin: 8px 0; }
+  .checklist li { padding: 3px 0; font-size: 13px; }
+  .checklist li::before { content: "✅ "; }
+  .checklist li.pending::before { content: "⬜ "; }
+
+  /* Flujo */
+  .flow { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px; text-align: center; font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; line-height: 2; }
+  .flow .arrow { color: #3b82d4; font-weight: 700; }
+
+  /* Relaciones */
+  .relation { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+  .rel-from { font-weight: 600; color: #3b82d4; min-width: 200px; }
+  .rel-arrow { color: #57606a; }
+  .rel-desc { color: #1f2328; }
+
+  /* Resultados */
+  .result-table td:nth-child(4) { font-weight: 600; }
+  .pass { color: #1a7f37; }
+  .fail { color: #cf222e; }
+
+  /* Nota técnica */
+  .note { background: #fff8e6; border: 1px solid #f0c040; border-radius: 6px; padding: 10px 14px; font-size: 13px; margin: 10px 0; }
+  .note strong { color: #9a6700; }
+
+  /* Footer */
+  .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #57606a; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  
+  <div class="header">
+    <h1>🔐 TaskFlow — Fase 5: Spring Security + JWT</h1>
+    <div class="meta">Proyecto: TaskFlow API REST  |  Fase: 5 de 9  |  Fecha: 31/08/2026  |  Estado: <strong style="color:#1a7f37">COMPLETADA ✅</strong></div>
+    <div class="desc">API REST de gestión de tareas construida con Java 21 + Spring Boot 4.1.1. Proyecto de aprendizaje progresivo que cubre el stack Java empresarial completo, útil como portafolio en GitHub y referencia para entrevistas técnicas.</div>
+    <div class="badge-row">
+      <span class="badge green">Spring Security 6.4</span>
+      <span class="badge green">JJWT 0.12.6</span>
+      <span class="badge green">BCrypt</span>
+      <span class="badge green">JWT</span>
+      <span class="badge">H2 Database</span>
+      <span class="badge">Flyway 12.4</span>
+      <span class="badge">Java 21</span>
+      <span class="badge">Spring Boot 4.1.1</span>
+    </div>
+  </div>
+
+  
+  <div class="section">
+    <h2>📊 Estado del Proyecto</h2>
+    <table>
+      <tr><th>Fase</th><th>Tema</th><th>Estado</th></tr>
+      <tr><td>Fase 1</td><td>Java Moderno — POO, Records, Enums, Streams, Lambdas, Optional</td><td class="ok">✅ Completada</td></tr>
+      <tr><td>Fase 2</td><td>Spring Boot Core — IoC, DI, Profiles, Actuator, @ConfigurationProperties</td><td class="ok">✅ Completada</td></tr>
+      <tr><td>Fase 3</td><td>REST API — DTOs, Validación, Swagger/OpenAPI, CORS, Exception Handling</td><td class="ok">✅ Completada</td></tr>
+      <tr><td>Fase 4</td><td>Spring Data JPA — Entidades, Repositorios, Flyway, H2, PostgreSQL</td><td class="ok">✅ Completada</td></tr>
+      <tr><td><strong>Fase 5</strong></td><td><strong>Spring Security + JWT — Autenticación y Autorización</strong></td><td class="ok"><strong>✅ Completada</strong></td></tr>
+      <tr><td>Fase 6</td><td>JUnit 5 + Mockito — Pruebas unitarias e integración</td><td class="pending">⬜ Pendiente</td></tr>
+      <tr><td>Fase 7</td><td>Docker + Maven + GitHub + CI/CD</td><td class="pending">⬜ Pendiente</td></tr>
+      <tr><td>Fase 8</td><td>AWS básico</td><td class="pending">⬜ Pendiente</td></tr>
+      <tr><td>Fase 9</td><td>Kubernetes</td><td class="pending">⬜ Pendiente</td></tr>
+    </table>
+  </div>
+
+  
+  <div class="section">
+    <h2>🏗️ ¿Qué se construyó en esta fase?</h2>
+    <p style="margin-bottom:12px;font-size:13px">Se agregó autenticación y autorización completa a TaskFlow. Hasta la Fase 4 cualquier persona podía acceder a todos los endpoints sin identificarse. En esta fase protegemos la API con Spring Security + JWT: los usuarios deben registrarse, hacer login para obtener un token, y enviarlo en cada petición. Se implementaron roles <strong>USER</strong> y <strong>ADMIN</strong> con control de acceso diferenciado.</p>
+    <div class="file-tree">
+src/main/java/com/taskflow/<br />
+├── security/<br />
+│   ├── <span class="new">JwtService.java              ← NUEVO: genera y valida tokens JWT</span><br />
+│   ├── <span class="new">JwtAuthenticationFilter.java ← NUEVO: intercepta cada request</span><br />
+│   ├── <span class="new">SecurityConfig.java          ← NUEVO: reglas de seguridad HTTP</span><br />
+│   └── <span class="new">UserDetailsServiceImpl.java  ← NUEVO: carga usuario desde BD</span><br />
+├── entity/<br />
+│   └── <span class="mod">UserEntity.java              ← MOD: implementa UserDetails, añade password y rol</span><br />
+├── controller/<br />
+│   └── <span class="new">AuthController.java          ← NUEVO: POST /auth/register y /auth/login</span><br />
+├── dto/request/<br />
+│   ├── <span class="new">RegisterRequest.java         ← NUEVO: DTO de registro</span><br />
+│   └── <span class="new">LoginRequest.java            ← NUEVO: DTO de login</span><br />
+└── dto/response/<br />
+    └── <span class="new">AuthResponse.java            ← NUEVO: DTO respuesta con token JWT</span><br />
+src/main/resources/<br />
+└── db/migration/<br />
+    └── <span class="new">V3__agregar_seguridad.sql    ← NUEVO: columnas password y rol en users</span>
+    </div>
+  </div>
+
+  
+  <div class="section">
+    <h2>📚 Conceptos Aplicados — Tutorial</h2>
+
+    <h3>1. Spring Security — ¿Qué es?</h3>
+    <div class="concept"><p>Spring Security es el framework de seguridad estándar para aplicaciones Spring. Funciona como una <strong>cadena de filtros HTTP</strong> que intercepta cada request antes de que llegue al controller. En Spring Boot 3+/4 se configura con <code>SecurityFilterChain</code> en lugar del antiguo <code>WebSecurityConfigurerAdapter</code>.</p></div>
+    <pre>// SecurityConfig.java — reglas de acceso por URL
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(AbstractHttpConfigurer::disable)  // JWT es stateless, no necesita CSRF
+        .authorizeHttpRequests(auth -&gt; auth
+            .requestMatchers("/auth/**").permitAll()          // público
+            .requestMatchers("/swagger-ui/**").permitAll()    // público
+            .requestMatchers("/actuator/health").permitAll()  // público
+            .requestMatchers(HttpMethod.DELETE, "/api/tareas/**").hasRole("ADMIN")
+            .anyRequest().authenticated()                     // resto requiere token
+        )
+        .sessionManagement(s -&gt;
+            s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // sin sesiones
+        .addFilterBefore(jwtAuthFilter,
+            UsernamePasswordAuthenticationFilter.class);
+    return http.build();
+}</pre>
+
+    <h3>2. JWT — JSON Web Token</h3>
+    <div class="concept"><p>JWT es un estándar (RFC 7519) para transmitir información de forma segura como un objeto JSON firmado. Es <strong>stateless</strong>: el servidor no guarda estado de sesión, toda la información necesaria está dentro del token.</p></div>
+    <p style="font-size:13px;margin:8px 0"><strong>Estructura de un JWT:</strong></p>
+    <pre>eyJhbGciOiJIUzM4NCJ9          ← HEADER  (algoritmo: HS384)
+.eyJyb2wiOiJST0xFX1VTRVIi... ← PAYLOAD (email, rol, expiración)
+.spbsgbe3JcA6B1_n56m27UQ...  ← SIGNATURE (HMAC firmado con clave secreta)</pre>
+    <pre>// JwtService.java — generación del token
+public String generarToken(UserDetails userDetails) {
+    Map&lt;String, Object&gt; claims = new HashMap&lt;&gt;();
+    claims.put("rol", userDetails.getAuthorities()
+            .stream().findFirst()
+            .map(Object::toString).orElse("ROLE_USER"));
+
+    return Jwts.builder()
+            .claims(claims)
+            .subject(userDetails.getUsername())    // email del usuario
+            .issuedAt(new Date())                  // cuándo se emitió
+            .expiration(new Date(
+                System.currentTimeMillis() + jwtExpiration)) // expira en 24h
+            .signWith(getSigningKey())              // firma con HMAC-SHA
+            .compact();
+}
+
+// Validación del token
+public boolean esTokenValido(String token, UserDetails userDetails) {
+    final String email = extraerEmail(token);
+    return email.equals(userDetails.getUsername()) &amp;&amp; !estaExpirado(token);
+}</pre>
+
+    <h3>3. BCrypt — Hash seguro de contraseñas</h3>
+    <div class="concept"><p>BCrypt es un algoritmo de hash unidireccional diseñado específicamente para contraseñas. Es <strong>lento por diseño</strong> (factor de costo configurable), resistente a ataques de fuerza bruta. Genera un <strong>salt aleatorio</strong> por cada hash — dos passwords iguales dan hashes distintos. Es <strong>unidireccional</strong> — nunca se puede revertir al texto original.</p></div>
+    <pre>// SecurityConfig.java
+@Bean
+public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder(); // factor de costo 10 por defecto (~100ms/hash)
+}
+
+// AuthController.java — registro con hash
+UserEntity usuario = new UserEntity(
+    request.nombre(),
+    request.email(),
+    passwordEncoder.encode(request.password()), // NUNCA texto plano
+    UserEntity.Rol.USER
+);</pre>
+
+    <h3>4. UserDetails y UserDetailsService</h3>
+    <div class="concept"><p>Spring Security necesita un contrato estándar para representar al usuario autenticado. <code>UserDetails</code> es la interfaz que define ese contrato. Al implementarla en <code>UserEntity</code>, nuestra entidad JPA se convierte directamente en el objeto de seguridad sin clases intermedias.</p></div>
+    <pre>// UserEntity.java — implementa UserDetails
+@Entity
+@Table(name = "users")
+public class UserEntity implements UserDetails {
+
+    @Enumerated(EnumType.STRING)
+    private Rol rol;  // USER o ADMIN
+
+    public enum Rol { USER, ADMIN }
+
+    @Override
+    public Collection&lt;? extends GrantedAuthority&gt; getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + rol.name()));
+        // Rol.ADMIN → "ROLE_ADMIN" | Rol.USER → "ROLE_USER"
+    }
+
+    @Override
+    public String getUsername() { return email; } // usamos email como username
+}
+
+// UserDetailsServiceImpl.java — carga usuario desde BD
+@Service
+public class UserDetailsServiceImpl implements UserDetailsService {
+    @Override
+    public UserDetails loadUserByUsername(String email) {
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -&gt; new UsernameNotFoundException(
+                "Usuario no encontrado: " + email));
+    }
+}</pre>
+
+    <h3>5. JwtAuthenticationFilter — Interceptor de requests</h3>
+    <div class="concept"><p>Este filtro se ejecuta en <strong>cada request HTTP</strong> antes de que llegue al controller. Extiende <code>OncePerRequestFilter</code> — garantiza ejecución exactamente una vez por request. Extrae el token del header <code>Authorization: Bearer &lt;token&gt;</code>, lo valida y registra al usuario en el <code>SecurityContext</code>.</p></div>
+    <pre>@Component
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+            HttpServletResponse response, FilterChain filterChain) {
+
+        final String authHeader = request.getHeader("Authorization");
+
+        // Sin token → continuar sin autenticar (llegará al 401)
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        final String jwt = authHeader.substring(7); // quitar "Bearer "
+        final String email = jwtService.extraerEmail(jwt);
+
+        if (email != null &amp;&amp;
+            SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            if (jwtService.esTokenValido(jwt, userDetails)) {
+                // Token válido → usuario autenticado para este request
+                UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
+        filterChain.doFilter(request, response);
+    }
+}</pre>
+
+    <h3>6. AuthController — Registro y Login</h3>
+    <div class="concept"><p>Endpoints <strong>públicos</strong> — no requieren token. El registro hashea la contraseña con BCrypt antes de guardarla. El login usa <code>AuthenticationManager</code> para verificar credenciales contra la BD + BCrypt automáticamente.</p></div>
+    <pre>// POST /auth/register → 201 Created + JWT
+@PostMapping("/register")
+public ResponseEntity&lt;AuthResponse&gt; register(@Valid @RequestBody RegisterRequest request) {
+    if (userRepository.findByEmail(request.email()).isPresent()) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).build(); // 409
+    }
+    UserEntity usuario = new UserEntity(
+        request.nombre(), request.email(),
+        passwordEncoder.encode(request.password()), // BCrypt hash
+        UserEntity.Rol.USER
+    );
+    userRepository.save(usuario);
+    String token = jwtService.generarToken(usuario);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(AuthResponse.of(token, usuario.getEmail(),
+              usuario.getRol().name(), 86400000L));
+}
+
+// POST /auth/login → 200 OK + JWT
+@PostMapping("/login")
+public ResponseEntity&lt;AuthResponse&gt; login(@Valid @RequestBody LoginRequest request) {
+    Authentication auth = authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+    UserEntity usuario = (UserEntity) auth.getPrincipal();
+    String token = jwtService.generarToken(usuario);
+    return ResponseEntity.ok(AuthResponse.of(token, usuario.getEmail(),
+           usuario.getRol().name(), 86400000L));
+}</pre>
+
+    <h3>7. Migración Flyway V3 — Agregar seguridad a la BD</h3>
+    <div class="note"><strong>⚠️ Nota técnica:</strong> El hash BCrypt del DEFAULT en V3 corresponde a <code>admin123</code> — generado por la propia aplicación Spring para garantizar su validez.</div>
+    <pre>-- V3__agregar_seguridad.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password VARCHAR(255) NOT NULL
+    DEFAULT '$2a$10$gQbaHGnxnHd/6lcbAfdlE.l.81vqysdVpqVpk2IqqpCji2uAPzaXu';
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS rol VARCHAR(20) NOT NULL DEFAULT 'USER';
+
+UPDATE users SET
+    password = '$2a$10$gQbaHGnxnHd/6lcbAfdlE.l.81vqysdVpqVpk2IqqpCji2uAPzaXu',
+    rol = 'ADMIN'
+WHERE email = 'ana@taskflow.com';</pre>
+
+    <h3>8. Manejo de errores 401 y 403</h3>
+    <pre>// SecurityConfig.java — respuestas JSON personalizadas
+.exceptionHandling(ex -&gt; ex
+    .authenticationEntryPoint((request, response, e) -&gt; {
+        // Sin token o token inválido → 401
+        response.setStatus(401);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(
+            "{\"status\":401,\"error\":\"No autenticado\"," +
+            "\"mensaje\":\"Se requiere token JWT.\"}");
+    })
+    .accessDeniedHandler((request, response, e) -&gt; {
+        // Token válido pero sin el rol necesario → 403
+        response.setStatus(403);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(
+            "{\"status\":403,\"error\":\"Acceso denegado\"," +
+            "\"mensaje\":\"No tienes permisos para esta operación\"}");
+    })
+)</pre>
+  </div>
+
+  
+  <div class="section">
+    <h2>✅ Checklist de Conceptos Aplicados</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <h4>☕ Java / Spring Boot (acumulado)</h4>
+        <ul class="checklist">
+          <li>POO — Clases y objetos</li>
+          <li>Herencia e interfaces (UserDetails, UserDetailsService)</li>
+          <li>Generics (Function&lt;Claims, T&gt; en JwtService)</li>
+          <li>Lambdas (Streams en getAuthorities)</li>
+          <li>Optional (findByEmail())</li>
+          <li>Enums con comportamiento (UserEntity.Rol)</li>
+          <li>Records (RegisterRequest, LoginRequest, AuthResponse)</li>
+          <li>Fecha/hora (new Date(), expiración JWT)</li>
+          <li>IoC / DI — inyección por constructor</li>
+          <li>@Configuration / @Bean</li>
+          <li>Profiles (dev/prod)</li>
+          <li>Actuator (health público, resto protegido)</li>
+        </ul>
+      </div>
+      <div>
+        <h4>🔐 Spring Security + JWT — Fase 5</h4>
+        <ul class="checklist">
+          <li>SecurityFilterChain (Spring Boot 3+/4)</li>
+          <li>UserDetails y UserDetailsService</li>
+          <li>BCryptPasswordEncoder</li>
+          <li>Registro de usuarios (POST /auth/register)</li>
+          <li>Login con credenciales (POST /auth/login)</li>
+          <li>Roles: USER / ADMIN</li>
+          <li>Generación de tokens JWT (JJWT 0.12.6)</li>
+          <li>JwtAuthenticationFilter (OncePerRequestFilter)</li>
+          <li>Validación y expiración del token</li>
+          <li>Endpoints públicos vs protegidos</li>
+          <li>Control por roles (hasRole("ADMIN"))</li>
+          <li>Respuestas 401 / 403 personalizadas</li>
+          <li>STATELESS (sin sesiones HTTP)</li>
+        </ul>
+        <h4 style="margin-top:16px">⬜ Pendientes próximas fases</h4>
+        <ul class="checklist">
+          <li class="pending">JUnit 5 + Mockito</li>
+          <li class="pending">Docker + CI/CD</li>
+          <li class="pending">AWS / Kubernetes</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="section">
+    <h2>🏛️ Arquitectura — Flujo de Seguridad</h2>
+    <div class="flow">
+      HTTP Request<br />
+      <span class="arrow">↓</span><br />
+      JwtAuthenticationFilter   <span style="color:#57606a">← intercepta CADA request, extrae y valida el token</span><br />
+      <span class="arrow">↓</span><br />
+      SecurityContextHolder   <span style="color:#57606a">← registra el usuario autenticado</span><br />
+      <span class="arrow">↓</span><br />
+      SecurityFilterChain   <span style="color:#57606a">← verifica permisos por URL y rol</span><br />
+      <span class="arrow">↓ (público → permite | auth → valida | ADMIN → verifica rol)</span><br />
+      Controller (AuthController / TaskController)<br />
+      <span class="arrow">↓</span><br />
+      Service (TaskJpaService)<br />
+      <span class="arrow">↓</span><br />
+      Repository (TaskRepository)<br />
+      <span class="arrow">↓</span><br />
+      H2 / PostgreSQL   <span style="color:#57606a">← esquema gestionado por Flyway (V1, V2, V3)</span>
+    </div>
+  </div>
+
+  
+  <div class="section">
+    <h2>🔗 Relaciones entre Conceptos</h2>
+    <div class="relation"><span class="rel-from">SecurityFilterChain</span><span class="rel-arrow">→</span><span class="rel-desc">JwtAuthenticationFilter: el filtro JWT se agrega con addFilterBefore(), ejecutándose antes que el filtro estándar de usuario/contraseña.</span></div>
+    <div class="relation"><span class="rel-from">JwtAuthenticationFilter</span><span class="rel-arrow">→</span><span class="rel-desc">JwtService: el filtro delega en JwtService para extraer el email y validar la firma del token en cada request.</span></div>
+    <div class="relation"><span class="rel-from">JwtService</span><span class="rel-arrow">→</span><span class="rel-desc">application.yml: la clave secreta y el tiempo de expiración se inyectan con @Value desde la configuración centralizada.</span></div>
+    <div class="relation"><span class="rel-from">UserDetailsService</span><span class="rel-arrow">→</span><span class="rel-desc">UserRepository: Spring Security llama a loadUserByUsername() que consulta la BD por email (Fase 4).</span></div>
+    <div class="relation"><span class="rel-from">UserEntity</span><span class="rel-arrow">→</span><span class="rel-desc">UserDetails: al implementar UserDetails, la entidad JPA se integra directamente con Spring Security sin clases intermedias.</span></div>
+    <div class="relation"><span class="rel-from">BCryptPasswordEncoder</span><span class="rel-arrow">→</span><span class="rel-desc">DaoAuthenticationProvider: el proveedor usa BCrypt para comparar el password del request contra el hash guardado en BD.</span></div>
+    <div class="relation"><span class="rel-from">Flyway V3</span><span class="rel-arrow">→</span><span class="rel-desc">UserEntity: la migración añade las columnas password y rol que JPA mapea en la entidad.</span></div>
+  </div>
+
+  
+  <div class="section">
+    <h2>🎯 Resultados Verificados en Postman</h2>
+    <table class="result-table">
+      <tr><th>#</th><th>Prueba</th><th>Método / URL</th><th>HTTP</th><th>Resultado</th></tr>
+      <tr><td>1</td><td>Registro usuario USER</td><td>POST /auth/register</td><td>201 Created</td><td class="pass">✅ Token JWT generado</td></tr>
+      <tr><td>2</td><td>Login usuario USER</td><td>POST /auth/login</td><td>200 OK</td><td class="pass">✅ Token JWT válido</td></tr>
+      <tr><td>3</td><td>Endpoint sin token</td><td>GET /api/tareas/db</td><td>401 Unauthorized</td><td class="pass">✅ Mensaje personalizado</td></tr>
+      <tr><td>4</td><td>Endpoint con token</td><td>GET /api/tareas/db</td><td>200 OK</td><td class="pass">✅ 5 tareas retornadas</td></tr>
+      <tr><td>5</td><td>DELETE con rol USER</td><td>DELETE /api/tareas/db/1</td><td>403 Forbidden</td><td class="pass">✅ Acceso denegado</td></tr>
+      <tr><td>6</td><td>Login usuario ADMIN</td><td>POST /auth/login</td><td>200 OK</td><td class="pass">✅ rol: "ADMIN"</td></tr>
+      <tr><td>7</td><td>DELETE con rol ADMIN</td><td>DELETE /api/tareas/db/5</td><td>204 No Content</td><td class="pass">✅ Tarea eliminada</td></tr>
+    </table>
+  </div>
+
+  
+  <div class="section">
+    <h2>🔌 Endpoints Disponibles en Fase 5</h2>
+    <table>
+      <tr><th>Método</th><th>URL</th><th>Auth</th><th>Descripción</th></tr>
+      <tr><td>POST</td><td>/auth/register</td><td>❌ Público</td><td>Registrar nuevo usuario</td></tr>
+      <tr><td>POST</td><td>/auth/login</td><td>❌ Público</td><td>Iniciar sesión, obtener JWT</td></tr>
+      <tr><td>GET</td><td>/api/tareas/db</td><td>✅ Bearer token</td><td>Listar tareas desde BD</td></tr>
+      <tr><td>GET</td><td>/api/tareas/db/{id}</td><td>✅ Bearer token</td><td>Obtener tarea por ID</td></tr>
+      <tr><td>POST</td><td>/api/tareas/db</td><td>✅ Bearer token</td><td>Crear tarea en BD</td></tr>
+      <tr><td>PUT</td><td>/api/tareas/db/{id}</td><td>✅ Bearer token</td><td>Actualizar tarea en BD</td></tr>
+      <tr><td>DELETE</td><td>/api/tareas/db/{id}</td><td>✅ Solo ADMIN</td><td>Eliminar tarea de BD</td></tr>
+      <tr><td>GET</td><td>/swagger-ui.html</td><td>❌ Público</td><td>Documentación OpenAPI</td></tr>
+      <tr><td>GET</td><td>/actuator/health</td><td>❌ Público</td><td>Health check</td></tr>
+      <tr><td>GET</td><td>/h2-console</td><td>❌ Público</td><td>Consola H2 (solo dev)</td></tr>
+    </table>
+  </div>
+
+  
+  <div class="section">
+    <h2>⏭️ Próxima Fase: JUnit 5 + Mockito</h2>
+    <p style="font-size:13px;margin-bottom:8px">La Fase 6 agregará pruebas automatizadas a TaskFlow:</p>
+    <ul style="font-size:13px;padding-left:20px;line-height:2">
+      <li>Tests unitarios de <code>TaskService</code> y <code>JwtService</code> con Mockito</li>
+      <li>Tests de capa web <code>@WebMvcTest</code> para controllers con seguridad</li>
+      <li>Tests de repositorio <code>@DataJpaTest</code></li>
+      <li>Test de integración E2E completo con <code>@SpringBootTest</code></li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    TaskFlow API · Fase 5 completada el 31/08/2026 · Java 21 + Spring Boot 4.1.1 + Spring Security 6.4 + JJWT 0.12.6<br /><br />
+    Made with IBM Bob
+  </div>
+
+</div>
+</body>
+</html>

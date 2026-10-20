@@ -1,0 +1,744 @@
+
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TaskFlow — Informe Fase 3</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  font-size: 14px; line-height: 1.7; color: #1f2328;
+  background: #fff; padding: 32px 16px;
+}
+.container { max-width: 760px; margin: 0 auto; }
+
+.header { border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 28px; }
+.header h1 { font-size: 22px; font-weight: 700; }
+.header .meta { color: #57606a; font-size: 13px; margin-top: 4px; }
+.badge {
+  display: inline-block; font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 12px; margin-right: 4px; margin-top: 6px;
+}
+.b-green  { background: #d1e7dd; color: #0a3622; }
+.b-blue   { background: #cfe2ff; color: #084298; }
+.b-yellow { background: #fff3cd; color: #856404; }
+.b-purple { background: #e9d5ff; color: #5b21b6; }
+
+.phases-bar { display: grid; grid-template-columns: repeat(9,1fr); gap: 4px; margin-bottom: 28px; }
+.ph-box { text-align: center; padding: 6px 2px; border-radius: 5px; font-size: 11px; font-weight: 600; border: 1px solid #e5e7eb; }
+.ph-done    { background: #d1e7dd; color: #0a3622; border-color: #a3cfbb; }
+.ph-current { background: #3b82d4; color: #fff; border-color: #2563eb; }
+.ph-pending { background: #f7f8fa; color: #57606a; }
+
+.section-title {
+  font-size: 16px; font-weight: 700; color: #1f2328;
+  border-bottom: 1px solid #e5e7eb; padding-bottom: 5px;
+  margin-top: 30px; margin-bottom: 14px;
+}
+
+.concept { border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 18px; overflow: hidden; }
+.concept-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 16px; background: #f7f8fa; border-bottom: 1px solid #e5e7eb;
+}
+.concept-icon {
+  width: 28px; height: 28px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.ic-green  { background: #dcfce7; }
+.ic-blue   { background: #dbeafe; }
+.ic-purple { background: #ede9fe; }
+.ic-orange { background: #ffedd5; }
+.ic-teal   { background: #ccfbf1; }
+.ic-rose   { background: #fce7f3; }
+.ic-yellow { background: #fef9c3; }
+.ic-slate  { background: #f1f5f9; }
+.ic-red    { background: #fee2e2; }
+
+.concept-title { font-size: 13px; font-weight: 700; color: #1f2328; }
+.concept-subtitle { font-size: 12px; color: #57606a; }
+.concept-body { padding: 14px 16px; }
+.concept-body p { margin-bottom: 8px; font-size: 13px; }
+.concept-body ul { padding-left: 18px; margin-bottom: 8px; }
+.concept-body ul li { font-size: 13px; margin-bottom: 4px; }
+
+pre {
+  background: #1e1e2e; color: #cdd6f4;
+  border-radius: 6px; padding: 14px 16px;
+  overflow-x: auto; font-size: 12px; line-height: 1.6;
+  margin: 8px 0; font-family: "Cascadia Code","Consolas",monospace;
+}
+.kw { color: #cba6f7; }
+.cm { color: #6c7086; font-style: italic; }
+.st { color: #a6e3a1; }
+.cl { color: #89b4fa; }
+.an { color: #fab387; }
+.nm { color: #f9e2af; }
+
+.info-box {
+  background: #eff6ff; border: 1px solid #bfdbfe;
+  border-radius: 6px; padding: 10px 14px;
+  font-size: 13px; color: #1e40af; margin-bottom: 10px;
+}
+.note {
+  background: #fffbeb; border: 1px solid #fde68a;
+  border-radius: 6px; padding: 10px 14px;
+  font-size: 13px; color: #78350f; margin-top: 14px;
+}
+.ok-box {
+  background: #f0fdf4; border: 1px solid #bbf7d0;
+  border-radius: 6px; padding: 10px 14px;
+  font-size: 13px; color: #14532d; margin-bottom: 10px;
+}
+
+.file-list { list-style: none; padding: 0; }
+.file-list li {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 5px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px;
+}
+.file-list li:last-child { border-bottom: none; }
+.file-path { color: #57606a; font-size: 12px; }
+.file-new { background: #dcfce7; color: #14532d; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 4px; flex-shrink: 0; margin-top: 2px; }
+.file-mod { background: #fef9c3; color: #713f12; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 4px; flex-shrink: 0; margin-top: 2px; }
+
+.relation-box { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px 16px; margin-top: 4px; }
+.rel-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 13px; flex-wrap: wrap; }
+.rel-arrow { color: #3b82d4; font-weight: 700; }
+.rel-from { background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 12px; white-space: nowrap; }
+.rel-to   { background: #dcfce7; color: #14532d; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 12px; white-space: nowrap; }
+.rel-how  { color: #57606a; font-size: 12px; }
+
+.endpoints-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+.endpoints-table th {
+  text-align: left; padding: 7px 8px; background: #f7f8fa;
+  border: 1px solid #e5e7eb; font-size: 11px; font-weight: 700;
+  color: #57606a; text-transform: uppercase;
+}
+.endpoints-table td { padding: 6px 8px; border: 1px solid #e5e7eb; vertical-align: top; }
+.endpoints-table tr:nth-child(even) td { background: #fafbfc; }
+.m-get    { background: #dcfce7; color: #14532d; font-weight: 700; padding: 2px 5px; border-radius: 3px; font-size: 10px; }
+.m-post   { background: #fef9c3; color: #713f12; font-weight: 700; padding: 2px 5px; border-radius: 3px; font-size: 10px; }
+.m-put    { background: #dbeafe; color: #1e40af; font-weight: 700; padding: 2px 5px; border-radius: 3px; font-size: 10px; }
+.m-patch  { background: #ede9fe; color: #5b21b6; font-weight: 700; padding: 2px 5px; border-radius: 3px; font-size: 10px; }
+.m-delete { background: #fee2e2; color: #7f1d1d; font-weight: 700; padding: 2px 5px; border-radius: 3px; font-size: 10px; }
+.done    { color: #0a7c4a; font-weight: 600; }
+.pending { color: #57606a; }
+
+.check-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.check-table th {
+  text-align: left; padding: 7px 10px; background: #f7f8fa;
+  border: 1px solid #e5e7eb; font-size: 11px; font-weight: 700;
+  color: #57606a; text-transform: uppercase;
+}
+.check-table td { padding: 6px 10px; border: 1px solid #e5e7eb; }
+.check-table tr:nth-child(even) td { background: #fafbfc; }
+.grp td { background: #1f2328 !important; color: #fff; font-weight: 700; font-size: 11px; text-transform: uppercase; padding: 5px 10px; }
+
+.json-block {
+  background: #0f172a; color: #7dd3fc;
+  border-radius: 6px; padding: 12px 14px;
+  font-size: 12px; font-family: "Cascadia Code","Consolas",monospace;
+  line-height: 1.6; margin: 8px 0; overflow-x: auto;
+}
+.jk { color: #f0abfc; }
+.jv { color: #86efac; }
+.jn { color: #fbbf24; }
+
+footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #57606a; }
+</style>
+</head>
+<body>
+<div class="container">
+
+
+<div class="header">
+  <h1>🌐 TaskFlow — Informe Fase 3: REST API Completa</h1>
+  <div class="meta">Proyecto: API REST de Gestión de Tareas · Fase 3 de 9 · Tutorial + Código</div>
+  <div style="margin-top:8px">
+    <span class="badge b-blue">Fase 3 ✓ Completada</span>
+    <span class="badge b-green">5 verbos HTTP</span>
+    <span class="badge b-green">DTOs Request/Response</span>
+    <span class="badge b-green">Bean Validation</span>
+    <span class="badge b-green">Swagger UI activo</span>
+    <span class="badge b-purple">14 conceptos aplicados</span>
+  </div>
+</div>
+
+
+<div class="section-title">📊 Estado del Proyecto</div>
+<div class="phases-bar">
+  <div class="ph-box ph-done">F1<br />✓ Java</div>
+  <div class="ph-box ph-done">F2<br />✓ Spring</div>
+  <div class="ph-box ph-done">F3<br />✓ REST</div>
+  <div class="ph-box ph-pending">F4<br />JPA</div>
+  <div class="ph-box ph-pending">F5<br />JWT</div>
+  <div class="ph-box ph-pending">F6<br />Tests</div>
+  <div class="ph-box ph-pending">F7<br />Docker</div>
+  <div class="ph-box ph-pending">F8<br />AWS</div>
+  <div class="ph-box ph-pending">F9<br />K8s</div>
+</div>
+
+
+<div class="section-title">🎯 ¿Qué se construyó en esta fase?</div>
+<div class="info-box">
+  En la <strong>Fase 3</strong> completamos la API REST con todos los verbos HTTP
+  (GET, POST, PUT, PATCH, DELETE), separamos los DTOs de entrada y salida,
+  implementamos validaciones automáticas con <strong>Bean Validation</strong>,
+  creamos el manejador global de errores con <strong>@ControllerAdvice</strong>,
+  configuramos <strong>CORS</strong>, activamos <strong>Swagger/OpenAPI 3.0</strong>
+  y agregamos paginación, filtros y sorting a los listados.
+  Todas las pruebas en Postman pasaron exitosamente.
+</div>
+
+
+<div class="section-title">📁 Archivos creados y modificados</div>
+<ul class="file-list">
+  <li><span class="file-new">NUEVO</span><strong>CrearTareaRequest.java</strong><span class="file-path"> — dto/request/ — @NotBlank, @Size, @NotNull, @Future</span></li>
+  <li><span class="file-new">NUEVO</span><strong>ActualizarTareaRequest.java</strong><span class="file-path"> — dto/request/ — DTO para PUT con validaciones</span></li>
+  <li><span class="file-new">NUEVO</span><strong>CambiarEstadoRequest.java</strong><span class="file-path"> — dto/request/ — DTO para PATCH con @NotNull</span></li>
+  <li><span class="file-new">NUEVO</span><strong>TareaResponse.java</strong><span class="file-path"> — dto/response/ — DTO de salida con campos calculados + fromTask()</span></li>
+  <li><span class="file-new">NUEVO</span><strong>ApiError.java</strong><span class="file-path"> — dto/response/ — Estructura estándar de errores con ErrorDetalle</span></li>
+  <li><span class="file-new">NUEVO</span><strong>PageResponse.java</strong><span class="file-path"> — dto/response/ — Wrapper genérico de paginación</span></li>
+  <li><span class="file-new">NUEVO</span><strong>GlobalExceptionHandler.java</strong><span class="file-path"> — exception/ — @RestControllerAdvice con 4 handlers</span></li>
+  <li><span class="file-new">NUEVO</span><strong>WebConfig.java</strong><span class="file-path"> — config/ — CORS para /api/** con todos los métodos</span></li>
+  <li><span class="file-new">NUEVO</span><strong>SwaggerConfig.java</strong><span class="file-path"> — config/ — OpenAPI bean con título, versión y servidor</span></li>
+  <li><span class="file-mod">REEMPLAZADO</span><strong>TaskController.java</strong><span class="file-path"> — controller/ — CRUD completo con DTOs, @Valid y anotaciones Swagger</span></li>
+  <li><span class="file-mod">MODIFICADO</span><strong>TaskflowApplication.java</strong><span class="file-path"> — raíz — URLs actualizadas con Swagger y api-docs</span></li>
+  <li><span class="file-mod">MODIFICADO</span><strong>pom.xml</strong><span class="file-path"> — dependencia springdoc-openapi-starter-webmvc-ui:2.8.9</span></li>
+</ul>
+
+
+<div class="section-title">📚 Conceptos aplicados — Explicación y código</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-blue">📦</div>
+    <div>
+      <div class="concept-title">1. DTOs — Data Transfer Objects (Request / Response separados)</div>
+      <div class="concept-subtitle">CrearTareaRequest · ActualizarTareaRequest · CambiarEstadoRequest · TareaResponse</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> Un DTO es una clase cuyo único propósito es transportar datos entre el cliente HTTP y el servidor. <strong>No es la entidad de dominio</strong> — es una representación adaptada para la API.</p>
+    <p><strong>¿Por qué separar Request de Response?</strong></p>
+    <ul>
+      <li><strong>Request</strong> — lo que el cliente <em>envía</em>: solo los campos que el cliente puede escribir, con validaciones.</li>
+      <li><strong>Response</strong> — lo que el servidor <em>retorna</em>: puede incluir campos calculados (<code>estaVencida</code>, <code>diasRestantes</code>, <code>estadoEtiqueta</code>) que el cliente nunca envía.</li>
+      <li>Podemos cambiar el modelo de dominio sin romper la API y viceversa.</li>
+      <li>Nunca exponemos campos internos (como <code>passwordHash</code>) accidentalmente.</li>
+    </ul>
+<pre><code><span class="cm">// DTO Request (entrada) — solo lo que el cliente puede enviar</span>
+<span class="kw">public class</span> <span class="cl">CrearTareaRequest</span> {
+    <span class="an">@NotBlank</span> <span class="kw">private</span> String titulo;
+    <span class="an">@NotNull</span>  <span class="kw">private</span> Priority prioridad;
+    <span class="an">@Future</span>   <span class="kw">private</span> LocalDate fechaLimite; <span class="cm">// opcional</span>
+    <span class="cm">// sin id, sin fechaCreacion, sin estado</span>
+}
+
+<span class="cm">// DTO Response (salida) — lo que el servidor retorna</span>
+<span class="kw">public class</span> <span class="cl">TareaResponse</span> {
+    <span class="kw">private</span> Long id;
+    <span class="kw">private</span> String titulo;
+    <span class="kw">private</span> String estadoEtiqueta; <span class="cm">// campo calculado: "En progreso"</span>
+    <span class="kw">private boolean</span> estaVencida;   <span class="cm">// campo calculado</span>
+    <span class="kw">private long</span> diasRestantes;    <span class="cm">// campo calculado</span>
+    <span class="kw">private</span> LocalDateTime fechaCreacion;
+
+    <span class="cm">// Factory method — convierte entidad de dominio al DTO</span>
+    <span class="kw">public static</span> TareaResponse fromTask(<span class="cl">Task</span> task) {
+        <span class="cl">TareaResponse</span> dto = <span class="kw">new</span> <span class="cl">TareaResponse</span>();
+        dto.id = task.getId();
+        dto.estadoEtiqueta = task.getStatus().getEtiqueta();
+        dto.estaVencida = task.estaVencida();   <span class="cm">// calculado</span>
+        dto.diasRestantes = task.diasRestantes(); <span class="cm">// calculado</span>
+        <span class="kw">return</span> dto;
+    }
+}</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-orange">✅</div>
+    <div>
+      <div class="concept-title">2. Bean Validation — @Valid + anotaciones</div>
+      <div class="concept-subtitle">@NotBlank · @NotNull · @Size · @Future · @Min — validación declarativa</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> Bean Validation (Jakarta Validation) permite declarar reglas de validación directamente en los campos de los DTOs con anotaciones. Spring las evalúa automáticamente cuando el controller recibe una petición con <code>@Valid</code>.</p>
+    <p><strong>¿Por qué es mejor que validar manualmente?</strong> Sin Bean Validation tendríamos <code>if (titulo == null || titulo.isBlank())</code> en cada método del controller. Con anotaciones, la regla está junto al dato y Spring la aplica automáticamente.</p>
+<pre><code><span class="cm">// 1. Declarar reglas en el DTO con anotaciones</span>
+<span class="kw">public class</span> <span class="cl">CrearTareaRequest</span> {
+
+    <span class="an">@NotBlank</span>(message = <span class="st">"El título es obligatorio"</span>)
+    <span class="an">@Size</span>(min = <span class="nm">3</span>, max = <span class="nm">100</span>, message = <span class="st">"Entre 3 y 100 caracteres"</span>)
+    <span class="kw">private</span> String titulo;
+
+    <span class="an">@NotNull</span>(message = <span class="st">"La prioridad es obligatoria"</span>)
+    <span class="kw">private</span> Priority prioridad;
+
+    <span class="an">@Future</span>(message = <span class="st">"La fecha límite debe ser futura"</span>)
+    <span class="kw">private</span> LocalDate fechaLimite; <span class="cm">// opcional pero si se envía debe ser futura</span>
+}
+
+<span class="cm">// 2. Activar la validación en el controller con @Valid</span>
+<span class="an">@PostMapping</span>
+<span class="kw">public</span> ResponseEntity&lt;TareaResponse&gt; crearTarea(
+        <span class="an">@Valid @RequestBody</span> CrearTareaRequest request) {
+    <span class="cm">// Si llega aquí, el DTO ya pasó todas las validaciones</span>
+    <span class="cm">// Si algo falla, Spring lanza MethodArgumentNotValidException</span>
+    <span class="cm">// que captura nuestro GlobalExceptionHandler → 400 Bad Request</span>
+}
+
+<span class="cm">// Anotaciones disponibles:</span>
+<span class="cm">// @NotNull    → no puede ser null</span>
+<span class="cm">// @NotBlank   → no puede ser null, vacío ni espacios</span>
+<span class="cm">// @NotEmpty   → no puede ser null ni vacío (permite espacios)</span>
+<span class="cm">// @Size       → longitud min/max para String o colecciones</span>
+<span class="cm">// @Min/@Max   → valor numérico mínimo/máximo</span>
+<span class="cm">// @Future     → fecha debe ser en el futuro</span>
+<span class="cm">// @Past       → fecha debe ser en el pasado</span>
+<span class="cm">// @Email      → formato de email válido</span>
+<span class="cm">// @Pattern    → expresión regular</span></code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-red">🛡️</div>
+    <div>
+      <div class="concept-title">3. Exception Handling Global — @RestControllerAdvice</div>
+      <div class="concept-subtitle">GlobalExceptionHandler · ApiError · manejo centralizado de errores</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> <code>@RestControllerAdvice</code> es una clase especial de Spring que intercepta todas las excepciones lanzadas por cualquier controller. Sin esto, una excepción no controlada retornaría un error genérico 500 con el stack trace al cliente — lo cual es un problema de seguridad y usabilidad.</p>
+    <p><strong>Flujo:</strong> Controller lanza excepción → Spring la intercepta en GlobalExceptionHandler → retorna JSON con formato ApiError consistente.</p>
+<pre><code><span class="an">@RestControllerAdvice</span>  <span class="cm">// intercepta excepciones de TODOS los controllers</span>
+<span class="kw">public class</span> <span class="cl">GlobalExceptionHandler</span> {
+
+    <span class="cm">// Handler 1: errores de @Valid — campo inválido → 400</span>
+    <span class="an">@ExceptionHandler</span>(MethodArgumentNotValidException.class)
+    <span class="kw">public</span> ResponseEntity&lt;ApiError&gt; manejarValidacion(
+            MethodArgumentNotValidException ex, HttpServletRequest req) {
+
+        <span class="cm">// Extrae todos los errores de campo con Streams</span>
+        List&lt;ApiError.ErrorDetalle&gt; detalles = ex.getBindingResult()
+            .getFieldErrors().stream()
+            .map(e -&gt; <span class="kw">new</span> ApiError.ErrorDetalle(e.getField(), e.getDefaultMessage()))
+            .collect(Collectors.toList());
+
+        ApiError error = <span class="kw">new</span> ApiError(<span class="nm">400</span>, <span class="st">"Validación fallida"</span>,
+            <span class="st">"VALIDATION_ERROR"</span>, req.getRequestURI());
+        error.setErroresDetalle(detalles);
+        <span class="kw">return</span> ResponseEntity.badRequest().body(error);
+    }
+
+    <span class="cm">// Handler 2: excepciones de dominio (TaskNotFoundException, etc.)</span>
+    <span class="an">@ExceptionHandler</span>(ApiException.class)
+    <span class="kw">public</span> ResponseEntity&lt;ApiError&gt; manejarApiException(
+            ApiException ex, HttpServletRequest req) {
+        <span class="cm">// Usa el httpStatus que definimos en la excepción (Fase 1)</span>
+        ApiError error = <span class="kw">new</span> ApiError(ex.getHttpStatus(), ex.getMessage(),
+            ex.getCodigoError(), req.getRequestURI());
+        <span class="kw">return</span> ResponseEntity.status(ex.getHttpStatus()).body(error);
+    }
+
+    <span class="cm">// Handler 3: cualquier excepción no controlada → 500</span>
+    <span class="an">@ExceptionHandler</span>(Exception.class)
+    <span class="kw">public</span> ResponseEntity&lt;ApiError&gt; manejarGeneral(Exception ex, ...) {
+        <span class="cm">// Nunca exponemos el stack trace al cliente</span>
+        <span class="kw">return</span> ResponseEntity.internalServerError()
+            .body(<span class="kw">new</span> ApiError(<span class="nm">500</span>, <span class="st">"Error interno"</span>, <span class="st">"INTERNAL_ERROR"</span>, ...));
+    }
+}</code></pre>
+    <p><strong>Respuesta de error estándar (ApiError):</strong></p>
+    <div class="json-block"><span class="jk">"timestamp"</span>: <span class="jv">"2026-08-27T14:30:00"</span>,
+<span class="jk">"status"</span>: <span class="jn">400</span>,
+<span class="jk">"error"</span>: <span class="jv">"Validación fallida"</span>,
+<span class="jk">"codigoError"</span>: <span class="jv">"VALIDATION_ERROR"</span>,
+<span class="jk">"path"</span>: <span class="jv">"/api/tareas"</span>,
+<span class="jk">"erroresDetalle"</span>: [
+  { <span class="jk">"campo"</span>: <span class="jv">"titulo"</span>, <span class="jk">"mensaje"</span>: <span class="jv">"El título es obligatorio"</span> },
+  { <span class="jk">"campo"</span>: <span class="jv">"prioridad"</span>, <span class="jk">"mensaje"</span>: <span class="jv">"La prioridad es obligatoria"</span> }
+]</div>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-green">🔄</div>
+    <div>
+      <div class="concept-title">4. Todos los verbos HTTP — GET, POST, PUT, PATCH, DELETE</div>
+      <div class="concept-subtitle">Semántica REST correcta para cada operación</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Cuándo usar cada verbo?</strong> Cada verbo HTTP tiene una semántica específica en REST:</p>
+    <ul>
+      <li><strong>GET</strong> — leer datos, sin efectos secundarios, idempotente</li>
+      <li><strong>POST</strong> — crear un recurso nuevo, no idempotente</li>
+      <li><strong>PUT</strong> — reemplazar un recurso completo, idempotente</li>
+      <li><strong>PATCH</strong> — actualizar parcialmente (solo los campos enviados)</li>
+      <li><strong>DELETE</strong> — eliminar un recurso, idempotente</li>
+    </ul>
+<pre><code><span class="cm">// GET — leer (no modifica nada)</span>
+<span class="an">@GetMapping</span>           <span class="cm">// GET /api/tareas</span>
+<span class="an">@GetMapping</span>(<span class="st">"/{id}"</span>) <span class="cm">// GET /api/tareas/1</span>
+
+<span class="cm">// POST — crear recurso nuevo → 201 Created</span>
+<span class="an">@PostMapping</span>          <span class="cm">// POST /api/tareas</span>
+<span class="kw">public</span> ResponseEntity&lt;TareaResponse&gt; crearTarea(
+        <span class="an">@Valid @RequestBody</span> CrearTareaRequest request) {
+    <span class="kw">return</span> ResponseEntity.status(HttpStatus.CREATED).body(...);
+}
+
+<span class="cm">// PUT — reemplazar completo → todos los campos son obligatorios</span>
+<span class="an">@PutMapping</span>(<span class="st">"/{id}"</span>)  <span class="cm">// PUT /api/tareas/1</span>
+<span class="kw">public</span> ResponseEntity&lt;TareaResponse&gt; actualizarTarea(
+        <span class="an">@PathVariable</span> Long id,
+        <span class="an">@Valid @RequestBody</span> ActualizarTareaRequest request) { ... }
+
+<span class="cm">// PATCH — actualización parcial → solo el estado</span>
+<span class="an">@PatchMapping</span>(<span class="st">"/{id}/estado"</span>) <span class="cm">// PATCH /api/tareas/1/estado</span>
+<span class="kw">public</span> ResponseEntity&lt;TareaResponse&gt; cambiarEstado(
+        <span class="an">@PathVariable</span> Long id,
+        <span class="an">@Valid @RequestBody</span> CambiarEstadoRequest request) { ... }
+
+<span class="cm">// DELETE — eliminar → 204 No Content (sin body)</span>
+<span class="an">@DeleteMapping</span>(<span class="st">"/{id}"</span>) <span class="cm">// DELETE /api/tareas/1</span>
+<span class="kw">public</span> ResponseEntity&lt;Void&gt; eliminarTarea(<span class="an">@PathVariable</span> Long id) {
+    taskService.eliminar(id);
+    <span class="kw">return</span> ResponseEntity.noContent().build(); <span class="cm">// 204</span>
+}</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-teal">📡</div>
+    <div>
+      <div class="concept-title">5. ResponseEntity + HTTP Status Codes</div>
+      <div class="concept-subtitle">200 · 201 · 204 · 400 · 404 · 409 · 500 — respuestas semánticas completas</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Por qué importa el código HTTP correcto?</strong> El cliente (Postman, frontend, otra API) usa el código HTTP para saber qué ocurrió sin leer el body. Un 200 siempre significa éxito; un 404 siempre significa "no existe".</p>
+<pre><code><span class="cm">// 200 OK — petición exitosa con datos</span>
+ResponseEntity.ok(tareaResponse)
+
+<span class="cm">// 201 Created — recurso creado → incluir el recurso creado en el body</span>
+ResponseEntity.status(HttpStatus.CREATED).body(tareaCreada)
+
+<span class="cm">// 204 No Content — operación exitosa sin datos que retornar (DELETE)</span>
+ResponseEntity.noContent().build()
+
+<span class="cm">// 400 Bad Request — datos inválidos (generado por GlobalExceptionHandler)</span>
+<span class="cm">// 404 Not Found — recurso no existe (TaskNotFoundException → ApiError)</span>
+<span class="cm">// 409 Conflict — conflicto de estado (TaskStateException → ApiError)</span>
+<span class="cm">// 500 Internal Server Error — error no controlado</span>
+
+<span class="cm">// Con headers personalizados</span>
+HttpHeaders headers = <span class="kw">new</span> HttpHeaders();
+headers.add(<span class="st">"X-Total-Count"</span>, String.valueOf(totalElementos));
+ResponseEntity.ok().headers(headers).body(pageResponse);</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-yellow">📋</div>
+    <div>
+      <div class="concept-title">6. Headers HTTP personalizados</div>
+      <div class="concept-subtitle">X-Total-Count · HttpHeaders · respuesta con metadatos en el header</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> Los headers HTTP permiten enviar metadatos adicionales con la respuesta sin incluirlos en el body JSON. El header personalizado <code>X-Total-Count</code> es un patrón estándar para enviar el total de elementos en listados paginados.</p>
+<pre><code><span class="cm">// Agregar header personalizado a la respuesta</span>
+HttpHeaders headers = <span class="kw">new</span> HttpHeaders();
+headers.add(<span class="st">"X-Total-Count"</span>, String.valueOf(pageResult.totalElementos()));
+
+<span class="cm">// También exponemos el header con CORS para que el frontend pueda leerlo</span>
+<span class="cm">// (en WebConfig.java)</span>
+registry.addMapping(<span class="st">"/api/**"</span>)
+    .exposedHeaders(<span class="st">"X-Total-Count"</span>);  <span class="cm">// permite que JS del browser lo lea</span>
+
+<span class="cm">// En Postman: pestaña Headers de la respuesta</span>
+<span class="cm">// X-Total-Count: 5</span></code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-purple">🌍</div>
+    <div>
+      <div class="concept-title">7. CORS — Cross-Origin Resource Sharing</div>
+      <div class="concept-subtitle">WebConfig · addCorsMappings · seguridad del navegador</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> Los navegadores web bloquean por seguridad las peticiones HTTP desde un origen diferente al del servidor (política Same-Origin). CORS es el mecanismo que permite que un frontend en <code>localhost:3000</code> llame a una API en <code>localhost:8080</code>.</p>
+    <p><strong>¿Por qué no lo nota Postman?</strong> CORS solo aplica a peticiones desde navegadores, no a herramientas como Postman o curl — por eso en Postman siempre funciona aunque CORS no esté configurado.</p>
+<pre><code><span class="an">@Configuration</span>
+<span class="kw">public class</span> <span class="cl">WebConfig</span> <span class="kw">implements</span> WebMvcConfigurer {
+
+    <span class="an">@Override</span>
+    <span class="kw">public void</span> addCorsMappings(CorsRegistry registry) {
+        registry.addMapping(<span class="st">"/api/**"</span>)   <span class="cm">// aplica a todos los endpoints /api/</span>
+            .allowedOrigins(<span class="st">"*"</span>)          <span class="cm">// dev: cualquier origen</span>
+            <span class="cm">// prod (Fase 8): .allowedOrigins("https://mi-app.com")</span>
+            .allowedMethods(
+                <span class="st">"GET"</span>, <span class="st">"POST"</span>, <span class="st">"PUT"</span>, <span class="st">"PATCH"</span>, <span class="st">"DELETE"</span>, <span class="st">"OPTIONS"</span>)
+            .allowedHeaders(<span class="st">"*"</span>)
+            .exposedHeaders(<span class="st">"X-Total-Count"</span>) <span class="cm">// header personalizado legible en JS</span>
+            .maxAge(<span class="nm">3600</span>);              <span class="cm">// cache del preflight 1 hora</span>
+    }
+}</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-blue">📄</div>
+    <div>
+      <div class="concept-title">8. Paginación, Filtros y Sorting</div>
+      <div class="concept-subtitle">@RequestParam · pagina · tamanio · ordenarPor · PageResponse&lt;T&gt;</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Por qué paginar?</strong> Una API que retorna 10.000 registros en una sola respuesta es inusable. La paginación permite al cliente solicitar subconjuntos: "dame la página 0 con 10 elementos".</p>
+<pre><code><span class="cm">// Endpoint con paginación + filtros + sorting combinados</span>
+<span class="cm">// GET /api/tareas?pagina=0&amp;tamanio=2&amp;categoria=TRABAJO&amp;ordenarPor=prioridad</span>
+
+<span class="an">@GetMapping</span>
+<span class="kw">public</span> ResponseEntity&lt;PageResponse&lt;TareaResponse&gt;&gt; listarTareas(
+        <span class="an">@RequestParam</span>(required = <span class="kw">false</span>) String estado,
+        <span class="an">@RequestParam</span>(required = <span class="kw">false</span>) String categoria,
+        <span class="an">@RequestParam</span>(defaultValue = <span class="st">"0"</span>)  <span class="kw">int</span> pagina,
+        <span class="an">@RequestParam</span>(defaultValue = <span class="st">"10"</span>) <span class="kw">int</span> tamanio,
+        <span class="an">@RequestParam</span>(defaultValue = <span class="st">"fecha"</span>) String ordenarPor) {
+
+    <span class="cm">// 1. Construir filtro desde query params</span>
+    TaskFilter filtro = <span class="kw">new</span> TaskFilter(
+        resolverEstado(estado), Optional.empty(),
+        resolverCategoria(categoria), Optional.empty()
+    );
+
+    <span class="cm">// 2. Paginar: skip + limit internamente (Fase 1)</span>
+    <span class="kw">var</span> pageResult = taskService.listarPaginado(pagina, tamanio, filtro);
+
+    <span class="cm">// 3. Ordenar el contenido de la página</span>
+    List&lt;Task&gt; ordenado = <span class="st">"prioridad"</span>.equalsIgnoreCase(ordenarPor)
+        ? taskService.ordenarPorPrioridad(pageResult.contenido())
+        : taskService.ordenarPorFecha(pageResult.contenido());
+
+    <span class="cm">// 4. Convertir Task → TareaResponse (DTO)</span>
+    <span class="kw">var</span> dtos = ordenado.stream().map(TareaResponse::fromTask).toList();
+
+    <span class="cm">// 5. Retornar PageResponse con metadatos de paginación</span>
+    <span class="kw">return</span> ResponseEntity.ok(PageResponse.from(<span class="kw">new</span> PageResult&lt;&gt;(
+        dtos, pagina, tamanio, pageResult.totalElementos())));
+}</code></pre>
+    <p><strong>Respuesta paginada:</strong></p>
+    <div class="json-block">{
+  <span class="jk">"contenido"</span>: [...],
+  <span class="jk">"paginaActual"</span>: <span class="jn">0</span>,
+  <span class="jk">"tamanioPagina"</span>: <span class="jn">2</span>,
+  <span class="jk">"totalElementos"</span>: <span class="jn">5</span>,
+  <span class="jk">"totalPaginas"</span>: <span class="jn">3</span>,
+  <span class="jk">"esPrimeraPagina"</span>: <span class="jn">true</span>,
+  <span class="jk">"esUltimaPagina"</span>: <span class="jn">false</span>
+}</div>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-green">📖</div>
+    <div>
+      <div class="concept-title">9. Swagger / OpenAPI 3.0</div>
+      <div class="concept-subtitle">SwaggerConfig · @Operation · @ApiResponse · @Tag · /swagger-ui.html</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> OpenAPI es el estándar de documentación de APIs REST. Springdoc genera automáticamente la especificación leyendo las anotaciones del controller y la expone en Swagger UI — una interfaz web interactiva donde puedes probar la API sin Postman.</p>
+    <p><strong>URLs disponibles:</strong></p>
+    <ul>
+      <li><strong>http://localhost:8080/swagger-ui.html</strong> → interfaz visual interactiva</li>
+      <li><strong>http://localhost:8080/v3/api-docs</strong> → especificación JSON OpenAPI</li>
+    </ul>
+<pre><code><span class="cm">// SwaggerConfig — metadatos de la API</span>
+<span class="an">@Bean</span>
+<span class="kw">public</span> OpenAPI taskFlowOpenAPI() {
+    <span class="kw">return new</span> OpenAPI()
+        .info(<span class="kw">new</span> Info()
+            .title(<span class="st">"TaskFlow API"</span>)
+            .version(<span class="st">"3.0.0"</span>)
+            .description(<span class="st">"API REST de gestión de tareas"</span>));
+}
+
+<span class="cm">// Anotaciones en el controller — documentación inline</span>
+<span class="an">@Tag</span>(name = <span class="st">"Tareas"</span>, description = <span class="st">"Operaciones CRUD sobre tareas"</span>)
+<span class="an">@RestController</span>
+<span class="kw">public class</span> <span class="cl">TaskController</span> {
+
+    <span class="an">@Operation</span>(summary = <span class="st">"Crear nueva tarea"</span>)
+    <span class="an">@ApiResponses</span>({
+        <span class="an">@ApiResponse</span>(responseCode = <span class="st">"201"</span>, description = <span class="st">"Tarea creada"</span>),
+        <span class="an">@ApiResponse</span>(responseCode = <span class="st">"400"</span>, description = <span class="st">"Datos inválidos"</span>,
+            content = <span class="an">@Content</span>(schema = <span class="an">@Schema</span>(implementation = ApiError.class)))
+    })
+    <span class="an">@PostMapping</span>
+    <span class="kw">public</span> ResponseEntity&lt;TareaResponse&gt; crearTarea(...) { ... }
+}</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-slate">📨</div>
+    <div>
+      <div class="concept-title">10. @RequestBody — Deserialización de JSON</div>
+      <div class="concept-subtitle">Jackson · JSON → DTO automático · Content-Type: application/json</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> <code>@RequestBody</code> indica a Spring que deserialice el cuerpo JSON de la petición HTTP a un objeto Java. Jackson (incluido en Spring Boot) hace la conversión automáticamente.</p>
+<pre><code><span class="cm">// El cliente envía este JSON en el body del POST:</span>
+<span class="cm">// {"titulo":"Mi tarea","prioridad":"ALTA","categoria":"TRABAJO","usuarioId":1}</span>
+
+<span class="cm">// Spring + Jackson lo convierte automáticamente a:</span>
+<span class="an">@PostMapping</span>
+<span class="kw">public</span> ResponseEntity&lt;TareaResponse&gt; crearTarea(
+        <span class="an">@Valid @RequestBody</span> CrearTareaRequest request) {
+    <span class="cm">// request.getTitulo()   → "Mi tarea"</span>
+    <span class="cm">// request.getPrioridad() → Priority.ALTA</span>
+    <span class="cm">// request.getUsuarioId() → 1L</span>
+}
+
+<span class="cm">// El Content-Type: application/json en el header de la petición</span>
+<span class="cm">// le dice a Spring qué deserializador usar (Jackson)</span>
+<span class="cm">// Postman lo agrega automáticamente cuando seleccionas "raw → JSON"</span></code></pre>
+  </div>
+</div>
+
+
+<div class="section-title">🧪 Todos los endpoints — Probados en Postman</div>
+<table class="endpoints-table">
+  <thead>
+    <tr><th>Método</th><th>URL</th><th>Body</th><th>HTTP</th><th>Resultado</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><span class="m-get">GET</span></td><td>/api/tareas</td><td>—</td><td>200</td><td class="done">✅ Lista paginada</td></tr>
+    <tr><td><span class="m-get">GET</span></td><td>/api/tareas?pagina=0&amp;tamanio=2</td><td>—</td><td>200</td><td class="done">✅ Paginación</td></tr>
+    <tr><td><span class="m-get">GET</span></td><td>/api/tareas?categoria=TRABAJO</td><td>—</td><td>200</td><td class="done">✅ Filtrado</td></tr>
+    <tr><td><span class="m-get">GET</span></td><td>/api/tareas?ordenarPor=prioridad</td><td>—</td><td>200</td><td class="done">✅ Sorting</td></tr>
+    <tr><td><span class="m-get">GET</span></td><td>/api/tareas?buscar=presentación</td><td>—</td><td>200</td><td class="done">✅ Búsqueda texto</td></tr>
+    <tr><td><span class="m-get">GET</span></td><td>/api/tareas/1</td><td>—</td><td>200</td><td class="done">✅ TareaResponse completo</td></tr>
+    <tr><td><span class="m-get">GET</span></td><td>/api/tareas/999</td><td>—</td><td>404</td><td class="done">✅ ApiError con TASK_NOT_FOUND</td></tr>
+    <tr><td><span class="m-post">POST</span></td><td>/api/tareas</td><td>JSON válido</td><td>201</td><td class="done">✅ Tarea creada</td></tr>
+    <tr><td><span class="m-post">POST</span></td><td>/api/tareas</td><td>título vacío</td><td>400</td><td class="done">✅ ApiError con erroresDetalle</td></tr>
+    <tr><td><span class="m-put">PUT</span></td><td>/api/tareas/1</td><td>JSON completo</td><td>200</td><td class="done">✅ Tarea actualizada</td></tr>
+    <tr><td><span class="m-patch">PATCH</span></td><td>/api/tareas/2/estado</td><td>{"nuevoEstado":"EN_PROGRESO"}</td><td>200</td><td class="done">✅ Estado cambiado</td></tr>
+    <tr><td><span class="m-patch">PATCH</span></td><td>/api/tareas/1/estado</td><td>Estado inválido</td><td>409</td><td class="done">✅ ApiError TASK_STATE_ERROR</td></tr>
+    <tr><td><span class="m-delete">DELETE</span></td><td>/api/tareas/1</td><td>—</td><td>204</td><td class="done">✅ Sin body</td></tr>
+    <tr><td><span class="m-get">GET</span></td><td>/api/tareas/estadisticas</td><td>—</td><td>200</td><td class="done">✅ TaskStats</td></tr>
+    <tr><td><span class="m-get">GET</span></td><td>/swagger-ui.html</td><td>—</td><td>200</td><td class="done">✅ UI interactiva</td></tr>
+    <tr><td><span class="m-get">GET</span></td><td>/v3/api-docs</td><td>—</td><td>200</td><td class="done">✅ Spec JSON OpenAPI</td></tr>
+  </tbody>
+</table>
+
+
+<div class="section-title">🔗 Cómo se relacionan los conceptos</div>
+<div class="relation-box">
+  <div class="rel-row">
+    <span class="rel-from">@Valid</span><span class="rel-arrow">activa</span><span class="rel-to">Bean Validation</span><span class="rel-how">— evalúa @NotBlank, @Size, @Future del DTO antes de entrar al método</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">Bean Validation falla</span><span class="rel-arrow">lanza</span><span class="rel-to">MethodArgumentNotValidException</span><span class="rel-how">— capturada por GlobalExceptionHandler → ApiError 400</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">TaskNotFoundException (F1)</span><span class="rel-arrow">capturada por</span><span class="rel-to">GlobalExceptionHandler</span><span class="rel-how">— convierte la excepción del dominio en ApiError 404</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">CrearTareaRequest (DTO)</span><span class="rel-arrow">se convierte en</span><span class="rel-to">Task (dominio F1)</span><span class="rel-how">— en el controller: new Task(request.getTitulo(), ...)</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">Task (dominio)</span><span class="rel-arrow">se convierte en</span><span class="rel-to">TareaResponse (DTO)</span><span class="rel-how">— TareaResponse.fromTask(task) añade campos calculados</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">PageResult&lt;T&gt; (F1)</span><span class="rel-arrow">se envuelve en</span><span class="rel-to">PageResponse&lt;T&gt;</span><span class="rel-how">— PageResponse.from(pageResult) adapta el record al DTO HTTP</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">CORS (WebConfig)</span><span class="rel-arrow">expone</span><span class="rel-to">X-Total-Count header</span><span class="rel-how">— para que JavaScript del navegador pueda leer el total de elementos</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">SwaggerConfig + @Operation</span><span class="rel-arrow">genera</span><span class="rel-to">/swagger-ui.html</span><span class="rel-how">— documentación interactiva sin escribir una sola línea de HTML</span>
+  </div>
+</div>
+
+
+<div class="section-title">✅ Checklist de conceptos — Fases 1, 2 y 3</div>
+<table class="check-table">
+  <thead><tr><th>Concepto</th><th>Clase(s) donde se aplica</th><th>Estado</th></tr></thead>
+  <tbody>
+    <tr class="grp"><td colspan="3">☕ JAVA MODERNO — FASE 1</td></tr>
+    <tr><td>POO, Herencia, Polimorfismo, Interfaces</td><td>BaseEntity, Task, User, Filterable, Sortable</td><td class="done">✅ F1</td></tr>
+    <tr><td>Records, Enums, Generics, Collections</td><td>TaskFilter, PageResult, TaskStats, HashMap</td><td class="done">✅ F1</td></tr>
+    <tr><td>Streams, Lambdas, Optional</td><td>TaskService, User, GlobalExceptionHandler</td><td class="done">✅ F1+F3</td></tr>
+    <tr><td>Excepciones personalizadas</td><td>ApiException → capturada en GlobalExceptionHandler</td><td class="done">✅ F1+F3</td></tr>
+    <tr><td>LocalDate, Manejo archivos, Buenas prácticas</td><td>Task, TaskFileLogger, SOLID</td><td class="done">✅ F1</td></tr>
+    <tr class="grp"><td colspan="3">🌱 SPRING BOOT CORE — FASE 2</td></tr>
+    <tr><td>IoC, DI por constructor, @Bean, @Configuration</td><td>AppConfig, TaskController</td><td class="done">✅ F2</td></tr>
+    <tr><td>Profiles dev/prod, @Value, @ConfigurationProperties</td><td>application.yml, AppConfig</td><td class="done">✅ F2</td></tr>
+    <tr><td>Actuator (health, info, metrics)</td><td>/actuator/health, /actuator/info</td><td class="done">✅ F2</td></tr>
+    <tr class="grp"><td colspan="3">🌐 REST API COMPLETA — FASE 3</td></tr>
+    <tr><td>HTTP — protocolo y estructura</td><td>TaskController, WebConfig</td><td class="done">✅ F3</td></tr>
+    <tr><td>GET (listar + obtener)</td><td>TaskController.listarTareas(), obtenerTarea()</td><td class="done">✅ F3</td></tr>
+    <tr><td>POST (crear)</td><td>TaskController.crearTarea()</td><td class="done">✅ F3</td></tr>
+    <tr><td>PUT (reemplazar)</td><td>TaskController.actualizarTarea()</td><td class="done">✅ F3</td></tr>
+    <tr><td>PATCH (actualización parcial)</td><td>TaskController.cambiarEstado()</td><td class="done">✅ F3</td></tr>
+    <tr><td>DELETE</td><td>TaskController.eliminarTarea()</td><td class="done">✅ F3</td></tr>
+    <tr><td>JSON + @RequestBody + Jackson</td><td>CrearTareaRequest, ActualizarTareaRequest</td><td class="done">✅ F3</td></tr>
+    <tr><td>HTTP Status Codes correctos</td><td>200, 201, 204, 400, 404, 409, 500</td><td class="done">✅ F3</td></tr>
+    <tr><td>Headers personalizados</td><td>X-Total-Count en listarTareas()</td><td class="done">✅ F3</td></tr>
+    <tr><td>Path Variables + Query Parameters</td><td>@PathVariable id, @RequestParam estado/categoria</td><td class="done">✅ F3</td></tr>
+    <tr><td>DTOs Request / Response</td><td>CrearTareaRequest, TareaResponse, PageResponse</td><td class="done">✅ F3</td></tr>
+    <tr><td>Validation (@Valid, Bean Validation)</td><td>@NotBlank, @Size, @NotNull, @Future en DTOs</td><td class="done">✅ F3</td></tr>
+    <tr><td>Exception Handling (@ControllerAdvice)</td><td>GlobalExceptionHandler + ApiError</td><td class="done">✅ F3</td></tr>
+    <tr><td>Pagination + Filtering + Sorting</td><td>listarTareas() con pagina, tamanio, ordenarPor</td><td class="done">✅ F3</td></tr>
+    <tr><td>Swagger / OpenAPI 3.0</td><td>SwaggerConfig + @Operation en TaskController</td><td class="done">✅ F3</td></tr>
+    <tr><td>CORS configurado</td><td>WebConfig.addCorsMappings()</td><td class="done">✅ F3</td></tr>
+    <tr class="grp"><td colspan="3">🗄️ PRÓXIMAS FASES</td></tr>
+    <tr><td>Spring Data JPA + PostgreSQL + Flyway</td><td>—</td><td class="pending">⬜ Fase 4</td></tr>
+    <tr><td>Spring Security + JWT</td><td>—</td><td class="pending">⬜ Fase 5</td></tr>
+    <tr><td>JUnit 5 + Mockito</td><td>—</td><td class="pending">⬜ Fase 6</td></tr>
+    <tr><td>Docker + Maven + GitHub + CI/CD</td><td>—</td><td class="pending">⬜ Fase 7</td></tr>
+    <tr><td>AWS básico</td><td>—</td><td class="pending">⬜ Fase 8</td></tr>
+    <tr><td>Kubernetes</td><td>—</td><td class="pending">⬜ Fase 9</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <strong>📌 Para el siguiente chat:</strong> Si abres un nuevo chat, adjunta este informe y di:
+  <em>"Estoy desarrollando TaskFlow (Java 21 + Spring Boot, 9 fases). Fases 1, 2 y 3 completadas — tengo dominio Java, Spring Boot con Actuator y API REST completa con DTOs, validaciones, Swagger y manejo de errores global en localhost:8080. Necesito continuar con la Fase 4: Spring Data JPA + H2 + PostgreSQL."</em>
+</div>
+
+<footer>Made with IBM Bob · TaskFlow Proyecto de Aprendizaje · Fase 3/9</footer>
+</div>
+</body>
+</html>

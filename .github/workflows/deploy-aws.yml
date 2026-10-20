@@ -1,0 +1,65 @@
+name: TaskFlow AWS CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy-to-aws:
+    name: Build, Push to ECR & Deploy to Elastic Beanstalk
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Ejecutar Tests Automatizados
+        run: |
+          cd taskflow
+          chmod +x ./mvnw
+          ./mvnw clean test
+
+      - name: Configurar Credenciales de AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Iniciar sesión en Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Construir, Etiquetar y Subir Imagen Docker a ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: taskflow-api
+          IMAGE_TAG: latest
+        run: |
+          cd taskflow
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Generar Paquete de Despliegue para Elastic Beanstalk
+        run: |
+          cd taskflow
+          sed -i "s/<AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/${{ steps.login-ecr.outputs.registry }}/g" Dockerrun.aws.json
+          zip -r deploy-package.zip Dockerrun.aws.json
+
+      - name: Desplegar en AWS Elastic Beanstalk
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region: ${{ secrets.AWS_REGION }}
+          application_name: taskflow-app
+          environment_name: taskflow-prod-env
+          version_label: "deploy-${{ github.sha }}"
+          deployment_package: taskflow/deploy-package.zip

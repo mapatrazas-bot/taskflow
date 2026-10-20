@@ -1,0 +1,43 @@
+name: TaskFlow CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Build & Test (Java 21)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Dar permisos de ejecución al Maven Wrapper
+        run: |
+          cd taskflow
+          chmod +x ./mvnw
+
+      - name: Ejecutar Compilación y Tests (35 Tests)
+        run: |
+          cd taskflow
+          ./mvnw clean test
+
+      - name: Empaquetar JAR
+        run: |
+          cd taskflow
+          ./mvnw package -DskipTests
+
+      - name: Validar Build de Docker
+        run: |
+          cd taskflow
+          docker build -t taskflow-api:test .

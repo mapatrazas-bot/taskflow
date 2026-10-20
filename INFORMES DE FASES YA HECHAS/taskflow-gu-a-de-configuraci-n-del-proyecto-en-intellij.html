@@ -1,0 +1,283 @@
+
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TaskFlow — Guía de configuración IntelliJ</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  font-size: 14px; line-height: 1.7; color: #1f2328;
+  background: #fff; padding: 32px 16px;
+}
+.container { max-width: 760px; margin: 0 auto; }
+
+.header { border-bottom: 2px solid #e5e7eb; padding-bottom: 18px; margin-bottom: 24px; }
+.header h1 { font-size: 21px; font-weight: 700; }
+.header p { color: #57606a; font-size: 13px; margin-top: 4px; }
+
+.section-title {
+  font-size: 15px; font-weight: 700;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 5px; margin-top: 28px; margin-bottom: 14px;
+}
+
+/* Paso */
+.step {
+  display: flex; gap: 14px;
+  margin-bottom: 18px; align-items: flex-start;
+}
+.step-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #3b82d4; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+}
+.step-content { flex: 1; }
+.step-content strong { font-size: 13px; color: #1f2328; }
+.step-content p { font-size: 13px; color: #444; margin-top: 3px; }
+
+pre {
+  background: #1e1e2e; color: #cdd6f4;
+  border-radius: 6px; padding: 12px 14px;
+  font-size: 12px; line-height: 1.6;
+  overflow-x: auto; margin-top: 8px;
+  font-family: "Cascadia Code", "Consolas", monospace;
+}
+.cm { color: #6c7086; font-style: italic; }
+.kw { color: #cba6f7; }
+.st { color: #a6e3a1; }
+
+.info {
+  background: #eff6ff; border: 1px solid #bfdbfe;
+  border-radius: 6px; padding: 10px 14px;
+  font-size: 13px; color: #1e40af; margin: 10px 0;
+}
+.warn {
+  background: #fffbeb; border: 1px solid #fde68a;
+  border-radius: 6px; padding: 10px 14px;
+  font-size: 13px; color: #78350f; margin: 10px 0;
+}
+.ok {
+  background: #f0fdf4; border: 1px solid #bbf7d0;
+  border-radius: 6px; padding: 10px 14px;
+  font-size: 13px; color: #14532d; margin: 10px 0;
+}
+
+.structure {
+  background: #1e1e2e; color: #cdd6f4;
+  border-radius: 6px; padding: 14px 16px;
+  font-size: 12px; font-family: "Cascadia Code", "Consolas", monospace;
+  line-height: 1.8; margin: 10px 0;
+}
+.s-ok   { color: #a6e3a1; }
+.s-warn { color: #f38ba8; }
+.s-blue { color: #89b4fa; }
+.s-gray { color: #6c7086; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+th {
+  text-align: left; padding: 7px 10px;
+  background: #f7f8fa; border: 1px solid #e5e7eb;
+  font-size: 11px; font-weight: 700; color: #57606a;
+  text-transform: uppercase;
+}
+td { padding: 6px 10px; border: 1px solid #e5e7eb; }
+tr:nth-child(even) td { background: #fafbfc; }
+
+footer {
+  margin-top: 40px; padding-top: 14px;
+  border-top: 1px solid #e5e7eb;
+  text-align: center; font-size: 12px; color: #57606a;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>⚙️ TaskFlow — Guía de configuración en IntelliJ IDEA</h1>
+  <p>Solución definitiva para ejecutar un proyecto Spring Initializr con estructura Maven en IntelliJ · Fase 1</p>
+</div>
+
+
+<div class="section-title">🔍 ¿Por qué ocurrió el problema?</div>
+
+<p style="font-size:13px;color:#444;margin-bottom:12px">
+  Cuando se descarga un proyecto de <strong>Spring Initializr</strong> y se abre en IntelliJ,
+  el ZIP contiene una carpeta interna con el mismo nombre del proyecto.
+  Al extraerlo en una carpeta <code>taskflow/</code>, la estructura real queda en
+  <code>taskflow/taskflow/</code> — dos niveles. IntelliJ abre la carpeta externa como
+  workspace, pero el módulo Maven real está un nivel más adentro.
+  Esto hace que los archivos Java creados en el nivel externo no sean reconocidos
+  por Maven y el botón ▶ Run nunca se habilita.
+</p>
+
+<div class="structure">
+<span class="s-warn">taskflow/</span>               <span class="s-gray">← carpeta donde extrajiste el ZIP</span>
+  <span class="s-warn">├── src/</span>              <span class="s-gray">← ❌ nivel incorrecto (sin pom.xml)</span>
+  <span class="s-warn">│    └── main/java/com/taskflow/</span>
+  <span class="s-ok">└── taskflow/</span>          <span class="s-gray">← ✅ módulo Maven real</span>
+       <span class="s-ok">├── pom.xml</span>        <span class="s-gray">← aquí está el pom.xml</span>
+       <span class="s-ok">├── .mvn/</span>
+       <span class="s-ok">└── src/main/java/</span>  <span class="s-gray">← los archivos deben estar aquí</span>
+</div>
+
+
+<div class="section-title">✅ Solución paso a paso</div>
+
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-content">
+    <strong>Abrir IntelliJ apuntando a la carpeta correcta</strong>
+    <p>Al abrir el proyecto, seleccionar la carpeta <strong>interna</strong> (la que contiene el <code>pom.xml</code>), no la carpeta externa donde se extrajo el ZIP.</p>
+    <div class="warn">⚠️ Error frecuente: abrir <code>Curso de java/taskflow/</code> en lugar de <code>Curso de java/taskflow/taskflow/</code></div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-content">
+    <strong>Crear los archivos Java en la ruta correcta del módulo Maven</strong>
+    <p>Todos los paquetes y archivos <code>.java</code> deben crearse dentro de:</p>
+    <pre><code>taskflow\src\main\java\com\taskflow\</code></pre>
+    <p>Comando PowerShell para crear la estructura completa:</p>
+    <pre><code><span class="cm"># Ejecutar desde la carpeta que contiene el pom.xml</span>
+New-Item -ItemType Directory -Force -Path <span class="st">"src\main\java\com\taskflow\domain\enums"</span>
+New-Item -ItemType Directory -Force -Path <span class="st">"src\main\java\com\taskflow\domain\model"</span>
+New-Item -ItemType Directory -Force -Path <span class="st">"src\main\java\com\taskflow\domain\record"</span>
+New-Item -ItemType Directory -Force -Path <span class="st">"src\main\java\com\taskflow\domain\exception"</span>
+New-Item -ItemType Directory -Force -Path <span class="st">"src\main\java\com\taskflow\service"</span>
+New-Item -ItemType Directory -Force -Path <span class="st">"src\main\java\com\taskflow\util"</span></code></pre>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-content">
+    <strong>Registrar el pom.xml como proyecto Maven</strong>
+    <p>Si IntelliJ no reconoce el módulo automáticamente:</p>
+    <p>→ Clic derecho sobre <code>pom.xml</code> → <strong>"Add as Maven Project"</strong></p>
+    <p>Esperar a que la barra inferior diga <em>"Resolving dependencies..."</em> y termine.</p>
+    <div class="info">ℹ️ Esto descarga todas las dependencias de Spring Boot (~100MB). Requiere internet y puede tardar 2-5 minutos la primera vez.</div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">4</div>
+  <div class="step-content">
+    <strong>Verificar que los archivos quedan bajo el módulo Maven</strong>
+    <p>En el panel de IntelliJ, los archivos deben verse con iconos de colores (no grises):</p>
+    <table>
+      <tr><th>Ícono</th><th>Tipo</th><th>Significa</th></tr>
+      <tr><td>🔵 C</td><td>Class</td><td>Clase reconocida por Maven ✅</td></tr>
+      <tr><td>🟣 E</td><td>Enum</td><td>Enum reconocido ✅</td></tr>
+      <tr><td>🟡 ⚡</td><td>Exception</td><td>Excepción reconocida ✅</td></tr>
+      <tr><td>🔵 R</td><td>Record</td><td>Record reconocido ✅</td></tr>
+      <tr><td>🟢 I</td><td>Interface</td><td>Interfaz reconocida ✅</td></tr>
+      <tr><td>⬜ archivo</td><td>File</td><td>No reconocido por Maven ❌</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">5</div>
+  <div class="step-content">
+    <strong>Ejecutar con el triángulo verde ▶</strong>
+    <p>Abrir <code>TaskflowApplication.java</code> → aparece el triángulo ▶ en el margen izquierdo junto al <code>main()</code> → clic → <strong>Run 'TaskflowApplication'</strong></p>
+    <div class="ok">✅ Si ves el triángulo verde, Maven reconoce el archivo correctamente.</div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">6</div>
+  <div class="step-content">
+    <strong>Si el triángulo no aparece — crear Run Configuration manual</strong>
+    <p>Menú superior → flecha ▶ → <strong>Edit Configurations</strong> → <strong>+</strong> → <strong>Application</strong></p>
+    <table>
+      <tr><th>Campo</th><th>Valor</th></tr>
+      <tr><td>Name</td><td>TaskflowApplication</td></tr>
+      <tr><td>SDK</td><td>temurin-21 (o el JDK 21 que tengas)</td></tr>
+      <tr><td>Main class</td><td>com.taskflow.TaskflowApplication</td></tr>
+      <tr><td>Module</td><td>taskflow</td></tr>
+    </table>
+    <div class="warn">⚠️ Si el buscador de Main class no encuentra la clase, primero registra el pom.xml como Maven Project (paso 3) y vuelve a intentarlo.</div>
+  </div>
+</div>
+
+
+<div class="section-title">📁 Estructura final correcta del proyecto</div>
+
+<div class="structure">
+<span class="s-blue">taskflow/</span>                          <span class="s-gray">← workspace de IntelliJ</span>
+  <span class="s-ok">└── taskflow/</span>                      <span class="s-gray">← módulo Maven (tiene pom.xml)</span>
+       <span class="s-ok">├── pom.xml</span>                    <span class="s-gray">← ícono "m" azul en IntelliJ</span>
+       <span class="s-ok">├── mvnw / mvnw.cmd</span>
+       <span class="s-ok">├── .mvn/</span>
+       <span class="s-ok">└── src/</span>
+            <span class="s-ok">└── main/</span>
+                 <span class="s-ok">├── java/</span>
+                 <span class="s-ok">│    └── com/taskflow/</span>      <span class="s-gray">← todos los .java van aquí</span>
+                 <span class="s-ok">│         ├── domain/</span>
+                 <span class="s-ok">│         │    ├── enums/</span>
+                 <span class="s-ok">│         │    ├── exception/</span>
+                 <span class="s-ok">│         │    ├── model/</span>
+                 <span class="s-ok">│         │    └── record/</span>
+                 <span class="s-ok">│         ├── service/</span>
+                 <span class="s-ok">│         ├── util/</span>
+                 <span class="s-ok">│         └── TaskflowApplication.java</span>
+                 <span class="s-ok">└── resources/</span>
+                      <span class="s-ok">└── application.yaml</span>
+</div>
+
+
+<div class="section-title">📄 ¿Para qué sirve application.yaml?</div>
+
+<p style="font-size:13px;color:#444;margin-bottom:10px">
+  El <code>application.yaml</code> es el archivo de configuración de <strong>Spring Boot</strong>.
+  En la <strong>Fase 1 no hacía nada</strong> porque desactivamos Spring
+  (no llamamos a <code>SpringApplication.run()</code>).
+  Solo tenía la línea que generó Spring Initializr automáticamente.
+</p>
+
+<table>
+  <tr><th>Fase</th><th>Qué se configura en application.yaml</th></tr>
+  <tr><td>Fase 1</td><td><code>spring.application.name: taskflow</code> — solo el nombre, sin efecto real</td></tr>
+  <tr><td>Fase 2</td><td>Puerto del servidor, profiles activos (dev/prod)</td></tr>
+  <tr><td>Fase 3</td><td>CORS, Actuator endpoints, logging</td></tr>
+  <tr><td>Fase 4</td><td>DataSource (H2/PostgreSQL), JPA/Hibernate, H2 Console</td></tr>
+  <tr><td>Fase 5</td><td>JWT secret, expiración de tokens</td></tr>
+</table>
+
+<div class="info" style="margin-top:12px">
+  ℹ️ A partir de la <strong>Fase 2</strong> volveremos a llamar
+  <code>SpringApplication.run(TaskflowApplication.class, args)</code>
+  y Spring leerá el <code>application.yaml</code> automáticamente al arrancar.
+</div>
+
+
+<div class="section-title">💡 Lección aprendida — para proyectos futuros</div>
+
+<p style="font-size:13px;color:#444;margin-bottom:10px">Cuando descargas un proyecto de <strong>start.spring.io</strong>:</p>
+
+<div class="step">
+  <div class="step-num">A</div>
+  <div class="step-content">
+    <strong>Opción 1 — Extraer el ZIP y abrir la carpeta interna directamente</strong>
+    <p>Extraer el ZIP → entrar a la carpeta interna que tiene el <code>pom.xml</code> → <em>File → Open</em> apuntando a ESA carpeta.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">B</div>
+  <div class="step-content">
+    <strong>Opción 2 — Usar "Add as Maven Project" si ya abriste la carpeta externa</strong>
+    <p>Clic derecho en el <code>pom.xml</code> interno → <strong>Add as Maven Project</strong> → crear todos los archivos dentro de <code>taskflow/src/main/java/com/taskflow/</code></p>
+  </div>
+</div>
+
+<footer>Made with IBM Bob · TaskFlow Proyecto de Aprendizaje · Guía de configuración</footer>
+</div>
+</body>
+</html>

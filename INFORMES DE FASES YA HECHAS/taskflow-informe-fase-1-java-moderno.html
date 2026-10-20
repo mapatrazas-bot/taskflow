@@ -1,0 +1,789 @@
+
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TaskFlow — Informe Fase 1</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  font-size: 14px; line-height: 1.7; color: #1f2328; background: #fff; padding: 32px 16px;
+}
+.container { max-width: 760px; margin: 0 auto; }
+
+/* Header */
+.header { border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 28px; }
+.header h1 { font-size: 22px; font-weight: 700; }
+.header .meta { color: #57606a; font-size: 13px; margin-top: 4px; }
+.badge {
+  display: inline-block; font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 12px; margin-right: 4px; margin-top: 6px;
+}
+.b-java   { background:#fff3cd; color:#856404; }
+.b-ok     { background:#d1e7dd; color:#0a3622; }
+.b-fase   { background:#cfe2ff; color:#084298; }
+
+/* Estado de fases */
+.phases-bar { display: grid; grid-template-columns: repeat(9,1fr); gap: 4px; margin-bottom: 28px; }
+.ph-box {
+  text-align: center; padding: 6px 2px; border-radius: 5px;
+  font-size: 11px; font-weight: 600; border: 1px solid #e5e7eb;
+}
+.ph-done { background: #d1e7dd; color: #0a3622; border-color: #a3cfbb; }
+.ph-current { background: #3b82d4; color: #fff; border-color: #2563eb; }
+.ph-pending { background: #f7f8fa; color: #57606a; }
+
+/* Secciones */
+.section-title {
+  font-size: 16px; font-weight: 700; color: #1f2328;
+  border-bottom: 1px solid #e5e7eb; padding-bottom: 5px;
+  margin-top: 30px; margin-bottom: 14px;
+}
+
+/* Concepto card */
+.concept {
+  border: 1px solid #e5e7eb; border-radius: 8px;
+  margin-bottom: 18px; overflow: hidden;
+}
+.concept-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 16px; background: #f7f8fa;
+  border-bottom: 1px solid #e5e7eb;
+}
+.concept-icon {
+  width: 28px; height: 28px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.ic-blue   { background: #dbeafe; }
+.ic-purple { background: #ede9fe; }
+.ic-green  { background: #dcfce7; }
+.ic-orange { background: #ffedd5; }
+.ic-rose   { background: #fce7f3; }
+.ic-teal   { background: #ccfbf1; }
+.ic-yellow { background: #fef9c3; }
+.ic-slate  { background: #f1f5f9; }
+
+.concept-title { font-size: 13px; font-weight: 700; color: #1f2328; }
+.concept-subtitle { font-size: 12px; color: #57606a; }
+.concept-body { padding: 14px 16px; }
+.concept-body p { margin-bottom: 8px; font-size: 13px; }
+.concept-body ul { padding-left: 18px; margin-bottom: 8px; }
+.concept-body ul li { font-size: 13px; margin-bottom: 3px; }
+
+/* Code block */
+pre {
+  background: #1e1e2e; color: #cdd6f4;
+  border-radius: 6px; padding: 14px 16px;
+  overflow-x: auto; font-size: 12px; line-height: 1.6;
+  margin: 8px 0;
+}
+code { font-family: "Cascadia Code", "Fira Code", "Consolas", monospace; }
+.kw  { color: #cba6f7; }  /* keywords */
+.cm  { color: #6c7086; font-style: italic; } /* comments */
+.st  { color: #a6e3a1; }  /* strings */
+.cl  { color: #89b4fa; }  /* class names */
+.an  { color: #fab387; }  /* annotations */
+.nm  { color: #f9e2af; }  /* numbers */
+
+/* Inline code */
+ic { background: #f0f0f0; color: #c7254e; padding: 1px 5px; border-radius: 4px; font-family: monospace; font-size: 12px; }
+
+/* Relaciones */
+.relation-box {
+  background: #f7f8fa; border: 1px solid #e5e7eb;
+  border-radius: 6px; padding: 14px 16px; margin-top: 4px;
+}
+.rel-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 13px; }
+.rel-arrow { color: #3b82d4; font-weight: 700; }
+.rel-from { background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 12px; }
+.rel-to   { background: #dcfce7; color: #14532d; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 12px; }
+.rel-how  { color: #57606a; font-size: 12px; }
+
+/* Checklist table */
+.check-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.check-table th {
+  text-align: left; padding: 7px 10px;
+  background: #f7f8fa; border: 1px solid #e5e7eb;
+  font-size: 11px; font-weight: 700; color: #57606a;
+  text-transform: uppercase; letter-spacing: 0.4px;
+}
+.check-table td { padding: 6px 10px; border: 1px solid #e5e7eb; }
+.check-table tr:nth-child(even) td { background: #fafbfc; }
+.done   { color: #0a7c4a; font-weight: 600; }
+.pending{ color: #57606a; }
+.grp td { background: #1f2328 !important; color: #fff; font-weight: 700; font-size: 11px; text-transform: uppercase; padding: 5px 10px; }
+
+/* Archivos */
+.file-list { list-style: none; padding: 0; }
+.file-list li {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 0; border-bottom: 1px solid #f0f0f0;
+  font-size: 13px;
+}
+.file-list li:last-child { border-bottom: none; }
+.file-icon { color: #57606a; }
+.file-path { color: #57606a; font-size: 12px; }
+
+/* Note box */
+.note {
+  background: #fffbeb; border: 1px solid #fde68a;
+  border-radius: 6px; padding: 10px 14px;
+  font-size: 13px; color: #78350f; margin-top: 14px;
+}
+.info-box {
+  background: #eff6ff; border: 1px solid #bfdbfe;
+  border-radius: 6px; padding: 10px 14px;
+  font-size: 13px; color: #1e40af; margin-bottom: 10px;
+}
+
+footer {
+  margin-top: 40px; padding-top: 14px;
+  border-top: 1px solid #e5e7eb;
+  text-align: center; font-size: 12px; color: #57606a;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+
+<div class="header">
+  <h1>📘 TaskFlow — Informe Fase 1: Java 21 Moderno</h1>
+  <div class="meta">Proyecto: API REST de Gestión de Tareas · Fase 1 de 9 · Tutorial + Código</div>
+  <div style="margin-top:8px">
+    <span class="badge b-fase">Fase 1 ✓ Completada</span>
+    <span class="badge b-java">Java 21</span>
+    <span class="badge b-ok">Sin Spring</span>
+    <span class="badge b-ok">13 conceptos aplicados</span>
+  </div>
+</div>
+
+
+<div class="section-title">📊 Estado del Proyecto</div>
+<div class="phases-bar">
+  <div class="ph-box ph-done">F1<br />✓ Hecho</div>
+  <div class="ph-box ph-pending">F2<br />Spring</div>
+  <div class="ph-box ph-pending">F3<br />REST</div>
+  <div class="ph-box ph-pending">F4<br />JPA</div>
+  <div class="ph-box ph-pending">F5<br />JWT</div>
+  <div class="ph-box ph-pending">F6<br />Tests</div>
+  <div class="ph-box ph-pending">F7<br />Docker</div>
+  <div class="ph-box ph-pending">F8<br />AWS</div>
+  <div class="ph-box ph-pending">F9<br />K8s</div>
+</div>
+
+
+<div class="section-title">🎯 ¿Qué es TaskFlow?</div>
+<div class="info-box">
+  <strong>TaskFlow</strong> es una API REST para gestión de tareas personales/laborales.
+  Permite crear, actualizar y eliminar tareas con estados, prioridades, categorías y fechas límite.
+  Incluirá autenticación JWT, documentación Swagger, base de datos PostgreSQL, tests, Docker, AWS y Kubernetes.
+  <br /><br />
+  En la <strong>Fase 1</strong> construimos el <em>modelo de dominio puro en Java</em>,
+  sin Spring ni base de datos. Esto permite enfocarse en los fundamentos del lenguaje
+  antes de añadir el framework.
+</div>
+
+
+<div class="section-title">📁 Archivos creados en esta fase</div>
+<ul class="file-list">
+  <li><span class="file-icon">📄</span><strong>TaskStatus.java</strong><span class="file-path"> — domain/enums/ — Enum con etiqueta, activo, Optional</span></li>
+  <li><span class="file-icon">📄</span><strong>Priority.java</strong><span class="file-path"> — domain/enums/ — Enum con nivel numérico y Comparator</span></li>
+  <li><span class="file-icon">📄</span><strong>Category.java</strong><span class="file-path"> — domain/enums/ — Enum con descripción y List&lt;Category&gt;</span></li>
+  <li><span class="file-icon">📄</span><strong>ApiException.java</strong><span class="file-path"> — domain/exception/ — Excepción base abstracta unchecked</span></li>
+  <li><span class="file-icon">📄</span><strong>TaskNotFoundException.java</strong><span class="file-path"> — domain/exception/ — Hereda ApiException, HTTP 404</span></li>
+  <li><span class="file-icon">📄</span><strong>TaskValidationException.java</strong><span class="file-path"> — domain/exception/ — Hereda ApiException, HTTP 400</span></li>
+  <li><span class="file-icon">📄</span><strong>TaskStateException.java</strong><span class="file-path"> — domain/exception/ — Hereda ApiException, HTTP 409</span></li>
+  <li><span class="file-icon">📄</span><strong>BaseEntity.java</strong><span class="file-path"> — domain/model/ — Clase abstracta con id, fechas, AtomicLong</span></li>
+  <li><span class="file-icon">📄</span><strong>Task.java</strong><span class="file-path"> — domain/model/ — Hereda BaseEntity, lógica de transición de estados</span></li>
+  <li><span class="file-icon">📄</span><strong>User.java</strong><span class="file-path"> — domain/model/ — Hereda BaseEntity, Streams internos</span></li>
+  <li><span class="file-icon">📄</span><strong>TaskFilter.java</strong><span class="file-path"> — domain/record/ — Record con Optional y método coincide()</span></li>
+  <li><span class="file-icon">📄</span><strong>PageResult.java</strong><span class="file-path"> — domain/record/ — Record genérico &lt;T&gt; con paginación</span></li>
+  <li><span class="file-icon">📄</span><strong>TaskStats.java</strong><span class="file-path"> — domain/record/ — Record con factory method y Streams</span></li>
+  <li><span class="file-icon">📄</span><strong>Filterable.java</strong><span class="file-path"> — service/ — Interface genérica &lt;T,F&gt; con default method</span></li>
+  <li><span class="file-icon">📄</span><strong>Sortable.java</strong><span class="file-path"> — service/ — Interface con default method ordenarPorFechaDesc()</span></li>
+  <li><span class="file-icon">📄</span><strong>TaskService.java</strong><span class="file-path"> — service/ — implements Filterable + Sortable, CRUD + Streams</span></li>
+  <li><span class="file-icon">📄</span><strong>DateTimeUtils.java</strong><span class="file-path"> — util/ — Clase utilitaria, LocalDate/DateTime, ChronoUnit</span></li>
+  <li><span class="file-icon">📄</span><strong>TaskFileLogger.java</strong><span class="file-path"> — util/ — NIO2, try-with-resources, append a archivo</span></li>
+  <li><span class="file-icon">📄</span><strong>TaskflowApplication.java</strong><span class="file-path"> — raíz — main() con demo de todos los conceptos</span></li>
+</ul>
+
+
+<div class="section-title">📚 Conceptos aplicados — Explicación y código</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-blue">☕</div>
+    <div>
+      <div class="concept-title">1. POO — Clases, Herencia y Polimorfismo</div>
+      <div class="concept-subtitle">BaseEntity → Task, User · método abstracto · toString() polimórfico</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> La Programación Orientada a Objetos organiza el código en clases que encapsulan datos (campos) y comportamiento (métodos). La herencia permite que una clase hijo reutilice el código de una clase padre.</p>
+    <p><strong>¿Dónde se aplicó?</strong> <code>BaseEntity</code> es la clase base abstracta. <code>Task</code> y <code>User</code> la extienden y heredan automáticamente <code>id</code>, <code>fechaCreacion</code> y <code>fechaActualizacion</code> sin duplicar código.</p>
+    <p><strong>Polimorfismo:</strong> <code>getDescripcionCorta()</code> está declarado <code>abstract</code> en <code>BaseEntity</code>, cada subclase da su propia implementación. El mismo método, distinto comportamiento.</p>
+<pre><code><span class="cm">// BaseEntity — clase abstracta (padre)</span>
+<span class="kw">public abstract class</span> <span class="cl">BaseEntity</span> {
+    <span class="kw">private final</span> Long id;
+    <span class="kw">private final</span> LocalDateTime fechaCreacion;
+
+    <span class="kw">protected</span> <span class="cl">BaseEntity</span>() {
+        <span class="kw">this</span>.id = CONTADOR_ID.getAndIncrement();
+        <span class="kw">this</span>.fechaCreacion = LocalDateTime.now();
+    }
+    <span class="cm">// Obliga a cada subclase a implementar su descripción</span>
+    <span class="kw">public abstract</span> String getDescripcionCorta();
+}
+
+<span class="cm">// Task hereda de BaseEntity — reutiliza id y fechas</span>
+<span class="kw">public class</span> <span class="cl">Task</span> <span class="kw">extends</span> <span class="cl">BaseEntity</span> {
+    <span class="kw">public</span> String getDescripcionCorta() {
+        <span class="kw">return</span> <span class="st">"Task["</span> + getId() + <span class="st">"] '"</span> + titulo + <span class="st">"'"</span>;
+    }
+}
+
+<span class="cm">// User también hereda — misma firma, distinto resultado (polimorfismo)</span>
+<span class="kw">public class</span> <span class="cl">User</span> <span class="kw">extends</span> <span class="cl">BaseEntity</span> {
+    <span class="kw">public</span> String getDescripcionCorta() {
+        <span class="kw">return</span> <span class="st">"User["</span> + getId() + <span class="st">"] '"</span> + nombre + <span class="st">"'"</span>;
+    }
+}</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-purple">🔢</div>
+    <div>
+      <div class="concept-title">2. Enums con comportamiento</div>
+      <div class="concept-subtitle">TaskStatus · Priority · Category — campos, constructores, métodos</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> Un <code>enum</code> en Java no es solo una lista de constantes. Puede tener campos, constructores y métodos como cualquier clase, lo que permite encapsular lógica relacionada con cada valor.</p>
+    <p><strong>¿Dónde se aplicó?</strong> <code>TaskStatus</code> sabe si permite modificaciones (<code>isActivo()</code>). <code>Priority</code> tiene nivel numérico para comparar y ordenar. Ambos tienen métodos de búsqueda con <code>Optional</code>.</p>
+<pre><code><span class="kw">public enum</span> <span class="cl">TaskStatus</span> {
+    <span class="cm">// Cada constante tiene sus propios valores de campos</span>
+    PENDIENTE(<span class="st">"Pendiente"</span>, <span class="kw">true</span>),
+    COMPLETADA(<span class="st">"Completada"</span>, <span class="kw">false</span>);   <span class="cm">// estado final</span>
+
+    <span class="kw">private final</span> String etiqueta;
+    <span class="kw">private final boolean</span> activo;
+
+    <span class="cl">TaskStatus</span>(String etiqueta, <span class="kw">boolean</span> activo) {
+        <span class="kw">this</span>.etiqueta = etiqueta;
+        <span class="kw">this</span>.activo = activo;
+    }
+
+    <span class="cm">// Método de negocio: ¿se puede cambiar desde este estado?</span>
+    <span class="kw">public boolean</span> isActivo() { <span class="kw">return</span> activo; }
+
+    <span class="cm">// Retorna Optional en lugar de null — más seguro</span>
+    <span class="kw">public static</span> Optional&lt;TaskStatus&gt; desdeCadena(String nombre) {
+        <span class="kw">for</span> (<span class="cl">TaskStatus</span> s : values()) {
+            <span class="kw">if</span> (s.name().equalsIgnoreCase(nombre)) <span class="kw">return</span> Optional.of(s);
+        }
+        <span class="kw">return</span> Optional.empty();
+    }
+}</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-green">📦</div>
+    <div>
+      <div class="concept-title">3. Records (Java 16+)</div>
+      <div class="concept-subtitle">TaskFilter · PageResult&lt;T&gt; · TaskStats — datos inmutables sin boilerplate</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> Un <code>record</code> es una clase inmutable especial de Java 16+. El compilador genera automáticamente: constructor canónico, getters, <code>equals()</code>, <code>hashCode()</code> y <code>toString()</code>. No hay setters porque los records no mutan.</p>
+    <p><strong>¿Por qué usarlo?</strong> Un filtro de búsqueda o un resultado de estadísticas son datos de entrada o salida puros, no necesitan mutar. Los records eliminan todo el código repetitivo.</p>
+    <p><strong>¿Dónde se aplicó?</strong> <code>TaskFilter</code> encapsula criterios de búsqueda. <code>PageResult&lt;T&gt;</code> es genérico y calcula metadatos de paginación. <code>TaskStats</code> tiene un factory method con Streams.</p>
+<pre><code><span class="cm">// Declaración — el compilador genera TODO lo demás</span>
+<span class="kw">public record</span> <span class="cl">TaskFilter</span>(
+    Optional&lt;TaskStatus&gt; status,
+    Optional&lt;Priority&gt;   prioridad,
+    Optional&lt;Category&gt;   categoria,
+    Optional&lt;String&gt;     textoBusqueda
+) {
+    <span class="cm">// Método estático — factory method</span>
+    <span class="kw">public static</span> <span class="cl">TaskFilter</span> sinFiltros() {
+        <span class="kw">return new</span> <span class="cl">TaskFilter</span>(
+            Optional.empty(), Optional.empty(),
+            Optional.empty(), Optional.empty());
+    }
+
+    <span class="cm">// Evalúa si una tarea cumple todos los criterios activos</span>
+    <span class="kw">public boolean</span> coincide(<span class="cl">Task</span> tarea) {
+        <span class="kw">return</span> status.map(s -&gt; tarea.getStatus() == s).orElse(<span class="kw">true</span>)
+            &amp;&amp; prioridad.map(p -&gt; tarea.getPrioridad() == p).orElse(<span class="kw">true</span>)
+            &amp;&amp; categoria.map(c -&gt; tarea.getCategoria() == c).orElse(<span class="kw">true</span>);
+    }
+}
+
+<span class="cm">// Record genérico — &lt;T&gt; puede ser Task, User, etc.</span>
+<span class="kw">public record</span> <span class="cl">PageResult</span>&lt;T&gt;(
+    List&lt;T&gt; contenido, <span class="kw">int</span> paginaActual,
+    <span class="kw">int</span> tamanioPagina, <span class="kw">long</span> totalElementos
+) {
+    <span class="kw">public int</span> totalPaginas() {
+        <span class="kw">return</span> (<span class="kw">int</span>) Math.ceil((<span class="kw">double</span>) totalElementos / tamanioPagina);
+    }
+}</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-orange">🔷</div>
+    <div>
+      <div class="concept-title">4. Generics</div>
+      <div class="concept-subtitle">Filterable&lt;T,F&gt; · Sortable&lt;T&gt; · PageResult&lt;T&gt; · Map&lt;Long,Task&gt;</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> Los Generics permiten escribir clases y métodos que funcionen con cualquier tipo, evitando duplicación y garantizando type-safety en tiempo de compilación.</p>
+    <p><strong>¿Dónde se aplicó?</strong> La interfaz <code>Filterable&lt;T,F&gt;</code> acepta cualquier tipo de elemento <code>T</code> y cualquier tipo de filtro <code>F</code>. <code>PageResult&lt;T&gt;</code> pagina cualquier tipo de objeto. El <code>Map&lt;Long,Task&gt;</code> en <code>TaskService</code> garantiza que solo almacenamos <code>Task</code>.</p>
+<pre><code><span class="cm">// Interface genérica — T=tipo elemento, F=tipo filtro</span>
+<span class="kw">public interface</span> <span class="cl">Filterable</span>&lt;T, F&gt; {
+    List&lt;T&gt; filtrar(List&lt;T&gt; elementos, F filtro);
+
+    <span class="cm">// default method que reutiliza filtrar()</span>
+    <span class="kw">default</span> List&lt;T&gt; filtrarYOrdenar(
+            List&lt;T&gt; elementos, F filtro, Comparator&lt;T&gt; orden) {
+        <span class="kw">return</span> filtrar(elementos, filtro)
+            .stream().sorted(orden).collect(Collectors.toList());
+    }
+}
+
+<span class="cm">// TaskService: T=Task, F=TaskFilter</span>
+<span class="kw">public class</span> <span class="cl">TaskService</span>
+    <span class="kw">implements</span> <span class="cl">Filterable</span>&lt;Task, TaskFilter&gt;, <span class="cl">Sortable</span>&lt;Task&gt; {
+
+    <span class="cm">// Map tipado — solo acepta Long como clave y Task como valor</span>
+    <span class="kw">private final</span> Map&lt;Long, Task&gt; tareas = <span class="kw">new</span> HashMap&lt;&gt;();
+}</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-teal">📚</div>
+    <div>
+      <div class="concept-title">5. Collections</div>
+      <div class="concept-subtitle">HashMap · ArrayList · List.of() · Collections.unmodifiableList()</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> El framework de Collections de Java provee estructuras de datos reutilizables y optimizadas: <code>List</code> (ordenada), <code>Map</code> (clave-valor), <code>Set</code> (sin duplicados).</p>
+    <p><strong>¿Dónde se aplicó?</strong> <code>HashMap&lt;Long,Task&gt;</code> como almacén en memoria en <code>TaskService</code>. <code>ArrayList&lt;Task&gt;</code> en <code>User</code> para las tareas del usuario. <code>Collections.unmodifiableList()</code> para exponer listas sin permitir modificación externa.</p>
+<pre><code><span class="cm">// HashMap como "base de datos" en memoria</span>
+<span class="kw">private final</span> Map&lt;Long, Task&gt; tareas = <span class="kw">new</span> HashMap&lt;&gt;();
+
+<span class="cm">// ArrayList interno — mutable</span>
+<span class="kw">private final</span> List&lt;Task&gt; tareas = <span class="kw">new</span> ArrayList&lt;&gt;();
+
+<span class="cm">// Exposición segura — lista no modificable (encapsulamiento)</span>
+<span class="kw">public</span> List&lt;Task&gt; getTareas() {
+    <span class="kw">return</span> Collections.unmodifiableList(tareas);
+}
+
+<span class="cm">// List.of() — lista inmutable literal (Java 9+)</span>
+List.of(t1, t2, t3).forEach(ana::agregarTarea);</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-rose">🌊</div>
+    <div>
+      <div class="concept-title">6. Streams y Lambdas</div>
+      <div class="concept-subtitle">filter · map · sorted · groupingBy · count · anyMatch · toList()</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> La API de Streams (Java 8+) permite procesar colecciones de forma declarativa y funcional, encadenando operaciones sin bucles explícitos. Las Lambdas son funciones anónimas que se pasan como argumentos.</p>
+    <p><strong>¿Dónde se aplicó?</strong> En <code>TaskService</code> para filtrar, ordenar, agrupar y contar tareas. En <code>User</code> para consultar tareas activas. En <code>TaskStats</code> para calcular estadísticas.</p>
+<pre><code><span class="cm">// filter + map + toList — filtrar y transformar</span>
+List&lt;String&gt; titulos = servicio.listarTodas().stream()
+    .filter(t -&gt; t.getCategoria() == Category.TRABAJO)  <span class="cm">// lambda</span>
+    .map(Task::getTitulo)                                <span class="cm">// method reference</span>
+    .toList();                                           <span class="cm">// Java 16+</span>
+
+<span class="cm">// groupingBy + counting — agrupar y contar</span>
+Map&lt;Category, Long&gt; conteo = tareas.values().stream()
+    .collect(Collectors.groupingBy(
+        Task::getCategoria,     <span class="cm">// criterio de agrupación</span>
+        Collectors.counting()   <span class="cm">// operación de agregación</span>
+    ));
+
+<span class="cm">// sorted con Comparator lambda — orden descendente por nivel</span>
+List&lt;Task&gt; porPrioridad = tareas.stream()
+    .sorted(Comparator.comparingInt(t -&gt; -t.getPrioridad().getNivel()))
+    .collect(Collectors.toList());
+
+<span class="cm">// anyMatch — shortcircuit, para en el primer match</span>
+<span class="kw">boolean</span> hayUrgentes = tareas.stream()
+    .anyMatch(t -&gt; t.getPrioridad().esUrgente());
+
+<span class="cm">// skip + limit — paginación sobre un Stream</span>
+List&lt;Task&gt; pagina = todasFiltradas.stream()
+    .skip((long) pagina * tamanio)
+    .limit(tamanio)
+    .collect(Collectors.toList());</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-blue">🔵</div>
+    <div>
+      <div class="concept-title">7. Optional</div>
+      <div class="concept-subtitle">buscarPorId() · getFechaLimite() · Optional.map().orElse() — null safety</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> <code>Optional&lt;T&gt;</code> es un contenedor que puede tener un valor o estar vacío. Reemplaza el uso de <code>null</code> como señal de "ausencia de valor", forzando al llamador a manejar explícitamente ambos casos.</p>
+    <p><strong>¿Por qué importa?</strong> El <code>NullPointerException</code> es el error más común en Java. <code>Optional</code> lo elimina al nivel de la API: si el método retorna <code>Optional</code>, es imposible olvidarse de manejar el caso vacío.</p>
+<pre><code><span class="cm">// buscarPorId retorna Optional — nunca null</span>
+<span class="kw">public</span> Optional&lt;Task&gt; buscarPorId(Long id) {
+    <span class="kw">return</span> Optional.ofNullable(tareas.get(id));
+}
+
+<span class="cm">// ifPresent — ejecutar solo si hay valor</span>
+servicio.buscarPorId(t1.getId())
+    .ifPresent(t -&gt; System.out.println(t.getTitulo()));
+
+<span class="cm">// ifPresentOrElse — manejar ambos casos</span>
+servicio.buscarPorId(<span class="nm">999L</span>)
+    .ifPresentOrElse(
+        t  -&gt; System.out.println(<span class="st">"Encontrada: "</span> + t.getTitulo()),
+        ()  -&gt; System.out.println(<span class="st">"No encontrada"</span>)
+    );
+
+<span class="cm">// map + orElse — transformar si existe, o valor por defecto</span>
+String titulo = servicio.buscarPorId(id)
+    .map(Task::getTitulo)
+    .orElse(<span class="st">"Sin título"</span>);
+
+<span class="cm">// orElseThrow — fallar rápido con excepción contextual</span>
+Task tarea = buscarPorId(id)
+    .orElseThrow(() -&gt; <span class="kw">new</span> <span class="cl">TaskNotFoundException</span>(id));
+
+<span class="cm">// Campo opcional en modelo — fecha límite puede no existir</span>
+<span class="kw">public</span> Optional&lt;LocalDate&gt; getFechaLimite() {
+    <span class="kw">return</span> Optional.ofNullable(fechaLimite);
+}</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-rose">⚠️</div>
+    <div>
+      <div class="concept-title">8. Excepciones personalizadas</div>
+      <div class="concept-subtitle">ApiException → TaskNotFoundException, TaskValidationException, TaskStateException</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> Las excepciones personalizadas crean una jerarquía propia del dominio, con mensajes y códigos de error específicos. Permiten distinguir entre "tarea no encontrada", "validación fallida" y "transición inválida" con <code>catch</code> separados.</p>
+    <p><strong>Checked vs Unchecked:</strong> <code>checked</code> (extends Exception) obliga al llamador a declarar <code>throws</code> o usar try/catch. <code>unchecked</code> (extends RuntimeException) no obliga. Aquí usamos <code>unchecked</code> para errores de dominio.</p>
+<pre><code><span class="cm">// ApiException — raíz abstracta unchecked</span>
+<span class="kw">public abstract class</span> <span class="cl">ApiException</span> <span class="kw">extends</span> RuntimeException {
+    <span class="kw">private final</span> String codigoError;
+    <span class="kw">private final int</span> httpStatus;
+    <span class="cm">// ... (guardamos el código HTTP para usarlo en Fase 3 con Spring)</span>
+}
+
+<span class="cm">// TaskStateException — transición inválida entre estados</span>
+<span class="kw">public class</span> <span class="cl">TaskStateException</span> <span class="kw">extends</span> <span class="cl">ApiException</span> {
+    <span class="kw">public</span> <span class="cl">TaskStateException</span>(TaskStatus actual, TaskStatus intentado) {
+        <span class="kw">super</span>(<span class="st">"No se puede cambiar de '"</span> + actual.getEtiqueta()
+            + <span class="st">"' a '"</span> + intentado.getEtiqueta() + <span class="st">"'"</span>,
+            <span class="st">"TASK_STATE_ERROR"</span>, <span class="nm">409</span>);
+    }
+}
+
+<span class="cm">// Uso — transición inválida lanza excepción</span>
+<span class="kw">try</span> {
+    tarea.cambiarStatus(TaskStatus.COMPLETADA);   <span class="cm">// ok</span>
+    tarea.cambiarStatus(TaskStatus.EN_PROGRESO);  <span class="cm">// lanza TaskStateException</span>
+} <span class="kw">catch</span> (<span class="cl">TaskStateException</span> e) {
+    System.out.println(e.getCodigoError() + <span class="st">" | HTTP: "</span> + e.getHttpStatus());
+}</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-purple">🔌</div>
+    <div>
+      <div class="concept-title">9. Interfaces y Polimorfismo</div>
+      <div class="concept-subtitle">Filterable&lt;T,F&gt; · Sortable&lt;T&gt; — contratos, default methods, implementación múltiple</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> Una interfaz define un contrato: qué debe hacer una clase, sin decir cómo. Una clase puede implementar múltiples interfaces (a diferencia de la herencia simple de clases). Los <em>default methods</em> (Java 8+) permiten añadir implementaciones concretas a interfaces.</p>
+<pre><code><span class="cm">// Filterable — contrato genérico con default method</span>
+<span class="kw">public interface</span> <span class="cl">Filterable</span>&lt;T, F&gt; {
+    List&lt;T&gt; filtrar(List&lt;T&gt; elementos, F filtro); <span class="cm">// abstracto</span>
+
+    <span class="cm">// default method: implementación base que usa filtrar()</span>
+    <span class="kw">default</span> List&lt;T&gt; filtrarYOrdenar(
+            List&lt;T&gt; elementos, F filtro, Comparator&lt;T&gt; orden) {
+        <span class="kw">return</span> filtrar(elementos, filtro)
+            .stream().sorted(orden).collect(Collectors.toList());
+    }
+}
+
+<span class="cm">// TaskService implementa DOS interfaces (polimorfismo múltiple)</span>
+<span class="kw">public class</span> <span class="cl">TaskService</span>
+    <span class="kw">implements</span> <span class="cl">Filterable</span>&lt;Task, TaskFilter&gt;,
+               <span class="cl">Sortable</span>&lt;Task&gt; {
+
+    <span class="an">@Override</span>
+    <span class="kw">public</span> List&lt;Task&gt; filtrar(List&lt;Task&gt; elementos, TaskFilter filtro) {
+        <span class="kw">return</span> elementos.stream()
+            .filter(filtro::coincide)  <span class="cm">// method reference al record</span>
+            .collect(Collectors.toList());
+    }
+
+    <span class="an">@Override</span>
+    <span class="kw">public</span> List&lt;Task&gt; ordenarPorPrioridad(List&lt;Task&gt; elementos) {
+        <span class="kw">return</span> elementos.stream()
+            .sorted(Comparator.comparingInt(t -&gt; -t.getPrioridad().getNivel()))
+            .collect(Collectors.toList());
+    }
+}</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-yellow">📅</div>
+    <div>
+      <div class="concept-title">10. Fecha y Hora — java.time API</div>
+      <div class="concept-subtitle">LocalDate · LocalDateTime · ChronoUnit · DateTimeFormatter</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> La API <code>java.time</code> (Java 8+) reemplaza las antiguas clases <code>Date</code> y <code>Calendar</code>. Es inmutable, thread-safe y mucho más expresiva. <code>LocalDate</code> es solo fecha (sin hora), <code>LocalDateTime</code> incluye fecha y hora sin zona horaria.</p>
+<pre><code><span class="cm">// LocalDate — solo fecha (sin hora), ideal para fechas límite</span>
+<span class="kw">private</span> LocalDate fechaLimite;
+
+<span class="cm">// Comparar con la fecha de hoy</span>
+<span class="kw">public boolean</span> estaVencida() {
+    <span class="kw">return</span> fechaLimite != <span class="kw">null</span>
+        &amp;&amp; fechaLimite.isBefore(LocalDate.now())
+        &amp;&amp; status.isActivo();
+}
+
+<span class="cm">// ChronoUnit — diferencia en días entre dos fechas</span>
+<span class="kw">public long</span> diasRestantes() {
+    <span class="kw">return</span> ChronoUnit.DAYS.between(LocalDate.now(), fechaLimite);
+}
+
+<span class="cm">// LocalDateTime — fecha + hora para auditoría</span>
+<span class="kw">private final</span> LocalDateTime fechaCreacion = LocalDateTime.now();
+
+<span class="cm">// DateTimeFormatter — formatear para mostrar al usuario</span>
+<span class="kw">private static final</span> DateTimeFormatter FMT =
+    DateTimeFormatter.ofPattern(<span class="st">"dd/MM/yyyy HH:mm:ss"</span>);
+String texto = fechaCreacion.format(FMT);  <span class="cm">// "26/08/2025 14:30:00"</span></code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-slate">📁</div>
+    <div>
+      <div class="concept-title">11. Manejo de Archivos — NIO2</div>
+      <div class="concept-subtitle">Files · Path · Paths · BufferedWriter · try-with-resources</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> La API NIO2 (<code>java.nio.file</code>, Java 7+) es la forma moderna de trabajar con archivos en Java. Reemplaza la antigua <code>java.io.File</code>. El patrón <strong>try-with-resources</strong> garantiza que los recursos (archivos, conexiones) se cierren automáticamente.</p>
+<pre><code><span class="cm">// Crear directorio y archivo si no existen (NIO2)</span>
+Path archivoLog = Paths.get(<span class="st">"logs"</span>, <span class="st">"taskflow.log"</span>);
+Files.createDirectories(archivoLog.getParent()); <span class="cm">// crea logs/</span>
+<span class="kw">if</span> (!Files.exists(archivoLog)) Files.createFile(archivoLog);
+
+<span class="cm">// try-with-resources — cierre automático garantizado</span>
+<span class="cm">// El compilador inserta el close() aunque haya excepción</span>
+<span class="kw">try</span> (BufferedWriter writer =
+        <span class="kw">new</span> BufferedWriter(<span class="kw">new</span> FileWriter(archivoLog.toFile(), <span class="kw">true</span>))) {
+    writer.write(contenido); <span class="cm">// true = append, no sobreescribe</span>
+} <span class="cm">// writer.close() se llama aquí automáticamente</span>
+
+<span class="cm">// Leer todas las líneas (Java 11+)</span>
+List&lt;String&gt; lineas = Files.readAllLines(archivoLog, StandardCharsets.UTF_8);
+
+<span class="cm">// Sobreescribir archivo (limpiar log)</span>
+Files.writeString(archivoLog, <span class="st">""</span>);</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-green">⚡</div>
+    <div>
+      <div class="concept-title">12. Java Moderno — Características recientes</div>
+      <div class="concept-subtitle">var · toList() · text blocks · switch expressions · AtomicLong</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué incluye?</strong> Java 21 acumula muchas mejoras desde Java 8. En este proyecto usamos las más relevantes para código limpio y expresivo.</p>
+<pre><code><span class="cm">// var — inferencia de tipo local (Java 10+)</span>
+<span class="kw">var</span> resultado = servicio.buscarPorId(<span class="nm">999L</span>);   <span class="cm">// Optional&lt;Task&gt;</span>
+<span class="kw">var</span> tareas = servicio.listarTodas();           <span class="cm">// List&lt;Task&gt;</span>
+
+<span class="cm">// Stream.toList() — más conciso que collect(Collectors.toUnmodifiableList())</span>
+List&lt;Task&gt; resultado = stream.filter(...).toList();  <span class="cm">// Java 16+</span>
+
+<span class="cm">// AtomicLong — generador de IDs thread-safe (Java 5+, pero moderno)</span>
+<span class="kw">private static final</span> AtomicLong CONTADOR = <span class="kw">new</span> AtomicLong(<span class="nm">1</span>);
+Long id = CONTADOR.getAndIncrement(); <span class="cm">// atómico, sin sincronización manual</span>
+
+<span class="cm">// List.of() — lista inmutable literal (Java 9+)</span>
+List.of(t1, t2, t3).forEach(ana::agregarTarea);
+
+<span class="cm">// String.repeat() — para formatear líneas decorativas</span>
+String separador = <span class="st">"═"</span>.repeat(<span class="nm">60</span>);
+
+<span class="cm">// String.isBlank() — más robusto que isEmpty() (Java 11+)</span>
+<span class="kw">if</span> (titulo.isBlank()) <span class="kw">throw new</span> <span class="cl">TaskValidationException</span>(...);</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-teal">✅</div>
+    <div>
+      <div class="concept-title">13. Buenas prácticas</div>
+      <div class="concept-subtitle">SOLID · Clean Code · Encapsulamiento · Inmutabilidad · Javadoc</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <ul>
+      <li><strong>Single Responsibility (SOLID-S):</strong> <code>TaskService</code> solo maneja lógica de tareas, <code>TaskFileLogger</code> solo escribe al log, <code>DateTimeUtils</code> solo formatea fechas.</li>
+      <li><strong>Open/Closed (SOLID-O):</strong> <code>Filterable&lt;T,F&gt;</code> permite añadir nuevos tipos filtrables sin modificar la interfaz.</li>
+      <li><strong>Encapsulamiento:</strong> todos los campos son <code>private</code>. Los setters validan antes de asignar. Los getters de colecciones retornan vistas inmutables.</li>
+      <li><strong>Inmutabilidad:</strong> Records, <code>List.of()</code>, <code>Collections.unmodifiableList()</code>.</li>
+      <li><strong>Fail-fast:</strong> validamos al principio de cada método y lanzamos excepción inmediatamente si los datos son inválidos.</li>
+      <li><strong>No null:</strong> usamos <code>Optional</code> en lugar de retornar <code>null</code>. Los constructores validan parámetros obligatorios.</li>
+      <li><strong>Javadoc:</strong> todos los métodos públicos tienen documentación con <code>@param</code>, <code>@return</code> y explicación del concepto aplicado.</li>
+    </ul>
+  </div>
+</div>
+
+
+<div class="section-title">🔗 Cómo se relacionan los conceptos</div>
+<div class="relation-box">
+  <div class="rel-row">
+    <span class="rel-from">BaseEntity</span><span class="rel-arrow">←extienden</span><span class="rel-to">Task, User</span><span class="rel-how">— Herencia: reutilizan id y fechas sin duplicar código</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">Filterable&lt;T,F&gt;</span><span class="rel-arrow">←implementa</span><span class="rel-to">TaskService</span><span class="rel-how">— Polimorfismo por interfaz: contrato desacoplado de la implementación</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">TaskFilter (Record)</span><span class="rel-arrow">→usa</span><span class="rel-to">Optional, Streams</span><span class="rel-how">— El método coincide() usa Optional.map() + Streams internamente</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">TaskService</span><span class="rel-arrow">→retorna</span><span class="rel-to">PageResult&lt;Task&gt;</span><span class="rel-how">— Generics: el mismo record pagina cualquier tipo &lt;T&gt;</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">ApiException</span><span class="rel-arrow">←extienden</span><span class="rel-to">TaskNotFound, StateEx</span><span class="rel-how">— Jerarquía de excepciones: un catch(ApiException) captura todas</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">Task.cambiarStatus()</span><span class="rel-arrow">→lanza</span><span class="rel-to">TaskStateException</span><span class="rel-how">— Excepciones + Enums: el estado del enum determina si la excepción se lanza</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">TaskFileLogger</span><span class="rel-arrow">→escribe</span><span class="rel-to">logs/taskflow.log</span><span class="rel-how">— NIO2 + try-with-resources + LocalDateTime (timestamp en cada línea)</span>
+  </div>
+</div>
+
+
+<div class="section-title">✅ Checklist de conceptos — Fase 1 completada</div>
+<table class="check-table">
+  <thead><tr><th>Concepto</th><th>Clase(s) donde se aplica</th><th>Estado</th></tr></thead>
+  <tbody>
+    <tr class="grp"><td colspan="3">☕ JAVA CORE — FASE 1</td></tr>
+    <tr><td>POO — Clases y Objetos</td><td>Task, User, BaseEntity, TaskService</td><td class="done">✅ Hecho</td></tr>
+    <tr><td>Herencia</td><td>Task extends BaseEntity, User extends BaseEntity</td><td class="done">✅ Hecho</td></tr>
+    <tr><td>Interfaces</td><td>Filterable&lt;T,F&gt;, Sortable&lt;T&gt;</td><td class="done">✅ Hecho</td></tr>
+    <tr><td>Polimorfismo</td><td>getDescripcionCorta(), toString(), filtrar()</td><td class="done">✅ Hecho</td></tr>
+    <tr><td>Enums con comportamiento</td><td>TaskStatus, Priority, Category</td><td class="done">✅ Hecho</td></tr>
+    <tr><td>Records (Java 16+)</td><td>TaskFilter, PageResult&lt;T&gt;, TaskStats</td><td class="done">✅ Hecho</td></tr>
+    <tr><td>Generics</td><td>Filterable&lt;T,F&gt;, Sortable&lt;T&gt;, PageResult&lt;T&gt;, Map&lt;Long,Task&gt;</td><td class="done">✅ Hecho</td></tr>
+    <tr><td>Collections (List, Map, Set)</td><td>HashMap en TaskService, ArrayList en User, List.of()</td><td class="done">✅ Hecho</td></tr>
+    <tr><td>Streams</td><td>TaskService (filtrar, ordenar, agrupar), User, TaskStats</td><td class="done">✅ Hecho</td></tr>
+    <tr><td>Lambdas</td><td>filter(), map(), sorted(), groupingBy(), forEach()</td><td class="done">✅ Hecho</td></tr>
+    <tr><td>Optional</td><td>buscarPorId(), getFechaLimite(), TaskFilter.coincide()</td><td class="done">✅ Hecho</td></tr>
+    <tr><td>Excepciones personalizadas</td><td>ApiException, TaskNotFoundException, TaskStateException, TaskValidationException</td><td class="done">✅ Hecho</td></tr>
+    <tr><td>LocalDate / LocalDateTime</td><td>Task.fechaLimite, BaseEntity.fechaCreacion, DateTimeUtils</td><td class="done">✅ Hecho</td></tr>
+    <tr><td>Manejo de archivos (NIO2)</td><td>TaskFileLogger — Files, Path, BufferedWriter</td><td class="done">✅ Hecho</td></tr>
+    <tr><td>Buenas prácticas (SOLID, clean code)</td><td>Toda la base de código</td><td class="done">✅ Hecho</td></tr>
+    <tr><td>Java moderno (var, toList(), AtomicLong)</td><td>TaskflowApplication, BaseEntity, TaskService</td><td class="done">✅ Hecho</td></tr>
+    <tr class="grp"><td colspan="3">🌱 PRÓXIMAS FASES</td></tr>
+    <tr><td>Spring Boot Core (IoC, DI, Profiles)</td><td>—</td><td class="pending">⬜ Fase 2</td></tr>
+    <tr><td>REST API completa (CRUD, Swagger)</td><td>—</td><td class="pending">⬜ Fase 3</td></tr>
+    <tr><td>Spring Data JPA + PostgreSQL</td><td>—</td><td class="pending">⬜ Fase 4</td></tr>
+    <tr><td>Spring Security + JWT</td><td>—</td><td class="pending">⬜ Fase 5</td></tr>
+    <tr><td>JUnit 5 + Mockito</td><td>—</td><td class="pending">⬜ Fase 6</td></tr>
+    <tr><td>Docker + Maven + GitHub + CI/CD</td><td>—</td><td class="pending">⬜ Fase 7</td></tr>
+    <tr><td>AWS básico</td><td>—</td><td class="pending">⬜ Fase 8</td></tr>
+    <tr><td>Kubernetes</td><td>—</td><td class="pending">⬜ Fase 9</td></tr>
+  </tbody>
+</table>
+
+
+<div class="section-title">🖥️ Salida esperada al ejecutar</div>
+<pre><code>════════════════════════════════════════════════════════════
+  TaskFlow — Fase 1: Java 21 Moderno
+════════════════════════════════════════════════════════════
+
+  ▶ 1. POO — Herencia, Clases y Objetos
+  ────────────────────────────────────────────────────────────
+  Usuario (BaseEntity): User{id=1, nombre='Ana García', ...}
+  Descripción corta:    User[1] 'Ana García' (ana@taskflow.com) | tareas: 0
+
+  ▶ 2. Enums con campos y métodos
+  ────────────────────────────────────────────────────────────
+  Estados de tarea:
+    Pendiente    → activo: true
+    En progreso  → activo: true
+    Completada   → activo: false
+    Cancelada    → activo: false
+  URGENTE &gt; BAJA: true
+  Estado encontrado: Completada
+  ...
+  ✅ Fase 1 completada — todos los conceptos aplicados</code></pre>
+
+
+<div class="note">
+  <strong>📌 Para el siguiente chat:</strong> Si abres un nuevo chat, adjunta este informe Word y di:
+  <em>"Estoy desarrollando TaskFlow (Java 21 + Spring Boot, 9 fases). La Fase 1 está completa — tengo las clases de dominio puras. Necesito continuar con la Fase 2: Spring Boot Core."</em>
+</div>
+
+<footer>Made with IBM Bob · TaskFlow Proyecto de Aprendizaje · Fase 1/9</footer>
+</div>
+</body>
+</html>

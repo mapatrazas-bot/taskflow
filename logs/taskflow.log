@@ -1,0 +1,9 @@
+[2026-08-27 14:23:46] [INFO] Log limpiado.
+[2026-08-27 14:23:46] [INFO] TAREA_CREADA → Task[2] 'Preparar presentación Q3' | Pendiente | Alta
+[2026-08-27 14:23:46] [INFO] TAREA_CREADA → Task[3] 'Leer Clean Code' | Pendiente | Media
+[2026-08-27 14:23:46] [INFO] TAREA_CREADA → Task[4] 'Llamar al dentista' | Pendiente | Baja
+[2026-08-27 14:23:46] [INFO] TAREA_CREADA → Task[5] 'Entregar informe urgente' | Pendiente | Urgente
+[2026-08-27 14:23:46] [INFO] TAREA_CREADA → Task[6] 'Revisar PRs pendientes' | Pendiente | Alta
+[2026-08-27 14:23:46] [INFO] TAREA_COMPLETADA → Task[2] 'Preparar presentación Q3' | Completada | Alta
+[2026-08-27 14:23:46] [INFO] Demo Fase 1 ejecutada correctamente.
+[2026-08-27 14:23:46] [WARN] Tarea vencida detectada: 4

@@ -1,0 +1,669 @@
+
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TaskFlow — Informe Fase 2</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  font-size: 14px; line-height: 1.7; color: #1f2328;
+  background: #fff; padding: 32px 16px;
+}
+.container { max-width: 760px; margin: 0 auto; }
+
+.header { border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 28px; }
+.header h1 { font-size: 22px; font-weight: 700; }
+.header .meta { color: #57606a; font-size: 13px; margin-top: 4px; }
+.badge {
+  display: inline-block; font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 12px; margin-right: 4px; margin-top: 6px;
+}
+.b-spring { background: #d1e7dd; color: #0a3622; }
+.b-java   { background: #fff3cd; color: #856404; }
+.b-fase   { background: #cfe2ff; color: #084298; }
+.b-ok     { background: #d1e7dd; color: #0a3622; }
+
+.phases-bar { display: grid; grid-template-columns: repeat(9,1fr); gap: 4px; margin-bottom: 28px; }
+.ph-box { text-align: center; padding: 6px 2px; border-radius: 5px; font-size: 11px; font-weight: 600; border: 1px solid #e5e7eb; }
+.ph-done    { background: #d1e7dd; color: #0a3622; border-color: #a3cfbb; }
+.ph-current { background: #3b82d4; color: #fff; border-color: #2563eb; }
+.ph-pending { background: #f7f8fa; color: #57606a; }
+
+.section-title {
+  font-size: 16px; font-weight: 700; color: #1f2328;
+  border-bottom: 1px solid #e5e7eb; padding-bottom: 5px;
+  margin-top: 30px; margin-bottom: 14px;
+}
+
+.concept { border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 18px; overflow: hidden; }
+.concept-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 16px; background: #f7f8fa; border-bottom: 1px solid #e5e7eb;
+}
+.concept-icon {
+  width: 28px; height: 28px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.ic-green  { background: #dcfce7; }
+.ic-blue   { background: #dbeafe; }
+.ic-purple { background: #ede9fe; }
+.ic-orange { background: #ffedd5; }
+.ic-teal   { background: #ccfbf1; }
+.ic-rose   { background: #fce7f3; }
+.ic-yellow { background: #fef9c3; }
+.ic-slate  { background: #f1f5f9; }
+
+.concept-title { font-size: 13px; font-weight: 700; color: #1f2328; }
+.concept-subtitle { font-size: 12px; color: #57606a; }
+.concept-body { padding: 14px 16px; }
+.concept-body p { margin-bottom: 8px; font-size: 13px; }
+.concept-body ul { padding-left: 18px; margin-bottom: 8px; }
+.concept-body ul li { font-size: 13px; margin-bottom: 3px; }
+
+pre {
+  background: #1e1e2e; color: #cdd6f4;
+  border-radius: 6px; padding: 14px 16px;
+  overflow-x: auto; font-size: 12px; line-height: 1.6;
+  margin: 8px 0; font-family: "Cascadia Code","Consolas",monospace;
+}
+.kw  { color: #cba6f7; }
+.cm  { color: #6c7086; font-style: italic; }
+.st  { color: #a6e3a1; }
+.cl  { color: #89b4fa; }
+.an  { color: #fab387; }
+.nm  { color: #f9e2af; }
+
+.info-box {
+  background: #eff6ff; border: 1px solid #bfdbfe;
+  border-radius: 6px; padding: 10px 14px;
+  font-size: 13px; color: #1e40af; margin-bottom: 10px;
+}
+.note {
+  background: #fffbeb; border: 1px solid #fde68a;
+  border-radius: 6px; padding: 10px 14px;
+  font-size: 13px; color: #78350f; margin-top: 14px;
+}
+
+.file-list { list-style: none; padding: 0; }
+.file-list li {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 5px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px;
+}
+.file-list li:last-child { border-bottom: none; }
+.file-path { color: #57606a; font-size: 12px; }
+.file-new { background: #dcfce7; color: #14532d; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 4px; flex-shrink: 0; margin-top: 2px; }
+.file-mod { background: #fef9c3; color: #713f12; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 4px; flex-shrink: 0; margin-top: 2px; }
+
+.relation-box { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px 16px; margin-top: 4px; }
+.rel-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 13px; flex-wrap: wrap; }
+.rel-arrow { color: #3b82d4; font-weight: 700; }
+.rel-from { background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 12px; white-space: nowrap; }
+.rel-to   { background: #dcfce7; color: #14532d; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 12px; white-space: nowrap; }
+.rel-how  { color: #57606a; font-size: 12px; }
+
+.endpoints-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.endpoints-table th {
+  text-align: left; padding: 7px 10px;
+  background: #f7f8fa; border: 1px solid #e5e7eb;
+  font-size: 11px; font-weight: 700; color: #57606a; text-transform: uppercase;
+}
+.endpoints-table td { padding: 6px 10px; border: 1px solid #e5e7eb; font-size: 12px; }
+.endpoints-table tr:nth-child(even) td { background: #fafbfc; }
+.m-get    { background: #dcfce7; color: #14532d; font-weight: 700; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+.m-post   { background: #fef9c3; color: #713f12; font-weight: 700; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+.m-delete { background: #fee2e2; color: #7f1d1d; font-weight: 700; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+
+.check-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.check-table th {
+  text-align: left; padding: 7px 10px; background: #f7f8fa; border: 1px solid #e5e7eb;
+  font-size: 11px; font-weight: 700; color: #57606a; text-transform: uppercase;
+}
+.check-table td { padding: 6px 10px; border: 1px solid #e5e7eb; }
+.check-table tr:nth-child(even) td { background: #fafbfc; }
+.done    { color: #0a7c4a; font-weight: 600; }
+.pending { color: #57606a; }
+.grp td  { background: #1f2328 !important; color: #fff; font-weight: 700; font-size: 11px; text-transform: uppercase; padding: 5px 10px; }
+
+footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #57606a; }
+</style>
+</head>
+<body>
+<div class="container">
+
+
+<div class="header">
+  <h1>🌱 TaskFlow — Informe Fase 2: Spring Boot Core</h1>
+  <div class="meta">Proyecto: API REST de Gestión de Tareas · Fase 2 de 9 · Tutorial + Código</div>
+  <div style="margin-top:8px">
+    <span class="badge b-fase">Fase 2 ✓ Completada</span>
+    <span class="badge b-spring">Spring Boot 4.1.1</span>
+    <span class="badge b-java">Java 21</span>
+    <span class="badge b-ok">10 conceptos aplicados</span>
+    <span class="badge b-ok">API corriendo en localhost:8080</span>
+  </div>
+</div>
+
+
+<div class="section-title">📊 Estado del Proyecto</div>
+<div class="phases-bar">
+  <div class="ph-box ph-done">F1<br />✓ Java</div>
+  <div class="ph-box ph-done">F2<br />✓ Spring</div>
+  <div class="ph-box ph-pending">F3<br />REST</div>
+  <div class="ph-box ph-pending">F4<br />JPA</div>
+  <div class="ph-box ph-pending">F5<br />JWT</div>
+  <div class="ph-box ph-pending">F6<br />Tests</div>
+  <div class="ph-box ph-pending">F7<br />Docker</div>
+  <div class="ph-box ph-pending">F8<br />AWS</div>
+  <div class="ph-box ph-pending">F9<br />K8s</div>
+</div>
+
+
+<div class="section-title">🎯 ¿Qué se construyó en esta fase?</div>
+<div class="info-box">
+  En la <strong>Fase 2</strong> transformamos el proyecto de <em>Java puro</em> (Fase 1) a una
+  <strong>aplicación Spring Boot real</strong>. Activamos el contenedor IoC, configuramos
+  perfiles de entorno (dev/prod), creamos el primer controller REST, definimos beans con
+  <code>@Configuration</code> y <code>@Bean</code>, inyectamos valores del
+  <code>application.yml</code> con <code>@Value</code> y <code>@ConfigurationProperties</code>,
+  y activamos <strong>Spring Boot Actuator</strong> para monitoreo.
+  El servidor Tomcat embebido quedó corriendo en <strong>http://localhost:8080</strong>
+  con endpoints probados exitosamente en Postman.
+</div>
+
+
+<div class="section-title">📁 Archivos creados y modificados en esta fase</div>
+<ul class="file-list">
+  <li><span class="file-new">NUEVO</span><strong>AppConfig.java</strong><span class="file-path"> — config/ — @Configuration, @Bean, @Value, @ConfigurationProperties</span></li>
+  <li><span class="file-new">NUEVO</span><strong>TaskController.java</strong><span class="file-path"> — controller/ — @RestController, @GetMapping, @PostMapping, @DeleteMapping</span></li>
+  <li><span class="file-new">NUEVO</span><strong>application-dev.yml</strong><span class="file-path"> — resources/ — Perfil desarrollo: logging DEBUG, todos los endpoints Actuator</span></li>
+  <li><span class="file-new">NUEVO</span><strong>application-prod.yml</strong><span class="file-path"> — resources/ — Perfil producción: logging WARN, endpoints limitados</span></li>
+  <li><span class="file-mod">MODIFICADO</span><strong>application.yml</strong><span class="file-path"> — resources/ — Configuración completa: puerto, Actuator, perfil activo, propiedades personalizadas</span></li>
+  <li><span class="file-mod">MODIFICADO</span><strong>TaskflowApplication.java</strong><span class="file-path"> — raíz — Activado SpringApplication.run() + CommandLineRunner para datos de prueba</span></li>
+  <li><span class="file-mod">MODIFICADO</span><strong>TaskService.java</strong><span class="file-path"> — service/ — Agregado método buscarConFiltro() para uso del controller</span></li>
+</ul>
+
+
+<div class="section-title">📚 Conceptos aplicados — Explicación y código</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-green">🌱</div>
+    <div>
+      <div class="concept-title">1. Spring Boot — Estructura y Auto-configuración</div>
+      <div class="concept-subtitle">@SpringBootApplication · SpringApplication.run() · Tomcat embebido · CommandLineRunner</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> Spring Boot es un framework que simplifica la creación de aplicaciones Spring eliminando la configuración manual. Con una sola anotación <code>@SpringBootApplication</code> y una llamada a <code>SpringApplication.run()</code>, levanta un servidor web completo.</p>
+    <p><strong>¿Qué hace @SpringBootApplication?</strong> Es una anotación compuesta que activa tres cosas a la vez:</p>
+    <ul>
+      <li><strong>@Configuration</strong> — la clase puede definir beans</li>
+      <li><strong>@EnableAutoConfiguration</strong> — Spring configura automáticamente todo lo que detecta en el classpath (Tomcat, Jackson para JSON, etc.)</li>
+      <li><strong>@ComponentScan</strong> — escanea el paquete base buscando clases con @Component, @Service, @Controller, @Repository</li>
+    </ul>
+    <p><strong>CommandLineRunner:</strong> bean especial que Spring ejecuta automáticamente después de inicializar el contexto. Lo usamos para cargar los datos de prueba.</p>
+<pre><code><span class="an">@SpringBootApplication</span>  <span class="cm">// @Configuration + @EnableAutoConfiguration + @ComponentScan</span>
+<span class="kw">public class</span> <span class="cl">TaskflowApplication</span> {
+
+    <span class="kw">public static void</span> main(String[] args) {
+        <span class="cm">// Arranca el contenedor IoC + servidor Tomcat embebido en puerto 8080</span>
+        SpringApplication.run(<span class="cl">TaskflowApplication</span>.class, args);
+    }
+
+    <span class="cm">// CommandLineRunner: se ejecuta automáticamente al terminar el arranque</span>
+    <span class="an">@Bean</span>
+    <span class="kw">public</span> CommandLineRunner cargarDatosDePrueba(<span class="cl">TaskService</span> taskService) {
+        <span class="kw">return</span> args -&gt; {
+            <span class="cm">// Spring inyecta taskService automáticamente — no usamos new</span>
+            taskService.crear(<span class="kw">new</span> <span class="cl">Task</span>(<span class="st">"Preparar presentación Q3"</span>,
+                Priority.ALTA, Category.TRABAJO, <span class="nm">1L</span>));
+            <span class="cm">// ... más tareas de prueba</span>
+        };
+    }
+}</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-blue">🔄</div>
+    <div>
+      <div class="concept-title">2. IoC — Inversión de Control</div>
+      <div class="concept-subtitle">El contenedor Spring administra los objetos — no tú</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> La Inversión de Control es un principio de diseño donde el control de la creación y ciclo de vida de los objetos se transfiere del programador al framework. En Spring, el <strong>contenedor IoC</strong> (ApplicationContext) crea, configura y destruye los beans.</p>
+    <p><strong>Sin IoC vs Con IoC:</strong></p>
+<pre><code><span class="cm">// ❌ Sin IoC — tú controlas la creación (alto acoplamiento)</span>
+<span class="kw">public class</span> <span class="cl">TaskController</span> {
+    <span class="kw">private</span> TaskService taskService = <span class="kw">new</span> TaskService(); <span class="cm">// dependencia fija</span>
+}
+
+<span class="cm">// ✅ Con IoC — Spring controla la creación (bajo acoplamiento)</span>
+<span class="kw">public class</span> <span class="cl">TaskController</span> {
+    <span class="kw">private final</span> TaskService taskService;
+    <span class="cm">// Spring detecta este constructor y provee el TaskService automáticamente</span>
+    <span class="kw">public</span> TaskController(<span class="cl">TaskService</span> taskService) {
+        <span class="kw">this</span>.taskService = taskService;
+    }
+}
+
+<span class="cm">// Spring administra el ciclo de vida completo:</span>
+<span class="cm">// 1. Crea el TaskService (singleton por defecto)</span>
+<span class="cm">// 2. Lo inyecta en TaskController al crear el controller</span>
+<span class="cm">// 3. Lo destruye cuando la aplicación para</span></code></pre>
+    <p><strong>Beneficio clave:</strong> si mañana cambias <code>TaskService</code> por <code>TaskServiceBD</code>, solo cambias la definición del bean — ningún controller ni service cambia su código.</p>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-purple">💉</div>
+    <div>
+      <div class="concept-title">3. Dependency Injection — Inyección de Dependencias</div>
+      <div class="concept-subtitle">Inyección por constructor · @Autowired implícito · beans singleton</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> La Inyección de Dependencias es el mecanismo concreto con el que Spring implementa IoC. Cuando un bean necesita otro bean, Spring lo "inyecta" automáticamente. Hay tres formas de inyectar: por constructor (recomendada), por setter, o por campo con <code>@Autowired</code>.</p>
+    <p><strong>¿Por qué por constructor?</strong> Es la práctica recomendada por Spring desde la versión 4: garantiza que el objeto nunca quede en estado inconsistente (los campos no pueden ser null), facilita los tests y permite declarar los campos como <code>final</code>.</p>
+<pre><code><span class="cm">// ✅ Inyección por constructor — práctica recomendada</span>
+<span class="an">@RestController</span>
+<span class="kw">public class</span> <span class="cl">TaskController</span> {
+
+    <span class="kw">private final</span> TaskService taskService;   <span class="cm">// final — no puede ser null</span>
+    <span class="kw">private final</span> AppConfig appConfig;
+
+    <span class="cm">// Si hay un solo constructor, @Autowired es opcional (Spring lo infiere)</span>
+    <span class="kw">public</span> TaskController(<span class="cl">TaskService</span> taskService, <span class="cl">AppConfig</span> appConfig) {
+        <span class="kw">this</span>.taskService = taskService;
+        <span class="kw">this</span>.appConfig = appConfig;
+    }
+}
+
+<span class="cm">// ❌ Inyección por campo — desaconsejada (no permite final, dificulta tests)</span>
+<span class="an">@Autowired</span>
+<span class="kw">private</span> TaskService taskService;  <span class="cm">// puede ser null si algo falla</span></code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-orange">⚙️</div>
+    <div>
+      <div class="concept-title">4. @Configuration y @Bean</div>
+      <div class="concept-subtitle">AppConfig.java — definición explícita de beans administrados por Spring</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> <code>@Configuration</code> marca una clase como fuente de definiciones de beans. Cada método anotado con <code>@Bean</code> retorna un objeto que Spring registra en su contenedor y administra como singleton.</p>
+    <p><strong>¿Cuándo usar @Bean vs @Service/@Component?</strong> Usamos <code>@Bean</code> cuando necesitamos control explícito sobre cómo se crea el objeto, o cuando la clase es de una librería externa que no podemos anotar. Usamos <code>@Service</code> para nuestras propias clases de servicio.</p>
+<pre><code><span class="an">@Configuration</span>
+<span class="kw">public class</span> <span class="cl">AppConfig</span> {
+
+    <span class="cm">// @Bean explícito — Spring administra esta instancia como singleton</span>
+    <span class="cm">// Cualquier clase que necesite TaskService lo recibe inyectado</span>
+    <span class="an">@Bean</span>
+    <span class="kw">public</span> <span class="cl">TaskService</span> taskService() {
+        <span class="kw">return new</span> <span class="cl">TaskService</span>();
+        <span class="cm">// Spring llama a este método UNA SOLA VEZ</span>
+        <span class="cm">// y reutiliza la misma instancia en toda la app (singleton)</span>
+    }
+}</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-teal">📄</div>
+    <div>
+      <div class="concept-title">5. application.yml + Profiles (dev/prod)</div>
+      <div class="concept-subtitle">Configuración centralizada · spring.profiles.active · sobrescritura por entorno</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> El <code>application.yml</code> es el archivo central de configuración de Spring Boot. Spring lo lee automáticamente al arrancar. Los <strong>Profiles</strong> permiten tener configuraciones diferentes según el entorno: desarrollo usa H2 y logging detallado; producción usa PostgreSQL y logging mínimo.</p>
+    <p><strong>¿Cómo funciona?</strong> Spring carga primero el <code>application.yml</code> base, luego sobreescribe con el archivo del perfil activo (<code>application-dev.yml</code> o <code>application-prod.yml</code>).</p>
+<pre><code><span class="cm"># application.yml — configuración base</span>
+spring:
+  application:
+    name: taskflow
+  profiles:
+    active: dev    <span class="cm"># perfil activo por defecto</span>
+
+server:
+  port: <span class="nm">8080</span>
+
+<span class="cm"># Propiedades personalizadas inyectables con @Value</span>
+taskflow:
+  app:
+    max-tareas-por-usuario: <span class="nm">100</span>
+    version: <span class="st">"1.0.0"</span>
+    mensaje-bienvenida: <span class="st">"Bienvenido a TaskFlow API"</span>
+
+<span class="cm">---</span>
+<span class="cm"># application-dev.yml — sobreescribe solo lo necesario para dev</span>
+spring:
+  config:
+    activate:
+      on-profile: dev
+logging:
+  level:
+    com.taskflow: DEBUG   <span class="cm"># logging detallado en desarrollo</span>
+
+<span class="cm">---</span>
+<span class="cm"># application-prod.yml — configuración de producción</span>
+spring:
+  config:
+    activate:
+      on-profile: prod
+logging:
+  level:
+    com.taskflow: WARN    <span class="cm"># solo errores en producción</span></code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-yellow">🔑</div>
+    <div>
+      <div class="concept-title">6. @Value y @ConfigurationProperties</div>
+      <div class="concept-subtitle">Inyectar valores del YAML en clases Java — dos enfoques complementarios</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> Spring puede inyectar cualquier valor del <code>application.yml</code> directamente en campos Java. <code>@Value</code> es para valores individuales. <code>@ConfigurationProperties</code> es para mapear un bloque completo de propiedades a una clase Java tipada.</p>
+<pre><code><span class="cm">// @Value — inyecta un valor individual del YAML</span>
+<span class="an">@Value</span>(<span class="st">"${taskflow.app.mensaje-bienvenida}"</span>)
+<span class="kw">private</span> String mensajeBienvenida;  <span class="cm">// = "Bienvenido a TaskFlow API"</span>
+
+<span class="an">@Value</span>(<span class="st">"${taskflow.app.version}"</span>)
+<span class="kw">private</span> String version;            <span class="cm">// = "1.0.0"</span>
+
+<span class="cm">// @ConfigurationProperties — mapea un bloque completo del YAML</span>
+<span class="cm">// taskflow.app.* → campos de la clase TaskflowProperties</span>
+<span class="an">@ConfigurationProperties</span>(prefix = <span class="st">"taskflow.app"</span>)
+<span class="kw">public static class</span> <span class="cl">TaskflowProperties</span> {
+    <span class="kw">private int</span> maxTareasPorUsuario;  <span class="cm">// = 100</span>
+    <span class="kw">private</span> String version;           <span class="cm">// = "1.0.0"</span>
+    <span class="kw">private</span> String mensajeBienvenida; <span class="cm">// = "Bienvenido a TaskFlow API"</span>
+    <span class="cm">// getters y setters...</span>
+}
+
+<span class="cm">// Diferencia clave:</span>
+<span class="cm">// @Value        → un solo valor, expresión SpEL, simple</span>
+<span class="cm">// @ConfigProps  → grupo de valores, tipado, validable con @Valid</span></code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-blue">🌐</div>
+    <div>
+      <div class="concept-title">7. Controllers, Services, Repositories — Arquitectura en capas</div>
+      <div class="concept-subtitle">@RestController · @Service · @Repository · separación de responsabilidades</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> Spring Boot promueve una arquitectura de 3 capas donde cada una tiene una responsabilidad única. Esto sigue el principio <strong>Single Responsibility</strong> de SOLID.</p>
+    <ul>
+      <li><strong>Controller</strong> (<code>@RestController</code>) — recibe peticiones HTTP, delega al Service, retorna respuestas JSON. No tiene lógica de negocio.</li>
+      <li><strong>Service</strong> (<code>@Service</code>) — contiene la lógica de negocio. No sabe nada de HTTP ni de base de datos.</li>
+      <li><strong>Repository</strong> (<code>@Repository</code>) — accede a la base de datos. En Fase 2 aún usamos el Map en memoria; en Fase 4 usará JPA.</li>
+    </ul>
+<pre><code><span class="cm">// Capa Controller — solo maneja HTTP</span>
+<span class="an">@RestController</span>          <span class="cm">// = @Controller + @ResponseBody (retorna JSON)</span>
+<span class="an">@RequestMapping</span>(<span class="st">"/api/tareas"</span>)  <span class="cm">// ruta base de todos los endpoints</span>
+<span class="kw">public class</span> <span class="cl">TaskController</span> {
+
+    <span class="an">@GetMapping</span>           <span class="cm">// GET /api/tareas</span>
+    <span class="kw">public</span> ResponseEntity&lt;List&lt;Task&gt;&gt; listarTareas() {
+        <span class="kw">return</span> ResponseEntity.ok(taskService.listarTodas()); <span class="cm">// 200 OK</span>
+    }
+
+    <span class="an">@GetMapping</span>(<span class="st">"/{id}"</span>)  <span class="cm">// GET /api/tareas/1</span>
+    <span class="kw">public</span> ResponseEntity&lt;Task&gt; obtenerTarea(<span class="an">@PathVariable</span> Long id) {
+        <span class="kw">return</span> taskService.buscarPorId(id)
+            .map(ResponseEntity::ok)              <span class="cm">// 200 si existe</span>
+            .orElse(ResponseEntity.notFound().build()); <span class="cm">// 404 si no</span>
+    }
+
+    <span class="an">@PostMapping</span>          <span class="cm">// POST /api/tareas</span>
+    <span class="kw">public</span> ResponseEntity&lt;Task&gt; crearTarea(<span class="an">@RequestBody</span> Task tarea) {
+        Task creada = taskService.crear(tarea);
+        <span class="kw">return</span> ResponseEntity.status(HttpStatus.CREATED).body(creada); <span class="cm">// 201</span>
+    }
+
+    <span class="an">@DeleteMapping</span>(<span class="st">"/{id}"</span>) <span class="cm">// DELETE /api/tareas/1</span>
+    <span class="kw">public</span> ResponseEntity&lt;Void&gt; eliminarTarea(<span class="an">@PathVariable</span> Long id) {
+        <span class="kw">if</span> (taskService.buscarPorId(id).isEmpty()) {
+            <span class="kw">return</span> ResponseEntity.notFound().build(); <span class="cm">// 404</span>
+        }
+        taskService.eliminar(id);
+        <span class="kw">return</span> ResponseEntity.noContent().build();  <span class="cm">// 204</span>
+    }
+}</code></pre>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-rose">📡</div>
+    <div>
+      <div class="concept-title">8. ResponseEntity y códigos HTTP</div>
+      <div class="concept-subtitle">200 OK · 201 Created · 204 No Content · 404 Not Found — respuestas semánticas</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> <code>ResponseEntity&lt;T&gt;</code> permite controlar completamente la respuesta HTTP: código de estado, headers y body. Una API REST bien diseñada usa el código HTTP correcto para cada situación.</p>
+<pre><code><span class="cm">// 200 OK — solicitud exitosa con datos</span>
+ResponseEntity.ok(lista)
+
+<span class="cm">// 201 Created — recurso creado exitosamente</span>
+ResponseEntity.status(HttpStatus.CREATED).body(tareaCreada)
+
+<span class="cm">// 204 No Content — operación exitosa sin datos que retornar</span>
+ResponseEntity.noContent().build()
+
+<span class="cm">// 404 Not Found — recurso no existe</span>
+ResponseEntity.notFound().build()
+
+<span class="cm">// Patrón con Optional — retorna 200 o 404 automáticamente</span>
+taskService.buscarPorId(id)
+    .map(ResponseEntity::ok)              <span class="cm">// si existe → 200 + body</span>
+    .orElse(ResponseEntity.notFound().build()); <span class="cm">// si no → 404</span></code></pre>
+    <p><strong>Resumen de códigos usados:</strong></p>
+    <ul>
+      <li><strong>200 OK</strong> → GET exitoso con datos</li>
+      <li><strong>201 Created</strong> → POST que crea un recurso nuevo</li>
+      <li><strong>204 No Content</strong> → DELETE exitoso</li>
+      <li><strong>404 Not Found</strong> → recurso no encontrado</li>
+    </ul>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-green">❤️</div>
+    <div>
+      <div class="concept-title">9. Spring Boot Actuator</div>
+      <div class="concept-subtitle">/actuator/health · /actuator/info · /actuator/metrics · /actuator/beans</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> Actuator añade endpoints automáticos de monitoreo y gestión a cualquier aplicación Spring Boot. Sin escribir ningún código, expone información sobre el estado de la app, métricas, beans registrados y más.</p>
+    <p><strong>¿Para qué sirve en producción?</strong> Los orquestadores como Kubernetes usan <code>/actuator/health</code> para saber si el pod está listo para recibir tráfico (liveness/readiness probes — lo veremos en Fase 9).</p>
+<pre><code><span class="cm"># application.yml — configurar qué endpoints exponer</span>
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,beans,env
+  endpoint:
+    health:
+      show-details: always   <span class="cm"># muestra detalles de cada componente</span>
+  info:
+    env:
+      enabled: true          <span class="cm"># expone el bloque "info:" del YAML</span>
+
+<span class="cm"># Datos que aparecen en /actuator/info</span>
+info:
+  app:
+    name: TaskFlow API
+    version: <span class="st">"1.0.0"</span>
+    fase-actual: <span class="st">"Fase 2 - Spring Boot Core"</span></code></pre>
+    <p><strong>Endpoints disponibles:</strong></p>
+    <ul>
+      <li><code>/actuator/health</code> → estado UP/DOWN de la aplicación</li>
+      <li><code>/actuator/info</code> → metadatos del proyecto (version, descripción)</li>
+      <li><code>/actuator/metrics</code> → métricas de JVM, HTTP, memoria</li>
+      <li><code>/actuator/beans</code> → todos los beans registrados en Spring</li>
+      <li><code>/actuator/env</code> → todas las propiedades de configuración</li>
+    </ul>
+  </div>
+</div>
+
+
+<div class="concept">
+  <div class="concept-header">
+    <div class="concept-icon ic-slate">🔍</div>
+    <div>
+      <div class="concept-title">10. @PathVariable y @RequestParam</div>
+      <div class="concept-subtitle">Parámetros de URL · Query strings · Filtros dinámicos desde HTTP</div>
+    </div>
+  </div>
+  <div class="concept-body">
+    <p><strong>¿Qué es?</strong> Son dos formas de recibir datos del cliente en la URL. <code>@PathVariable</code> extrae un segmento de la ruta (<code>/tareas/1</code>). <code>@RequestParam</code> extrae parámetros de query string (<code>/tareas?estado=PENDIENTE</code>).</p>
+<pre><code><span class="cm">// @PathVariable — el valor va en la ruta</span>
+<span class="cm">// GET /api/tareas/42</span>
+<span class="an">@GetMapping</span>(<span class="st">"/{id}"</span>)
+<span class="kw">public</span> ResponseEntity&lt;Task&gt; obtenerTarea(<span class="an">@PathVariable</span> Long id) {
+    <span class="cm">// id = 42</span>
+}
+
+<span class="cm">// @RequestParam — el valor va en el query string</span>
+<span class="cm">// GET /api/tareas?estado=PENDIENTE&amp;categoria=TRABAJO</span>
+<span class="an">@GetMapping</span>
+<span class="kw">public</span> ResponseEntity&lt;List&lt;Task&gt;&gt; listarTareas(
+        <span class="an">@RequestParam</span>(required = <span class="kw">false</span>) String estado,
+        <span class="an">@RequestParam</span>(required = <span class="kw">false</span>) String categoria) {
+    <span class="cm">// estado = "PENDIENTE", categoria = "TRABAJO"</span>
+    <span class="cm">// required=false → el parámetro es opcional, puede ser null</span>
+}
+
+<span class="cm">// Diferencia clave:</span>
+<span class="cm">// @PathVariable  → identifica un recurso específico (/tareas/42)</span>
+<span class="cm">// @RequestParam  → filtra o modifica la consulta (/tareas?estado=PENDIENTE)</span></code></pre>
+  </div>
+</div>
+
+
+<div class="section-title">🧪 Endpoints probados con Postman</div>
+<table class="endpoints-table">
+  <thead><tr><th>Método</th><th>URL</th><th>HTTP Esperado</th><th>Resultado</th></tr></thead>
+  <tbody>
+    <tr><td><span class="m-get">GET</span></td><td>/actuator/health</td><td>200 OK</td><td class="done">✅ {"status":"UP"}</td></tr>
+    <tr><td><span class="m-get">GET</span></td><td>/actuator/info</td><td>200 OK</td><td class="done">✅ Metadatos del proyecto</td></tr>
+    <tr><td><span class="m-get">GET</span></td><td>/api/tareas</td><td>200 OK</td><td class="done">✅ Lista de 5 tareas</td></tr>
+    <tr><td><span class="m-get">GET</span></td><td>/api/tareas/1</td><td>200 OK</td><td class="done">✅ Tarea con id=1</td></tr>
+    <tr><td><span class="m-get">GET</span></td><td>/api/tareas/999</td><td>404 Not Found</td><td class="done">✅ Respuesta vacía con 404</td></tr>
+    <tr><td><span class="m-get">GET</span></td><td>/api/tareas?categoria=TRABAJO</td><td>200 OK</td><td class="done">✅ 3 tareas filtradas</td></tr>
+    <tr><td><span class="m-get">GET</span></td><td>/api/tareas?estado=PENDIENTE</td><td>200 OK</td><td class="done">✅ Tareas pendientes</td></tr>
+    <tr><td><span class="m-post">POST</span></td><td>/api/tareas (con body JSON)</td><td>201 Created</td><td class="done">✅ Tarea nueva creada</td></tr>
+    <tr><td><span class="m-delete">DELETE</span></td><td>/api/tareas/1</td><td>204 No Content</td><td class="done">✅ Tarea eliminada</td></tr>
+    <tr><td><span class="m-get">GET</span></td><td>/api/tareas/estadisticas</td><td>200 OK</td><td class="done">✅ TaskStats con conteos</td></tr>
+    <tr><td><span class="m-get">GET</span></td><td>/api/tareas/info</td><td>200 OK</td><td class="done">✅ @Value y @ConfigProps inyectados</td></tr>
+  </tbody>
+</table>
+
+
+<div class="section-title">🔗 Cómo se relacionan los conceptos</div>
+<div class="relation-box">
+  <div class="rel-row">
+    <span class="rel-from">@SpringBootApplication</span><span class="rel-arrow">activa</span><span class="rel-to">@ComponentScan</span><span class="rel-how">— Spring escanea y registra todos los beans del paquete com.taskflow</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">IoC Container</span><span class="rel-arrow">administra</span><span class="rel-to">TaskService, TaskController, AppConfig</span><span class="rel-how">— crea, inyecta y destruye los beans del ciclo de vida</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">@Configuration + @Bean</span><span class="rel-arrow">registra</span><span class="rel-to">TaskService (singleton)</span><span class="rel-how">— Spring lo inyecta en TaskController y en CommandLineRunner</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">application.yml</span><span class="rel-arrow">configura</span><span class="rel-to">Profiles dev/prod</span><span class="rel-how">— dev activa logging DEBUG y todos los endpoints Actuator</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">@Value / @ConfigProps</span><span class="rel-arrow">leen</span><span class="rel-to">application.yml</span><span class="rel-how">— inyectan valores del YAML en campos Java en tiempo de arranque</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">@RestController</span><span class="rel-arrow">delega en</span><span class="rel-to">TaskService (Fase 1)</span><span class="rel-how">— el controller solo maneja HTTP, la lógica sigue en el service</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">ResponseEntity</span><span class="rel-arrow">envuelve</span><span class="rel-to">Optional (Fase 1)</span><span class="rel-how">— Optional.map().orElse() determina si retornar 200 o 404</span>
+  </div>
+  <div class="rel-row">
+    <span class="rel-from">Actuator /health</span><span class="rel-arrow">será usado por</span><span class="rel-to">Kubernetes (Fase 9)</span><span class="rel-how">— liveness y readiness probes apuntarán a este endpoint</span>
+  </div>
+</div>
+
+
+<div class="section-title">✅ Checklist de conceptos — Fases 1 y 2</div>
+<table class="check-table">
+  <thead><tr><th>Concepto</th><th>Clase(s) donde se aplica</th><th>Estado</th></tr></thead>
+  <tbody>
+    <tr class="grp"><td colspan="3">☕ JAVA MODERNO — FASE 1</td></tr>
+    <tr><td>POO — Clases, Herencia, Polimorfismo</td><td>BaseEntity → Task, User</td><td class="done">✅ F1</td></tr>
+    <tr><td>Interfaces con default methods</td><td>Filterable&lt;T,F&gt;, Sortable&lt;T&gt;</td><td class="done">✅ F1</td></tr>
+    <tr><td>Records (Java 16+)</td><td>TaskFilter, PageResult&lt;T&gt;, TaskStats</td><td class="done">✅ F1</td></tr>
+    <tr><td>Enums con comportamiento</td><td>TaskStatus, Priority, Category</td><td class="done">✅ F1</td></tr>
+    <tr><td>Generics</td><td>Filterable&lt;T,F&gt;, PageResult&lt;T&gt;, Map&lt;Long,Task&gt;</td><td class="done">✅ F1</td></tr>
+    <tr><td>Collections (List, Map, Set)</td><td>HashMap en TaskService, ArrayList en User</td><td class="done">✅ F1</td></tr>
+    <tr><td>Streams y Lambdas</td><td>TaskService, User, TaskStats</td><td class="done">✅ F1</td></tr>
+    <tr><td>Optional</td><td>buscarPorId(), getFechaLimite(), TaskFilter</td><td class="done">✅ F1</td></tr>
+    <tr><td>Excepciones personalizadas</td><td>ApiException, TaskNotFoundException, TaskStateException</td><td class="done">✅ F1</td></tr>
+    <tr><td>LocalDate / LocalDateTime</td><td>Task.fechaLimite, BaseEntity.fechaCreacion</td><td class="done">✅ F1</td></tr>
+    <tr><td>Manejo de archivos (NIO2)</td><td>TaskFileLogger</td><td class="done">✅ F1</td></tr>
+    <tr><td>Buenas prácticas SOLID</td><td>Toda la base de código</td><td class="done">✅ F1</td></tr>
+    <tr class="grp"><td colspan="3">🌱 SPRING BOOT CORE — FASE 2</td></tr>
+    <tr><td>Spring Boot — estructura y auto-config</td><td>TaskflowApplication + @SpringBootApplication</td><td class="done">✅ F2</td></tr>
+    <tr><td>IoC — Inversión de Control</td><td>ApplicationContext administra todos los beans</td><td class="done">✅ F2</td></tr>
+    <tr><td>Dependency Injection (constructor)</td><td>TaskController(TaskService, AppConfig)</td><td class="done">✅ F2</td></tr>
+    <tr><td>Controllers (@RestController)</td><td>TaskController — 5 endpoints</td><td class="done">✅ F2</td></tr>
+    <tr><td>Services (@Service / @Bean)</td><td>TaskService definido en AppConfig</td><td class="done">✅ F2</td></tr>
+    <tr><td>Configuration y @Bean</td><td>AppConfig.java</td><td class="done">✅ F2</td></tr>
+    <tr><td>Profiles (dev / prod)</td><td>application-dev.yml, application-prod.yml</td><td class="done">✅ F2</td></tr>
+    <tr><td>@Value y @ConfigurationProperties</td><td>AppConfig — inyecta taskflow.app.*</td><td class="done">✅ F2</td></tr>
+    <tr><td>ResponseEntity + HTTP Status Codes</td><td>TaskController — 200, 201, 204, 404</td><td class="done">✅ F2</td></tr>
+    <tr><td>Actuator (health, info, metrics)</td><td>/actuator/health, /actuator/info</td><td class="done">✅ F2</td></tr>
+    <tr class="grp"><td colspan="3">🌐 PRÓXIMAS FASES</td></tr>
+    <tr><td>REST API completa (DTOs, Swagger, CORS)</td><td>—</td><td class="pending">⬜ Fase 3</td></tr>
+    <tr><td>Spring Data JPA + PostgreSQL + Flyway</td><td>—</td><td class="pending">⬜ Fase 4</td></tr>
+    <tr><td>Spring Security + JWT</td><td>—</td><td class="pending">⬜ Fase 5</td></tr>
+    <tr><td>JUnit 5 + Mockito</td><td>—</td><td class="pending">⬜ Fase 6</td></tr>
+    <tr><td>Docker + Maven + GitHub + CI/CD</td><td>—</td><td class="pending">⬜ Fase 7</td></tr>
+    <tr><td>AWS básico</td><td>—</td><td class="pending">⬜ Fase 8</td></tr>
+    <tr><td>Kubernetes</td><td>—</td><td class="pending">⬜ Fase 9</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <strong>📌 Para el siguiente chat:</strong> Si abres un nuevo chat, adjunta este informe Word y di:
+  <em>"Estoy desarrollando TaskFlow (Java 21 + Spring Boot, 9 fases). Fases 1 y 2 completadas — tengo el dominio Java puro y Spring Boot corriendo con Actuator y endpoints básicos en localhost:8080. Necesito continuar con la Fase 3: REST API completa con DTOs, validaciones, Swagger y manejo de errores global."</em>
+</div>
+
+<footer>Made with IBM Bob · TaskFlow Proyecto de Aprendizaje · Fase 2/9</footer>
+</div>
+</body>
+</html>

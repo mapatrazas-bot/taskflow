@@ -1,0 +1,425 @@
+
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TaskFlow — Informe Fase 7: Maven, Docker &amp; CI/CD</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.6;background:#fff;color:#1f2328}
+.page{max-width:760px;margin:0 auto;padding:40px 24px 60px}
+
+/* Header */
+.header{border-bottom:2px solid #e5e7eb;padding-bottom:20px;margin-bottom:28px}
+.header h1{font-size:22px;font-weight:800;color:#1f2328;margin-bottom:4px}
+.header-meta{font-size:12px;color:#57606a;margin-bottom:12px}
+.badge-row{display:flex;flex-wrap:wrap;gap:6px}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px}
+.b-green{background:#dcfce7;color:#15803d}
+.b-blue{background:#dbeafe;color:#1d4ed8}
+.b-purple{background:#ede9fe;color:#6d28d9}
+.b-gray{background:#f1f5f9;color:#475569}
+.b-orange{background:#ffedd5;color:#c2410c}
+.b-yellow{background:#fef9c3;color:#92400e}
+
+/* Intro */
+.intro{background:#f7f8fa;border:1px solid #e5e7eb;border-radius:6px;padding:14px 16px;margin-bottom:24px;font-size:13px;color:#57606a;line-height:1.6}
+
+/* Títulos y Secciones */
+h2{font-size:15px;font-weight:700;color:#1f2328;border-left:3px solid #3b82d4;padding-left:10px;margin:26px 0 12px}
+h3{font-size:13px;font-weight:700;color:#1f2328;margin:18px 0 8px}
+
+table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px}
+thead{background:#f7f8fa}
+th{text-align:left;padding:8px 10px;font-weight:700;color:#57606a;border-bottom:1px solid #e5e7eb;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+td{padding:8px 10px;border-bottom:1px solid #f0f0f0;vertical-align:top}
+tr:last-child td{border-bottom:none}
+
+/* Resultado Hero */
+.result-hero{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:18px 20px;display:flex;align-items:center;gap:18px;margin-bottom:24px}
+.result-big{font-size:44px;font-weight:900;color:#15803d;line-height:1}
+.result-info strong{display:block;font-size:16px;color:#15803d;margin-bottom:4px}
+.result-info span{font-size:12px;color:#57606a}
+
+/* Diagrama de Flujo */
+.flow-diagram{display:flex;flex-direction:column;gap:6px;margin:16px 0 20px}
+.flow-step{background:#f7f8fa;border:1px solid #e5e7eb;border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:12px}
+.flow-num{background:#3b82d4;color:#fff;font-weight:700;font-size:11px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.flow-text strong{display:block;font-size:12px;color:#1f2328}
+.flow-text span{font-size:11px;color:#57606a}
+
+/* Árbol y Código */
+.tree{background:#1e1e1e;border-radius:6px;padding:14px 16px;font-family:"Cascadia Code",Consolas,monospace;font-size:12px;color:#d4d4d4;margin-bottom:16px;overflow-x:auto;line-height:1.7}
+.tree .new{color:#4ec9b0}.tree .mod{color:#dcdcaa}.tree .com{color:#6a9955}
+
+pre{background:#1e1e1e;border-radius:6px;padding:14px 16px;font-family:"Cascadia Code",Consolas,monospace;font-size:12px;color:#d4d4d4;overflow-x:auto;margin-bottom:16px;line-height:1.6}
+.kw{color:#569cd6}.ann{color:#dcdcaa}.str{color:#ce9178}.com{color:#6a9955}
+.cls{color:#4ec9b0}.met{color:#dcdcaa}.num{color:#b5cea8}
+code{font-family:"Cascadia Code",Consolas,monospace;font-size:11px;background:#f7f8fa;padding:1px 5px;border-radius:3px;color:#1d4ed8}
+
+/* Conceptos Tutorial */
+.concepto{margin-bottom:28px}
+.concepto-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.concepto-tag{display:inline-block;background:#3b82d4;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px}
+.concepto-title{font-size:13px;font-weight:700;color:#1f2328}
+.concepto p{font-size:13px;color:#57606a;margin-bottom:10px;line-height:1.6}
+
+/* Hallazgo y Solución */
+.finding{background:#fef9c3;border:1px solid #fde68a;border-radius:6px;padding:12px 14px;margin-bottom:8px}
+.finding h4{font-size:12px;font-weight:700;color:#92400e;margin-bottom:4px}
+.finding p{font-size:12px;color:#78350f;line-height:1.5}
+.solution{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:12px 14px;margin-bottom:16px}
+.solution h4{font-size:12px;font-weight:700;color:#15803d;margin-bottom:4px}
+.solution p{font-size:12px;color:#166534;line-height:1.5}
+
+/* Checklist */
+.cl-group{margin-bottom:18px}
+.cl-title{font-size:12px;font-weight:800;color:#57606a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #f0f0f0}
+.cl-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.ci{display:flex;align-items:center;gap:7px;padding:3px 0;font-size:12px}
+.ck-done{width:17px;height:17px;border-radius:3px;background:#dcfce7;color:#15803d;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.ck-pend{width:17px;height:17px;border-radius:3px;background:#f7f8fa;border:1px solid #e5e7eb;flex-shrink:0}
+
+/* Relaciones */
+.rel{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.rel-item{display:flex;align-items:flex-start;gap:10px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:5px;padding:9px 12px;font-size:12px}
+.rel-from{font-weight:700;color:#3b82d4;white-space:nowrap;min-width:180px}
+.rel-arrow{color:#9ca3af;flex-shrink:0;padding-top:1px}
+.rel-desc{color:#57606a;line-height:1.5}
+
+/* Terminal output */
+.terminal{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:12px 14px;font-family:"Cascadia Code",Consolas,monospace;font-size:11px;color:#c9d1d9;margin-bottom:16px;line-height:1.5;overflow-x:auto}
+.terminal .t-green{color:#3fb950}.terminal .t-blue{color:#58a6ff}.terminal .t-yellow{color:#d29922}
+
+/* Próxima fase */
+.next{background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;padding:14px 16px;margin-top:24px}
+.next h4{font-size:13px;font-weight:700;color:#0369a1;margin-bottom:8px}
+.next ul{margin-left:18px;font-size:12px;color:#0c4a6e;line-height:1.8}
+
+footer{margin-top:48px;padding-top:16px;border-top:1px solid #e5e7eb;text-align:center;font-size:12px;color:#57606a}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="header">
+  <h1>📘 TaskFlow — Informe Fase 7: Maven, Git/GitHub, Docker &amp; CI/CD</h1>
+  <div class="header-meta">Proyecto: API REST de Gestión de Tareas  |  Fase: 7 de 9  |  Fecha: 19/10/2026  |  Estado: COMPLETADA ✅</div>
+  <div class="badge-row">
+    <span class="badge b-green">Fase 7 ✓ Completada</span>
+    <span class="badge b-orange">Java 21</span>
+    <span class="badge b-green">Spring Boot 4.1.1</span>
+    <span class="badge b-blue">Docker Multi-Stage</span>
+    <span class="badge b-blue">docker-compose</span>
+    <span class="badge b-purple">PostgreSQL 16 Alpine</span>
+    <span class="badge b-purple">GitHub Actions</span>
+  </div>
+</div>
+
+<h2>📊 Estado del Proyecto</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Fase</th>
+      <th>Tema</th>
+      <th>Estado</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>F1</td><td>Java 21 Moderno — POO, Records, Enums, Streams, Optional</td><td>✅ Hecho</td></tr>
+    <tr><td>F2</td><td>Spring Boot Core — IoC, DI, Profiles, Actuator</td><td>✅ Hecho</td></tr>
+    <tr><td>F3</td><td>REST API — DTOs, Validación, Swagger, CORS, Excepciones</td><td>✅ Hecho</td></tr>
+    <tr><td>F4</td><td>Spring Data JPA — Hibernate, PostgreSQL, Flyway</td><td>✅ Hecho</td></tr>
+    <tr><td>F5</td><td>Spring Security + JWT — Autenticación y Autorización</td><td>✅ Hecho</td></tr>
+    <tr><td>F6</td><td>Testing — JUnit 5, Mockito, @WebMvcTest, @DataJpaTest, E2E (35 tests)</td><td>✅ Hecho</td></tr>
+    <tr><td><strong>F7</strong></td><td><strong>DevOps — Maven, Docker Multi-Stage, Compose, GitHub Actions, README</strong></td><td><strong>✅ Hecho</strong></td></tr>
+    <tr><td>F8</td><td>Cloud AWS Básico — EC2, RDS, ECR, Elastic Beanstalk, CloudWatch</td><td>⬜ Pendiente</td></tr>
+    <tr><td>F9</td><td>Kubernetes — Pods, Deployments, Services, ConfigMaps, Ingress, EKS</td><td>⬜ Pendiente</td></tr>
+  </tbody>
+</table>
+
+<div class="intro">
+  <strong>🎯 ¿Qué es TaskFlow?</strong><br />
+  TaskFlow es una API REST empresarial para la gestión y categorización de tareas personales y laborales. Permite operaciones CRUD completas, estados controlados (<code>PENDIENTE</code>, <code>EN_PROGRESO</code>, <code>COMPLETADA</code>, <code>CANCELADA</code>), prioridades, categorías, filtrado dinámico mediante JPA Specifications, paginación, auditoría automática de fechas, autenticación/autorización mediante tokens JWT y documentación interactiva con OpenAPI 3 / Swagger.<br /><br />
+  En la <strong>Fase 7</strong> transformamos la aplicación en un paquete de producción autocontenido, dockerizado y automatizado con integración continua, listo para ser desplegado en cualquier entorno y presentado como portafolio en GitHub.
+</div>
+
+<h2>📁 Archivos Creados y Modificados en esta Fase</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Archivo</th>
+      <th>Ubicación</th>
+      <th>Descripción y Propósito</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Dockerfile</code></td>
+      <td><code>taskflow/</code></td>
+      <td>Construcción multi-stage: Builder (JDK 21) → Runtime (JRE 21 Alpine) con usuario no-root <code>appuser</code>.</td>
+    </tr>
+    <tr>
+      <td><code>docker-compose.yml</code></td>
+      <td><code>taskflow/</code></td>
+      <td>Orquestación local de 2 servicios: <code>postgres-db</code> (PostgreSQL 16) + <code>taskflow-api</code> con healthcheck y red virtual.</td>
+    </tr>
+    <tr>
+      <td><code>.dockerignore</code></td>
+      <td><code>taskflow/</code></td>
+      <td>Excluye <code>target/</code>, <code>.git/</code>, logs y archivos del IDE del contexto de compilación de Docker.</td>
+    </tr>
+    <tr>
+      <td><code>application-prod.yml</code></td>
+      <td><code>taskflow/src/main/resources/</code></td>
+      <td>Configura conexión a PostgreSQL con variables de entorno y cede control de esquema a Flyway (<code>ddl-auto: none</code>).</td>
+    </tr>
+    <tr>
+      <td><code>ci.yml</code></td>
+      <td><code>.github/workflows/</code></td>
+      <td>Workflow de GitHub Actions: valida compilación, ejecuta los 35 tests automatizados y verifica el build de Docker.</td>
+    </tr>
+    <tr>
+      <td><code>README.md</code></td>
+      <td><code>/ (raíz)</code></td>
+      <td>Documentación profesional de portafolio con Badges de estado, arquitectura, quickstart Docker y endpoints REST.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>📚 Conceptos Aplicados — Explicación y Código</h2>
+
+<div class="concepto">
+  <div class="concepto-header">
+    <span class="concepto-tag">1</span>
+    <span class="concepto-title">Maven Lifecycle y Fat JAR (Packaging)</span>
+  </div>
+  <p><strong>¿Qué es?</strong> Maven organiza la compilación en fases ordenadas: <code>validate → compile → test → package</code>. El plugin <code>spring-boot-maven-plugin</code> intercepta la fase <code>package</code> y reempaqueta las clases junto con todas las dependencias y un servidor Tomcat embebido en un único archivo <strong>Fat JAR</strong> (o Uber JAR).</p>
+  <p><strong>¿Dónde se aplicó?</strong> En <code>pom.xml</code> y ejecutado mediante el Maven Wrapper (<code>.\mvnw.cmd clean package</code>), generando <code>taskflow-0.0.1-SNAPSHOT.jar</code>.</p>
+<pre><span class="com">&lt;!-- taskflow/pom.xml --&gt;</span>
+<span class="kw">&lt;plugin&gt;</span>
+    <span class="kw">&lt;groupId&gt;</span>org.springframework.boot<span class="kw">&lt;/groupId&gt;</span>
+    <span class="kw">&lt;artifactId&gt;</span>spring-boot-maven-plugin<span class="kw">&lt;/artifactId&gt;</span>
+<span class="kw">&lt;/plugin&gt;</span></pre>
+</div>
+
+<div class="concepto">
+  <div class="concepto-header">
+    <span class="concepto-tag">2</span>
+    <span class="concepto-title">Docker Multi-Stage Build</span>
+  </div>
+  <p><strong>¿Qué es?</strong> Una técnica de Docker donde se utilizan múltiples instrucciones <code>FROM</code> en un solo Dockerfile. La primera etapa (Builder) compila el código con el JDK completo, mientras que la segunda etapa (Runtime) usa un JRE mínimo y solo copia el artefacto <code>.jar</code> resultante.</p>
+  <p><strong>¿Por qué importa?</strong> Reduce drásticamente el tamaño de la imagen (de ~800MB a ~250MB), previene la exposición del código fuente y mejora la seguridad al no incluir compiladores ni herramientas innecesarias en producción.</p>
+<pre><span class="com"># ETAPA 1: Builder (JDK 21 completo para compilar)</span>
+<span class="kw">FROM</span> eclipse-temurin:21-jdk-alpine <span class="kw">AS</span> builder
+<span class="kw">WORKDIR</span> /app
+<span class="kw">COPY</span> .mvn/ .mvn/
+<span class="kw">COPY</span> mvnw pom.xml ./
+<span class="kw">RUN</span> chmod +x ./mvnw
+<span class="kw">RUN</span> ./mvnw dependency:go-offline -B
+<span class="kw">COPY</span> src ./src
+<span class="kw">RUN</span> ./mvnw clean package -DskipTests -B
+
+<span class="com"># ETAPA 2: Runtime (JRE 21 ligero para producción)</span>
+<span class="kw">FROM</span> eclipse-temurin:21-jre-alpine <span class="kw">AS</span> runtime
+<span class="kw">RUN</span> addgroup -S appgroup &amp;&amp; adduser -S appuser -G appgroup
+<span class="kw">WORKDIR</span> /app
+<span class="kw">COPY</span> --from=builder /app/target/taskflow-*.jar app.jar
+<span class="kw">RUN</span> chown -R appuser:appgroup /app
+<span class="kw">USER</span> appuser
+<span class="kw">EXPOSE</span> 8080
+<span class="kw">ENTRYPOINT</span> ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]</pre>
+</div>
+
+<div class="concepto">
+  <div class="concepto-header">
+    <span class="concepto-tag">3</span>
+    <span class="concepto-title">Docker Compose &amp; Networking</span>
+  </div>
+  <p><strong>¿Qué es?</strong> Herramienta para definir y correr aplicaciones multi-contenedor. Crea una red virtual compartida donde los contenedores se resuelven por su nombre de servicio (DNS interno de Docker).</p>
+  <p><strong>¿Dónde se aplicó?</strong> En <code>docker-compose.yml</code>, levantando PostgreSQL 16 Alpine en el puerto 5432 y la API TaskFlow en el puerto 8080, usando <code>healthcheck</code> para sincronizar el arranque.</p>
+<pre><span class="kw">services</span>:
+  <span class="met">postgres-db</span>:
+    <span class="kw">image</span>: postgres:16-alpine
+    <span class="kw">container_name</span>: taskflow-postgres
+    <span class="kw">environment</span>:
+      <span class="kw">POSTGRES_DB</span>: taskflow_db
+      <span class="kw">POSTGRES_USER</span>: taskflow_user
+      <span class="kw">POSTGRES_PASSWORD</span>: taskflow_secret
+    <span class="kw">healthcheck</span>:
+      <span class="kw">test</span>: ["CMD-SHELL", "pg_isready -U taskflow_user -d taskflow_db"]
+      <span class="kw">interval</span>: 5s
+
+  <span class="met">taskflow-api</span>:
+    <span class="kw">build</span>: .
+    <span class="kw">container_name</span>: taskflow-app
+    <span class="kw">depends_on</span>:
+      <span class="met">postgres-db</span>:
+        <span class="kw">condition</span>: service_healthy
+    <span class="kw">environment</span>:
+      <span class="kw">SPRING_DATASOURCE_URL</span>: jdbc:postgresql://postgres-db:5432/taskflow_db</pre>
+</div>
+
+<div class="concepto">
+  <div class="concepto-header">
+    <span class="concepto-tag">4</span>
+    <span class="concepto-title">Spring Profiles e Inyección de Variables de Entorno</span>
+  </div>
+  <p><strong>¿Qué es?</strong> La sintaxis <code>${VARIABLE:valor_por_defecto}</code> en YAML permite que Spring Boot lea parámetros del entorno del contenedor o utilice un valor fallback si no se especifican.</p>
+  <p><strong>¿Dónde se aplicó?</strong> En <code>application-prod.yml</code> para parametrizar la URL de la base de datos, credenciales y clave JWT.</p>
+<pre><span class="com"># taskflow/src/main/resources/application-prod.yml</span>
+<span class="kw">spring</span>:
+  <span class="kw">datasource</span>:
+    <span class="kw">url</span>: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/taskflow_db}
+    <span class="kw">username</span>: ${SPRING_DATASOURCE_USERNAME:taskflow_user}
+    <span class="kw">password</span>: ${SPRING_DATASOURCE_PASSWORD:taskflow_secret}
+  <span class="kw">jpa</span>:
+    <span class="kw">hibernate</span>:
+      <span class="kw">ddl-auto</span>: none  <span class="com"># Flyway maneja las tablas</span></pre>
+</div>
+
+<div class="concepto">
+  <div class="concepto-header">
+    <span class="concepto-tag">5</span>
+    <span class="concepto-title">CI/CD Pipeline con GitHub Actions</span>
+  </div>
+  <p><strong>¿Qué es?</strong> Integración continua automatizada en la nube de GitHub. Ejecuta un runner en cada <code>git push</code> para garantizar que ningún cambio rompa los tests antes de fusionar código.</p>
+  <p><strong>¿Dónde se aplicó?</strong> En <code>.github/workflows/ci.yml</code>.</p>
+<pre><span class="kw">name</span>: TaskFlow CI/CD Pipeline
+<span class="kw">on</span>:
+  <span class="kw">push</span>:
+    <span class="kw">branches</span>: [ main, develop ]
+<span class="kw">jobs</span>:
+  <span class="met">build-and-test</span>:
+    <span class="kw">runs-on</span>: ubuntu-latest
+    <span class="kw">steps</span>:
+      - <span class="kw">uses</span>: actions/checkout@v4
+      - <span class="kw">uses</span>: actions/setup-java@v4
+        <span class="kw">with</span>:
+          <span class="kw">java-version</span>: '21'
+          <span class="kw">distribution</span>: 'temurin'
+          <span class="kw">cache</span>: maven
+      - <span class="kw">run</span>: cd taskflow &amp;&amp; ./mvnw clean test
+      - <span class="kw">run</span>: cd taskflow &amp;&amp; docker build -t taskflow-api:test .</pre>
+</div>
+
+<h2>⚠️ Hallazgo Técnico Crítico y Solución</h2>
+<div class="finding">
+  <h4>Problema: SchemaManagementException: Schema validation: missing table [tasks]</h4>
+  <p>Al arrancar la aplicación en PostgreSQL nuevo mediante Docker Compose, Hibernate intentaba validar las tablas con <code>ddl-auto: validate</code> antes de que Flyway ejecutara las migraciones <code>V1__crear_tablas.sql</code>. Como la BD estaba vacía, la validación fallaba y el contenedor de Spring Boot entraba en bucle de reinicio.</p>
+</div>
+<div class="solution">
+  <h4>Solución: Desactivar la validación automática de Hibernate con ddl-auto: none</h4>
+  <p>Se modificó <code>spring.jpa.hibernate.ddl-auto: none</code> en <code>application-prod.yml</code>. Esto permite que el bean de Flyway ejecute las migraciones versionadas (<code>V1</code> creación de tablas, <code>V2</code> datos demo, <code>V3</code> seguridad) de manera ordenada y segura al arrancar.</p>
+</div>
+
+<h2>🔗 Cómo se Relacionan los Conceptos</h2>
+<div class="rel">
+  <div class="rel-item">
+    <div class="rel-from">Maven Wrapper (<code>mvnw</code>)</div>
+    <div class="rel-arrow">→</div>
+    <div class="rel-desc">Garantiza versiones idénticas de Maven en local, dentro de Docker y en el runner de GitHub Actions sin requerir instalación previa.</div>
+  </div>
+  <div class="rel-item">
+    <div class="rel-from">Multi-Stage Dockerfile</div>
+    <div class="rel-arrow">→</div>
+    <div class="rel-desc">Separa la etapa pesada de compilación (JDK) de la etapa ligera de producción (JRE Alpine), protegiendo el código fuente.</div>
+  </div>
+  <div class="rel-item">
+    <div class="rel-from">Docker Compose Healthcheck</div>
+    <div class="rel-arrow">→</div>
+    <div class="rel-desc">Comprueba <code>pg_isready</code> antes de iniciar Spring Boot, evitando fallos de conexión tempranos.</div>
+  </div>
+  <div class="rel-item">
+    <div class="rel-from">Spring Profile <code>prod</code></div>
+    <div class="rel-arrow">→</div>
+    <div class="rel-desc">Inyecta credenciales y URL de PostgreSQL desde las variables de entorno definidas en el compose.</div>
+  </div>
+</div>
+
+<h2>✅ Checklist de Conceptos — Acumulado del Proyecto</h2>
+<div class="cl-group">
+  <div class="cl-title">☕ Java Moderno &amp; Spring Boot Core (Fases 1 &amp; 2)</div>
+  <div class="cl-grid">
+    <div class="ci"><div class="ck-done">✓</div> POO, Herencia e Interfaces</div>
+    <div class="ci"><div class="ck-done">✓</div> Records &amp; Enums con comportamiento</div>
+    <div class="ci"><div class="ck-done">✓</div> Streams, Lambdas &amp; Optional</div>
+    <div class="ci"><div class="ck-done">✓</div> Inversión de Control (IoC) &amp; DI</div>
+    <div class="ci"><div class="ck-done">✓</div> Profiles (dev / prod)</div>
+    <div class="ci"><div class="ck-done">✓</div> Actuator Endpoints (/health, /info)</div>
+  </div>
+</div>
+
+<div class="cl-group">
+  <div class="cl-title">🌐 REST API, Persistencia &amp; Seguridad (Fases 3, 4 &amp; 5)</div>
+  <div class="cl-grid">
+    <div class="ci"><div class="ck-done">✓</div> CRUD HTTP completo (GET, POST, PUT, PATCH, DELETE)</div>
+    <div class="ci"><div class="ck-done">✓</div> DTOs, Bean Validation &amp; Global Exception Handler</div>
+    <div class="ci"><div class="ck-done">✓</div> Spring Data JPA, Hibernate &amp; Specifications</div>
+    <div class="ci"><div class="ck-done">✓</div> Migraciones SQL versionadas con Flyway</div>
+    <div class="ci"><div class="ck-done">✓</div> Spring Security, Stateless JWT &amp; BCrypt</div>
+    <div class="ci"><div class="ck-done">✓</div> Documentación Swagger / OpenAPI 3</div>
+  </div>
+</div>
+
+<div class="cl-group">
+  <div class="cl-title">🧪 Testing &amp; ⚙️ DevOps (Fases 6 &amp; 7)</div>
+  <div class="cl-grid">
+    <div class="ci"><div class="ck-done">✓</div> JUnit 5 + Mockito Unit Tests</div>
+    <div class="ci"><div class="ck-done">✓</div> Slices (@DataJpaTest, @WebMvcTest)</div>
+    <div class="ci"><div class="ck-done">✓</div> Integración E2E (@SpringBootTest — 35 tests)</div>
+    <div class="ci"><div class="ck-done">✓</div> Maven Lifecycle &amp; Fat JAR packaging</div>
+    <div class="ci"><div class="ck-done">✓</div> Dockerfile Multi-Stage con JRE Alpine</div>
+    <div class="ci"><div class="ck-done">✓</div> docker-compose (App + PostgreSQL 16)</div>
+    <div class="ci"><div class="ck-done">✓</div> GitHub Actions CI Workflow automatizado</div>
+    <div class="ci"><div class="ck-done">✓</div> README profesional para portafolio</div>
+  </div>
+</div>
+
+<div class="cl-group">
+  <div class="cl-title">☁️ Próximas Fases (Fases 8 &amp; 9)</div>
+  <div class="cl-grid">
+    <div class="ci"><div class="ck-pend"></div> AWS EC2, RDS, ECR &amp; Elastic Beanstalk (Fase 8)</div>
+    <div class="ci"><div class="ck-pend"></div> CloudWatch &amp; Secrets Manager (Fase 8)</div>
+    <div class="ci"><div class="ck-pend"></div> Kubernetes Pods, Deployments &amp; Services (Fase 9)</div>
+    <div class="ci"><div class="ck-pend"></div> Kubernetes Ingress, HPA &amp; EKS (Fase 9)</div>
+  </div>
+</div>
+
+<h2>🖥️ Salida Esperada y Resultados Verificados</h2>
+<div class="terminal">
+<span class="t-green">PS taskflow&gt; docker-compose up -d</span><br />
+[+] Running 2/2<br />
+ <span class="t-green">✔ Container taskflow-postgres</span>  Healthy                                  6.3s<br />
+ <span class="t-green">✔ Container taskflow-app</span>       Started                                  6.3s<br />
+<br />
+<span class="t-blue">PS taskflow&gt; docker ps</span><br />
+CONTAINER ID   IMAGE                 STATUS                    PORTS                    NAMES<br />
+6e2a2e32b926   postgres:16-alpine    Up 2 minutes (healthy)   0.0.0.0:5432-&gt;5432/tcp   taskflow-postgres<br />
+6071c1df6873   taskflow-api:latest   Up 2 minutes              0.0.0.0:8080-&gt;8080/tcp   taskflow-app<br />
+<br />
+<span class="t-yellow">GET http://localhost:8080/actuator/health</span><br />
+{<br />
+  "status": "<span class="t-green">UP</span>",<br />
+  "components": {<br />
+    "db": { "status": "<span class="t-green">UP</span>", "details": { "database": "PostgreSQL", "validationQuery": "isValid()" } },<br />
+    "diskSpace": { "status": "<span class="t-green">UP</span>" },<br />
+    "ping": { "status": "<span class="t-green">UP</span>" }<br />
+  }<br />
+}
+</div>
+
+<div class="next">
+  <h4>📌 Para el siguiente chat:</h4>
+  <p>Si abres un nuevo chat, adjunta este informe y di:<br />
+  <em>"Estoy desarrollando TaskFlow (API REST Java 21 + Spring Boot, 9 fases). Las Fases 1 a 7 están completas (Java moderno, Spring Boot, REST, JPA/Flyway, Security/JWT, Testing y Docker/CI-CD). Necesito continuar con la <strong>Fase 8: Cloud AWS Básico</strong>."</em></p>
+</div>
+
+<footer>
+  TaskFlow API • Fase 7 completada • Java 21 + Spring Boot 4.1.1 + Docker + CI/CD
+  <div style="margin-top:8px;font-size:11px;color:#8c959f;border-top:1px solid #f0f0f0;padding-top:8px">Made with IBM Bob</div>
+</footer>
+
+</div>
+</body>
+</html>

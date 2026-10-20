@@ -1,0 +1,420 @@
+
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TaskFlow — Fase 4: Spring Data JPA + Flyway</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; font-size: 14px; line-height: 1.6; color: #1f2328; background: #fff; }
+  .container { max-width: 760px; margin: 0 auto; padding: 32px 24px; }
+  h1 { font-size: 22px; font-weight: 700; color: #1f2328; margin-bottom: 4px; }
+  h2 { font-size: 16px; font-weight: 700; color: #1f2328; margin: 28px 0 10px; border-bottom: 2px solid #3b82d4; padding-bottom: 4px; }
+  h3 { font-size: 14px; font-weight: 700; color: #3b82d4; margin: 16px 0 6px; }
+  h4 { font-size: 13px; font-weight: 700; color: #57606a; margin: 12px 0 4px; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px; margin-right: 4px; }
+  .badge-blue { background: #dbeafe; color: #1d4ed8; }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-orange { background: #ffedd5; color: #9a3412; }
+  .badge-purple { background: #ede9fe; color: #5b21b6; }
+  .badge-gray { background: #f1f5f9; color: #475569; }
+  .header-meta { color: #57606a; font-size: 13px; margin-bottom: 20px; }
+  .project-box { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px 18px; margin-bottom: 20px; }
+  .project-box p { margin-bottom: 4px; font-size: 13px; }
+  .project-box strong { color: #1f2328; }
+  .status-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+  .status-table th { background: #f7f8fa; text-align: left; padding: 7px 10px; border: 1px solid #e5e7eb; font-weight: 600; }
+  .status-table td { padding: 6px 10px; border: 1px solid #e5e7eb; vertical-align: top; }
+  .done { color: #166534; font-weight: 600; }
+  .pending { color: #9a3412; }
+  .inprogress { color: #1d4ed8; font-weight: 600; }
+  .concept-box { background: #f7f8fa; border-left: 3px solid #3b82d4; border-radius: 0 6px 6px 0; padding: 10px 14px; margin: 8px 0; font-size: 13px; }
+  .concept-box strong { color: #1d4ed8; }
+  code { background: #f1f5f9; border: 1px solid #e5e7eb; border-radius: 3px; padding: 1px 5px; font-family: "Consolas", "Courier New", monospace; font-size: 12px; color: #c0392b; }
+  pre { background: #1e1e2e; color: #cdd6f4; border-radius: 6px; padding: 14px 16px; font-size: 12px; font-family: "Consolas", "Courier New", monospace; overflow-x: auto; margin: 8px 0; line-height: 1.5; }
+  pre .kw { color: #cba6f7; }
+  pre .ann { color: #89b4fa; }
+  pre .str { color: #a6e3a1; }
+  pre .com { color: #6c7086; font-style: italic; }
+  pre .type { color: #89dceb; }
+  .checklist { list-style: none; padding: 0; margin: 8px 0; }
+  .checklist li { padding: 3px 0; font-size: 13px; }
+  .checklist li::before { content: "✅ "; }
+  .checklist li.pending::before { content: "⬜ "; }
+  .checklist li.inprog::before { content: "🔄 "; }
+  .result-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 12px 16px; margin: 10px 0; font-size: 13px; }
+  .result-box .log { font-family: "Consolas", monospace; font-size: 11px; color: #166534; background: #dcfce7; border-radius: 4px; padding: 8px 10px; margin-top: 8px; }
+  .warn-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 10px 14px; margin: 8px 0; font-size: 13px; color: #92400e; }
+  .arch-diagram { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px; margin: 10px 0; text-align: center; font-family: monospace; font-size: 12px; color: #1f2328; line-height: 2; }
+  .relation-box { background: #ede9fe; border: 1px solid #c4b5fd; border-radius: 6px; padding: 12px 16px; margin: 10px 0; font-size: 13px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 10px 0; }
+  .col-box { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px; font-size: 12px; }
+  .col-box h4 { color: #1d4ed8; margin-bottom: 6px; }
+  .file-tree { background: #1e1e2e; color: #cdd6f4; border-radius: 6px; padding: 14px 16px; font-size: 12px; font-family: monospace; line-height: 1.8; margin: 8px 0; }
+  .file-tree .new { color: #a6e3a1; font-weight: bold; }
+  .file-tree .mod { color: #f9e2af; }
+  .file-tree .old { color: #6c7086; }
+  .separator { border: none; border-top: 1px solid #e5e7eb; margin: 24px 0; }
+  footer { text-align: center; font-size: 12px; color: #57606a; border-top: 1px solid #e5e7eb; margin-top: 32px; padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>📦 TaskFlow — Fase 4: Spring Data JPA + Flyway</h1>
+  <div class="header-meta">
+    Proyecto: <strong>TaskFlow API REST</strong>  | 
+    Fase: <strong>4 de 9</strong>  | 
+    Fecha: <strong>31/08/2026</strong>  | 
+    Estado: <span class="badge badge-green">COMPLETADA ✅</span>
+  </div>
+
+  
+  <div class="project-box">
+    <p><strong>¿Qué es TaskFlow?</strong> API REST de gestión de tareas construida con Java 21 + Spring Boot 4.1.1. Proyecto de aprendizaje progresivo que cubre el stack Java empresarial completo, útil como portafolio en GitHub y referencia para entrevistas técnicas.</p>
+    <p style="margin-top:6px"><strong>Tecnologías en esta fase:</strong>
+      <span class="badge badge-blue">Spring Data JPA</span>
+      <span class="badge badge-blue">Hibernate 7.4</span>
+      <span class="badge badge-green">H2 Database</span>
+      <span class="badge badge-orange">Flyway 12.4</span>
+      <span class="badge badge-purple">PostgreSQL (ready)</span>
+      <span class="badge badge-gray">Java 21</span>
+    </p>
+  </div>
+
+  
+  <h2>📊 Estado del Proyecto</h2>
+  <table class="status-table">
+    <tr><th>Fase</th><th>Tema</th><th>Estado</th></tr>
+    <tr><td>Fase 1</td><td>Java Moderno — POO, Records, Enums, Streams, Lambdas, Optional</td><td class="done">✅ Completada</td></tr>
+    <tr><td>Fase 2</td><td>Spring Boot Core — IoC, DI, Profiles, Actuator, @ConfigurationProperties</td><td class="done">✅ Completada</td></tr>
+    <tr><td>Fase 3</td><td>REST API — DTOs, Validación, Swagger/OpenAPI, CORS, Exception Handling</td><td class="done">✅ Completada</td></tr>
+    <tr><td><strong>Fase 4</strong></td><td><strong>Spring Data JPA — Entidades, Repositorios, Flyway, H2, PostgreSQL</strong></td><td class="done">✅ Completada</td></tr>
+    <tr><td>Fase 5</td><td>Spring Security + JWT — Autenticación y Autorización</td><td class="pending">⬜ Pendiente</td></tr>
+    <tr><td>Fase 6</td><td>JUnit 5 + Mockito — Pruebas unitarias e integración</td><td class="pending">⬜ Pendiente</td></tr>
+    <tr><td>Fase 7</td><td>Docker + Maven + GitHub + CI/CD</td><td class="pending">⬜ Pendiente</td></tr>
+    <tr><td>Fase 8</td><td>AWS básico</td><td class="pending">⬜ Pendiente</td></tr>
+    <tr><td>Fase 9</td><td>Kubernetes</td><td class="pending">⬜ Pendiente</td></tr>
+  </table>
+
+  <hr class="separator" />
+
+  
+  <h2>🏗️ ¿Qué se construyó en esta fase?</h2>
+  <p style="font-size:13px;margin-bottom:10px">Se agregó la capa de persistencia real a TaskFlow. Hasta la Fase 3 los datos vivían en memoria (un <code>List&lt;Task&gt;</code>). En esta fase conectamos la aplicación a una base de datos real usando <strong>Spring Data JPA</strong> con <strong>Hibernate</strong> como ORM, <strong>H2</strong> como BD en memoria para desarrollo y <strong>Flyway</strong> para gestionar las migraciones SQL de forma versionada.</p>
+
+  <div class="file-tree">
+src/main/java/com/taskflow/
+├── <span class="new">entity/</span>
+│   ├── <span class="new">TaskEntity.java          ← NUEVO: entidad JPA tabla tasks</span>
+│   └── <span class="new">UserEntity.java          ← NUEVO: entidad JPA tabla users</span>
+├── <span class="new">repository/</span>
+│   ├── <span class="new">TaskRepository.java      ← NUEVO: JpaRepository + métodos derivados</span>
+│   ├── <span class="new">UserRepository.java      ← NUEVO: JpaRepository findByEmail</span>
+│   ├── <span class="new">TaskSpecification.java   ← NUEVO: filtros dinámicos con Specification</span>
+│   └── <span class="new">TareaResumen.java        ← NUEVO: proyección (interface-based projection)</span>
+├── <span class="new">service/</span>
+│   └── <span class="new">TaskJpaService.java      ← NUEVO: servicio con @Transactional y Pageable</span>
+├── config/
+│   └── <span class="mod">AppConfig.java           ← MOD: @EnableJpaAuditing + @Bean Flyway manual</span>
+├── controller/
+│   └── <span class="mod">TaskController.java      ← MOD: endpoints /api/tareas/db/*</span>
+└── dto/response/
+    └── <span class="mod">TareaResponse.java       ← MOD: fromTaskEntity() factory method</span>
+
+src/main/resources/
+├── <span class="new">application.yml           ← NUEVO: config base con datasource + flyway</span>
+├── <span class="mod">application-dev.yml       ← MOD: H2 config + logging detallado</span>
+├── <span class="old">application-prod.yml      ← existente: PostgreSQL con variables de entorno</span>
+└── <span class="new">db/migration/</span>
+    ├── <span class="new">V1__crear_tablas.sql     ← NUEVO: CREATE TABLE users, tasks, índices, secuencias</span>
+    └── <span class="new">V2__datos_iniciales.sql  ← NUEVO: INSERT 1 usuario + 5 tareas de prueba</span>
+  </div>
+
+  <hr class="separator" />
+
+  
+  <h2>📚 Conceptos Aplicados — Tutorial</h2>
+
+  
+  <h3>1. JPA y Hibernate — ¿Qué son?</h3>
+  <div class="concept-box">
+    <strong>JPA (Jakarta Persistence API)</strong> es una especificación de Java que define cómo mapear clases Java a tablas de base de datos. <strong>Hibernate</strong> es la implementación más popular de JPA. Spring Boot lo configura automáticamente con <code>spring-boot-starter-data-jpa</code>.
+  </div>
+  <h4>Entidad JPA — TaskEntity.java</h4>
+  <pre><span class="ann">@Entity</span>                          <span class="com">// Marca la clase como entidad JPA (tabla en BD)</span>
+<span class="ann">@Table</span>(name = <span class="str">"tasks"</span>)           <span class="com">// Nombre exacto de la tabla en la BD</span>
+<span class="ann">@EntityListeners</span>(AuditingEntityListener.class)  <span class="com">// Activa auditoría automática</span>
+<span class="kw">public class</span> <span class="type">TaskEntity</span> {
+
+    <span class="ann">@Id</span>
+    <span class="ann">@GeneratedValue</span>(strategy = GenerationType.SEQUENCE, generator = <span class="str">"tasks_gen"</span>)
+    <span class="ann">@SequenceGenerator</span>(name = <span class="str">"tasks_gen"</span>, sequenceName = <span class="str">"tasks_seq"</span>, allocationSize = 1)
+    <span class="kw">private</span> <span class="type">Long</span> id;
+
+    <span class="ann">@Column</span>(nullable = <span class="kw">false</span>, length = 100)
+    <span class="kw">private</span> <span class="type">String</span> titulo;
+
+    <span class="ann">@Enumerated</span>(EnumType.STRING)    <span class="com">// Guarda "PENDIENTE" en lugar de 0, 1, 2</span>
+    <span class="kw">private</span> <span class="type">TaskStatus</span> status;
+
+    <span class="ann">@ManyToOne</span>(fetch = FetchType.LAZY)  <span class="com">// Muchas tareas → 1 usuario (LAZY = eficiente)</span>
+    <span class="ann">@JoinColumn</span>(name = <span class="str">"usuario_id"</span>)
+    <span class="kw">private</span> <span class="type">UserEntity</span> usuario;
+
+    <span class="ann">@CreatedDate</span>                   <span class="com">// Spring pone la fecha automáticamente al insertar</span>
+    <span class="ann">@Column</span>(name = <span class="str">"fecha_creacion"</span>, updatable = <span class="kw">false</span>)
+    <span class="kw">private</span> <span class="type">LocalDateTime</span> fechaCreacion;
+
+    <span class="ann">@LastModifiedDate</span>              <span class="com">// Se actualiza automáticamente al modificar</span>
+    <span class="kw">private</span> <span class="type">LocalDateTime</span> fechaActualizacion;
+}</pre>
+
+  
+  <h3>2. Flyway — Migraciones Versionadas</h3>
+  <div class="concept-box">
+    <strong>Flyway</strong> gestiona cambios de esquema de BD de forma controlada. Cada cambio es un script SQL con nombre versionado (<code>V1__descripcion.sql</code>). Flyway lleva un historial en la tabla <code>flyway_schema_history</code> y garantiza que cada script se ejecute exactamente una vez.
+  </div>
+  <div class="two-col">
+    <div class="col-box">
+      <h4>V1__crear_tablas.sql</h4>
+      <ul style="padding-left:16px;font-size:12px;line-height:1.8">
+        <li>CREATE TABLE users</li>
+        <li>CREATE TABLE tasks</li>
+        <li>Índices de rendimiento</li>
+        <li>Secuencias para IDs</li>
+      </ul>
+    </div>
+    <div class="col-box">
+      <h4>V2__datos_iniciales.sql</h4>
+      <ul style="padding-left:16px;font-size:12px;line-height:1.8">
+        <li>INSERT usuario: Ana García</li>
+        <li>INSERT 5 tareas de prueba</li>
+        <li>Datos para desarrollo local</li>
+        <li>Se ejecuta solo en H2</li>
+      </ul>
+    </div>
+  </div>
+  <div class="warn-box">
+    ⚠️ <strong>Nota técnica Spring Boot 4.x:</strong> La autoconfiguration de Flyway en Spring Boot 4.1.1 no se activa correctamente cuando el datasource está en un perfil separado. La solución aplicada fue registrar Flyway como <code>@Bean</code> manual en <code>AppConfig.java</code> con <code>initMethod = "migrate"</code>, lo que garantiza su ejecución independientemente del perfil.
+  </div>
+
+  
+  <h3>3. Spring Data JPA — Repositorios</h3>
+  <div class="concept-box">
+    <strong>JpaRepository</strong> elimina el código boilerplate de CRUD. Spring Data genera automáticamente las implementaciones de los métodos basándose en los nombres de los métodos (<em>derived query methods</em>).
+  </div>
+  <pre><span class="kw">public interface</span> <span class="type">TaskRepository</span> <span class="kw">extends</span>
+        JpaRepository&lt;<span class="type">TaskEntity</span>, <span class="type">Long</span>&gt;,      <span class="com">// CRUD + paginación gratis</span>
+        JpaSpecificationExecutor&lt;<span class="type">TaskEntity</span>&gt; { <span class="com">// filtros dinámicos</span>
+
+    <span class="com">// Método derivado — Spring genera el SQL automáticamente</span>
+    List&lt;<span class="type">TaskEntity</span>&gt; findByUsuarioIdAndStatus(<span class="type">Long</span> usuarioId, <span class="type">TaskStatus</span> status);
+
+    <span class="com">// JPQL — consulta orientada a objetos (no SQL)</span>
+    <span class="ann">@Query</span>(<span class="str">"SELECT t FROM TaskEntity t WHERE t.usuario.id = :uid ORDER BY t.fechaCreacion DESC"</span>)
+    List&lt;<span class="type">TaskEntity</span>&gt; buscarPorUsuarioOrdenado(<span class="ann">@Param</span>(<span class="str">"uid"</span>) <span class="type">Long</span> usuarioId);
+
+    <span class="com">// Proyección — solo devuelve titulo y status (más eficiente)</span>
+    List&lt;<span class="type">TareaResumen</span>&gt; findByUsuarioId(<span class="type">Long</span> usuarioId);
+}</pre>
+
+  
+  <h3>4. @Transactional — Gestión de Transacciones</h3>
+  <div class="concept-box">
+    <strong>@Transactional</strong> garantiza que un conjunto de operaciones en la BD se ejecute como una unidad atómica: todo se confirma o todo se revierte si hay error.
+  </div>
+  <pre><span class="ann">@Service</span>
+<span class="ann">@Transactional</span>(readOnly = <span class="kw">true</span>)   <span class="com">// Optimización: todas las ops son solo lectura por defecto</span>
+<span class="kw">public class</span> <span class="type">TaskJpaService</span> {
+
+    <span class="ann">@Transactional</span>               <span class="com">// Sobreescribe el readOnly para escrituras</span>
+    <span class="kw">public</span> <span class="type">TaskEntity</span> crear(<span class="type">TaskEntity</span> tarea) {
+        <span class="kw">return</span> taskRepository.save(tarea);
+    }
+
+    <span class="com">// Paginación real con Spring Data</span>
+    <span class="kw">public</span> Page&lt;<span class="type">TaskEntity</span>&gt; listar(<span class="type">Pageable</span> pageable) {
+        <span class="kw">return</span> taskRepository.findAll(pageable);
+    }
+}</pre>
+
+  
+  <h3>5. Specification — Filtros Dinámicos</h3>
+  <div class="concept-box">
+    <strong>Specification</strong> permite construir consultas SQL dinámicas en tiempo de ejecución. En lugar de tener un método por cada combinación de filtros, usamos predicados combinables.
+  </div>
+  <pre><span class="kw">public class</span> <span class="type">TaskSpecification</span> {
+    <span class="kw">public static</span> Specification&lt;<span class="type">TaskEntity</span>&gt; conStatus(<span class="type">TaskStatus</span> status) {
+        <span class="kw">return</span> (root, query, cb) -&gt;
+            status == <span class="kw">null</span> ? <span class="kw">null</span> : cb.equal(root.get(<span class="str">"status"</span>), status);
+    }
+    <span class="com">// Se combina en el servicio:</span>
+    <span class="com">// Specification.where(conStatus(s)).and(conPrioridad(p)).and(conCategoria(c))</span>
+}</pre>
+
+  
+  <h3>6. Auditoría JPA — @CreatedDate / @LastModifiedDate</h3>
+  <div class="concept-box">
+    Con <code>@EnableJpaAuditing</code> en la configuración y <code>@EntityListeners(AuditingEntityListener.class)</code> en la entidad, Spring Data pobla automáticamente los campos <code>fechaCreacion</code> y <code>fechaActualizacion</code> sin código adicional.
+  </div>
+
+  
+  <h3>7. Proyecciones (Interface-based Projections)</h3>
+  <pre><span class="com">// Solo recupera los campos necesarios — más eficiente que SELECT *</span>
+<span class="kw">public interface</span> <span class="type">TareaResumen</span> {
+    <span class="type">Long</span> getId();
+    <span class="type">String</span> getTitulo();
+    <span class="type">String</span> getStatus();
+}</pre>
+
+  <hr class="separator" />
+
+  
+  <h2>✅ Checklist de Conceptos Aplicados</h2>
+  <div class="two-col">
+    <div>
+      <h4>Java / Spring Boot</h4>
+      <ul class="checklist">
+        <li>POO — Clases y objetos</li>
+        <li>Herencia e interfaces</li>
+        <li>Generics (Repository&lt;T,ID&gt;)</li>
+        <li>Lambdas (Specification)</li>
+        <li>Optional (findById)</li>
+        <li>Enums (TaskStatus, Priority)</li>
+        <li>Records (TaskFilter)</li>
+        <li>Fecha/hora (LocalDateTime)</li>
+        <li>Spring Boot IoC / DI</li>
+        <li>@Configuration / @Bean</li>
+        <li>@Value / @ConfigurationProperties</li>
+        <li>Profiles (dev/prod)</li>
+        <li>Actuator (health, info)</li>
+      </ul>
+    </div>
+    <div>
+      <h4>JPA / Persistencia</h4>
+      <ul class="checklist">
+        <li>@Entity / @Table</li>
+        <li>@Id / @GeneratedValue</li>
+        <li>@Column / @Enumerated</li>
+        <li>@ManyToOne / @OneToMany</li>
+        <li>FetchType LAZY</li>
+        <li>@CreatedDate / @LastModifiedDate</li>
+        <li>@EnableJpaAuditing</li>
+        <li>JpaRepository (CRUD)</li>
+        <li>Derived Query Methods</li>
+        <li>@Query JPQL</li>
+        <li>JpaSpecificationExecutor</li>
+        <li>Interface-based Projections</li>
+        <li>@Transactional (readOnly)</li>
+        <li>Flyway migrations</li>
+        <li>H2 en memoria</li>
+      </ul>
+      <h4 style="margin-top:12px">REST / API</h4>
+      <ul class="checklist">
+        <li>GET / POST / PUT / PATCH / DELETE</li>
+        <li>DTOs (Request / Response)</li>
+        <li>Paginación (Pageable)</li>
+        <li>Filtros dinámicos</li>
+        <li>HTTP Status Codes</li>
+        <li>Swagger / OpenAPI</li>
+      </ul>
+      <h4 style="margin-top:12px">Pendientes próximas fases</h4>
+      <ul class="checklist">
+        <li class="pending">JWT / Spring Security</li>
+        <li class="pending">JUnit 5 + Mockito</li>
+        <li class="pending">Docker</li>
+        <li class="pending">CI/CD / GitHub Actions</li>
+        <li class="pending">AWS / Kubernetes</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="separator" />
+
+  
+  <h2>🏛️ Arquitectura — Capas del Proyecto</h2>
+  <div class="arch-diagram">
+    HTTP Request<br />
+    ↓<br />
+    <strong>Controller</strong> (TaskController) — recibe, valida, delega<br />
+    ↓<br />
+    <strong>Service</strong> (TaskJpaService) — lógica de negocio, @Transactional<br />
+    ↓<br />
+    <strong>Repository</strong> (TaskRepository) — JpaRepository, Specification<br />
+    ↓<br />
+    <strong>Entity</strong> (TaskEntity) — mapeada a tabla tasks<br />
+    ↓<br />
+    <strong>H2 / PostgreSQL</strong> ← esquema creado por Flyway<br />
+  </div>
+
+  
+  <h2>🔗 Relaciones entre Conceptos</h2>
+  <div class="relation-box">
+    <strong>Flyway → Hibernate:</strong> Flyway crea las tablas ANTES de que Hibernate intente usarlas. Por eso <code>ddl-auto: none</code> — le decimos a Hibernate que NO toque el esquema.<br /><br />
+    <strong>@Entity → Repository:</strong> El repositorio opera sobre entidades JPA. Spring Data genera el SQL basándose en las anotaciones de la entidad.<br /><br />
+    <strong>@EnableJpaAuditing → @CreatedDate:</strong> Sin <code>@EnableJpaAuditing</code> en <code>AppConfig</code>, las anotaciones de auditoría no se activan y los campos quedan vacíos.<br /><br />
+    <strong>Specification → JpaSpecificationExecutor:</strong> El repositorio debe extender <code>JpaSpecificationExecutor</code> para aceptar predicados dinámicos.<br /><br />
+    <strong>@Transactional(readOnly=true) → rendimiento:</strong> Hibernate optimiza las consultas de solo lectura omitiendo el dirty-checking, reduciendo el uso de memoria.
+  </div>
+
+  <hr class="separator" />
+
+  
+  <h2>🎯 Resultados Verificados</h2>
+  <div class="result-box">
+    <strong>H2 Console (localhost:8080/h2-console) — Tablas creadas por Flyway:</strong>
+    <div class="log">
+SELECT * FROM users;  → 1 fila: Ana García | ana@taskflow.com<br />
+SELECT * FROM tasks;  → 5 filas: Preparar presentación Q3, Leer Clean Code,<br />
+                         Llamar al dentista, Entregar informe urgente, Revisar PRs<br />
+flyway_schema_history → 2 migraciones: V1 (crear tablas) + V2 (datos iniciales)
+    </div>
+  </div>
+  <div class="result-box">
+    <strong>Logs de arranque — Flyway ejecutó exitosamente:</strong>
+    <div class="log">
+INFO  org.flywaydb.core.FlywayExecutor : Database: jdbc:h2:mem:taskflowdb (H2 2.4)<br />
+INFO  o.f.c.i.command.DbValidate       : Successfully validated 2 migrations<br />
+INFO  o.f.c.i.command.DbMigrate        : Migrating schema "PUBLIC" to version "1 - crear tablas"<br />
+INFO  o.f.c.i.command.DbMigrate        : Migrating schema "PUBLIC" to version "2 - datos iniciales"<br />
+INFO  o.f.c.i.command.DbMigrate        : Successfully applied 2 migrations, now at version v2
+    </div>
+  </div>
+
+  
+  <h2>🔌 Endpoints Disponibles en Fase 4</h2>
+  <table class="status-table">
+    <tr><th>Método</th><th>URL</th><th>Descripción</th></tr>
+    <tr><td><span class="badge badge-green">GET</span></td><td><code>/api/tareas/db</code></td><td>Listar tareas desde BD con paginación</td></tr>
+    <tr><td><span class="badge badge-green">GET</span></td><td><code>/api/tareas/db/{id}</code></td><td>Obtener tarea por ID desde BD</td></tr>
+    <tr><td><span class="badge badge-blue">POST</span></td><td><code>/api/tareas/db</code></td><td>Crear tarea en BD</td></tr>
+    <tr><td><span class="badge badge-orange">PUT</span></td><td><code>/api/tareas/db/{id}</code></td><td>Actualizar tarea en BD</td></tr>
+    <tr><td><span class="badge badge-purple">DELETE</span></td><td><code>/api/tareas/db/{id}</code></td><td>Eliminar tarea de BD</td></tr>
+    <tr><td><span class="badge badge-green">GET</span></td><td><code>/h2-console</code></td><td>Consola web H2 (solo perfil dev)</td></tr>
+    <tr><td><span class="badge badge-green">GET</span></td><td><code>/actuator/health</code></td><td>Health check de la aplicación</td></tr>
+    <tr><td><span class="badge badge-green">GET</span></td><td><code>/swagger-ui.html</code></td><td>Documentación interactiva OpenAPI</td></tr>
+  </table>
+
+  
+  <h2>⏭️ Próxima Fase: Spring Security + JWT</h2>
+  <div class="project-box">
+    <p><strong>Fase 5</strong> agregará autenticación y autorización a la API:</p>
+    <ul style="padding-left:18px;margin-top:6px;font-size:13px;line-height:1.8">
+      <li>Spring Security — filtros de seguridad</li>
+      <li>JWT (JSON Web Tokens) — tokens sin estado</li>
+      <li>Registro e inicio de sesión de usuarios</li>
+      <li>Roles (ADMIN / USER) con @PreAuthorize</li>
+      <li>Proteger endpoints REST con autenticación</li>
+      <li>BCrypt para hash de contraseñas</li>
+    </ul>
+  </div>
+
+  <footer>
+    <p>TaskFlow API · Fase 4 completada el 31/08/2026 · Java 21 + Spring Boot 4.1.1 + Flyway 12.4 + H2 2.4</p>
+    <p style="margin-top:4px">Made with IBM Bob</p>
+  </footer>
+
+</div>
+</body>
+</html>

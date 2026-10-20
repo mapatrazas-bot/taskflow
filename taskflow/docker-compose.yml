@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # ─────────────────────────────────────────────────────────────
+  # Base de Datos: PostgreSQL
+  # ─────────────────────────────────────────────────────────────
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: taskflow-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: taskflow_db
+      POSTGRES_USER: taskflow_user
+      POSTGRES_PASSWORD: taskflow_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - taskflow-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskflow_user -d taskflow_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────────────────────
+  # Aplicación: TaskFlow Spring Boot API
+  # ─────────────────────────────────────────────────────────────
+  taskflow-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: taskflow-app
+    restart: unless-stopped
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/taskflow_db
+      SPRING_DATASOURCE_USERNAME: taskflow_user
+      SPRING_DATASOURCE_PASSWORD: taskflow_secret
+      JWT_SECRET: taskflow-secret-key-must-be-at-least-256-bits-long-for-hs256!!
+      JWT_EXPIRATION: 86400000
+    networks:
+      - taskflow-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  taskflow-network:
+    driver: bridge

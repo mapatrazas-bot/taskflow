@@ -1,0 +1,759 @@
+
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TaskFlow — Plan de Desarrollo Completo</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #1f2328;
+    background: #ffffff;
+    padding: 32px 16px;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+
+  .header { border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 28px; }
+  .header h1 { font-size: 24px; font-weight: 700; color: #1f2328; }
+  .header .subtitle { color: #57606a; font-size: 13px; margin-top: 4px; }
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 12px; margin-right: 4px; margin-top: 6px;
+  }
+  .badge-java { background: #fff3cd; color: #856404; }
+  .badge-spring { background: #d1e7dd; color: #0a3622; }
+  .badge-db { background: #cfe2ff; color: #084298; }
+  .badge-tool { background: #f8d7da; color: #58151c; }
+  .badge-cloud { background: #e9d5ff; color: #5b21b6; }
+
+  .project-card {
+    background: #f7f8fa; border: 1px solid #e5e7eb;
+    border-radius: 8px; padding: 20px; margin-bottom: 28px;
+  }
+  .project-card h2 { font-size: 15px; font-weight: 700; margin-bottom: 10px; color: #3b82d4; }
+  .project-card ul { padding-left: 18px; color: #1f2328; }
+  .project-card ul li { margin-bottom: 3px; }
+
+  .stack-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .stack-chip {
+    background: #ffffff; border: 1px solid #e5e7eb;
+    border-radius: 6px; padding: 3px 10px;
+    font-size: 12px; color: #57606a; font-weight: 500;
+  }
+
+  /* Roadmap visual */
+  .roadmap { margin-bottom: 32px; }
+  .roadmap-title {
+    font-size: 17px; font-weight: 700; color: #1f2328;
+    border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; margin-bottom: 16px;
+  }
+  .roadmap-row {
+    display: flex; align-items: center; gap: 0; margin-bottom: 0;
+  }
+  .roadmap-item {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0; flex: 1; min-width: 0;
+  }
+  .roadmap-box {
+    width: 100%; text-align: center; padding: 6px 4px;
+    border-radius: 6px; font-size: 11px; font-weight: 600;
+    border: 1px solid #e5e7eb;
+  }
+  .roadmap-arrow {
+    font-size: 16px; color: #57606a; padding: 0 6px;
+    flex-shrink: 0; line-height: 1;
+    align-self: center;
+  }
+
+  .section-title {
+    font-size: 17px; font-weight: 700; color: #1f2328;
+    border-bottom: 1px solid #e5e7eb; padding-bottom: 6px;
+    margin-bottom: 16px; margin-top: 32px;
+  }
+
+  .phase {
+    border: 1px solid #e5e7eb; border-radius: 8px;
+    margin-bottom: 20px; overflow: hidden;
+  }
+  .phase-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px; background: #f7f8fa;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .phase-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; flex-shrink: 0; color: #ffffff;
+  }
+  .num-1 { background: #3b82d4; }
+  .num-2 { background: #7c5cd8; }
+  .num-3 { background: #0a7c4a; }
+  .num-4 { background: #b45309; }
+  .num-5 { background: #be185d; }
+  .num-6 { background: #0369a1; }
+  .num-7 { background: #374151; }
+  .num-8 { background: #c2410c; }
+  .num-9 { background: #0f766e; }
+
+  .phase-title { font-size: 14px; font-weight: 700; color: #1f2328; }
+  .phase-desc { font-size: 12px; color: #57606a; margin-top: 1px; }
+  .phase-body { padding: 16px 18px; }
+
+  .concepts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 520px) { .concepts-grid { grid-template-columns: 1fr; } }
+
+  .concept-group h4 {
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; color: #57606a; margin-bottom: 6px;
+  }
+  .concept-list { list-style: none; padding: 0; }
+  .concept-list li {
+    font-size: 13px; color: #1f2328; padding: 2px 0;
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+  .concept-list li::before {
+    content: "✓"; color: #3b82d4; font-weight: 700;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  .deliverable {
+    margin-top: 12px; padding: 10px 14px;
+    background: #f0f9ff; border-left: 3px solid #3b82d4;
+    border-radius: 0 6px 6px 0; font-size: 13px;
+  }
+  .deliverable strong { color: #084298; }
+
+  /* Full checklist table */
+  .checklist-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .checklist-table th {
+    text-align: left; padding: 8px 12px;
+    background: #f7f8fa; border: 1px solid #e5e7eb;
+    font-size: 12px; font-weight: 700; color: #57606a;
+    text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .checklist-table td { padding: 7px 12px; border: 1px solid #e5e7eb; vertical-align: top; }
+  .checklist-table tr:nth-child(even) td { background: #fafbfc; }
+  .status-pending { color: #57606a; font-size: 12px; }
+
+  /* Group header row */
+  .group-row td {
+    background: #1f2328 !important;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 6px 12px;
+  }
+
+  .note {
+    background: #fffbeb; border: 1px solid #fde68a;
+    border-radius: 6px; padding: 12px 16px;
+    font-size: 13px; color: #78350f; margin-top: 24px;
+  }
+  .note strong { color: #92400e; }
+
+  footer {
+    margin-top: 40px; padding-top: 14px;
+    border-top: 1px solid #e5e7eb;
+    text-align: center; font-size: 12px; color: #57606a;
+  }
+
+  /* Phase group labels */
+  .phase-group-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; color: #57606a;
+    margin-top: 28px; margin-bottom: 10px;
+    padding: 4px 10px; background: #f7f8fa;
+    border: 1px solid #e5e7eb; border-radius: 4px;
+    display: inline-block;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  
+  <div class="header">
+    <h1>📋 TaskFlow — API REST de Gestión de Tareas</h1>
+    <div class="subtitle">Plan de desarrollo progresivo · Java 21 + Spring Boot 4.1.1 · <strong>9 Fases completas</strong></div>
+    <div style="margin-top:8px">
+      <span class="badge badge-java">Java 21</span>
+      <span class="badge badge-spring">Spring Boot 4.1.1</span>
+      <span class="badge badge-db">H2 → PostgreSQL</span>
+      <span class="badge badge-tool">Maven</span>
+      <span class="badge badge-tool">Docker</span>
+      <span class="badge badge-tool">JUnit 5</span>
+      <span class="badge badge-cloud">AWS</span>
+      <span class="badge badge-cloud">Kubernetes</span>
+    </div>
+  </div>
+
+  
+  <div class="roadmap">
+    <div class="roadmap-title">🗺️ Ruta de aprendizaje completa</div>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;font-size:12px">
+      <span style="background:#dbeafe;color:#1e40af;padding:4px 10px;border-radius:5px;font-weight:600">Java 21</span>
+      <span style="color:#57606a">↓</span>
+      <span style="background:#ede9fe;color:#5b21b6;padding:4px 10px;border-radius:5px;font-weight:600">Spring Boot</span>
+      <span style="color:#57606a">↓</span>
+      <span style="background:#dcfce7;color:#14532d;padding:4px 10px;border-radius:5px;font-weight:600">REST API</span>
+      <span style="color:#57606a">↓</span>
+      <span style="background:#fef9c3;color:#713f12;padding:4px 10px;border-radius:5px;font-weight:600">PostgreSQL + JPA</span>
+      <span style="color:#57606a">↓</span>
+      <span style="background:#fce7f3;color:#831843;padding:4px 10px;border-radius:5px;font-weight:600">Security + JWT</span>
+      <span style="color:#57606a">↓</span>
+      <span style="background:#e0f2fe;color:#0c4a6e;padding:4px 10px;border-radius:5px;font-weight:600">JUnit</span>
+      <span style="color:#57606a">↓</span>
+      <span style="background:#f1f5f9;color:#1e293b;padding:4px 10px;border-radius:5px;font-weight:600">Maven + Git + Docker + CI/CD</span>
+      <span style="color:#57606a">↓</span>
+      <span style="background:#ffedd5;color:#7c2d12;padding:4px 10px;border-radius:5px;font-weight:600">AWS básico</span>
+      <span style="color:#57606a">↓</span>
+      <span style="background:#ccfbf1;color:#134e4a;padding:4px 10px;border-radius:5px;font-weight:600">Kubernetes</span>
+    </div>
+  </div>
+
+  
+  <div class="project-card">
+    <h2>¿Qué es TaskFlow?</h2>
+    <p><strong>TaskFlow</strong> es una API REST para gestión de tareas personales/laborales. Permite crear, actualizar, consultar y eliminar tareas organizadas por categorías y prioridades, con autenticación JWT y documentación automática con Swagger/OpenAPI.</p>
+    <p style="margin-top:10px"><strong>Requerimientos funcionales:</strong></p>
+    <ul>
+      <li>CRUD completo de tareas (título, descripción, estado, prioridad, fecha límite)</li>
+      <li>Categorías: PERSONAL, TRABAJO, ESTUDIO, OTRO</li>
+      <li>Estados: PENDIENTE, EN_PROGRESO, COMPLETADA, CANCELADA</li>
+      <li>Prioridades: BAJA, MEDIA, ALTA, URGENTE</li>
+      <li>Filtrado por estado, categoría y prioridad · Paginación y ordenamiento</li>
+      <li>Estadísticas básicas (total por estado, tareas vencidas)</li>
+      <li>Autenticación JWT · Roles USER / ADMIN</li>
+      <li>Documentación Swagger/OpenAPI · Desplegado en AWS · Orquestado con Kubernetes</li>
+    </ul>
+    <div class="stack-row">
+      <span class="stack-chip">Spring Web</span>
+      <span class="stack-chip">Spring Data JPA</span>
+      <span class="stack-chip">H2 / PostgreSQL</span>
+      <span class="stack-chip">Hibernate Validator</span>
+      <span class="stack-chip">Spring Security + JWT</span>
+      <span class="stack-chip">Actuator</span>
+      <span class="stack-chip">Lombok</span>
+      <span class="stack-chip">Springdoc OpenAPI</span>
+      <span class="stack-chip">Flyway</span>
+      <span class="stack-chip">JUnit 5 + Mockito</span>
+      <span class="stack-chip">Docker</span>
+      <span class="stack-chip">GitHub Actions</span>
+      <span class="stack-chip">AWS EC2 / RDS / ECR</span>
+      <span class="stack-chip">Kubernetes (EKS)</span>
+    </div>
+  </div>
+
+  
+  <div class="section-title">📦 Fases de desarrollo</div>
+
+  
+  <div class="phase-group-label">Grupo 1 — Java Moderno</div>
+
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-num num-1">1</div>
+      <div>
+        <div class="phase-title">Fundamentos Java Moderno — El modelo de dominio</div>
+        <div class="phase-desc">POO · Records · Enums · Generics · Streams · Optional · Exceptions · Fecha/hora · Archivos</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="concepts-grid">
+        <div class="concept-group">
+          <h4>POO &amp; Tipos</h4>
+          <ul class="concept-list">
+            <li>Clases, objetos y encapsulamiento</li>
+            <li>Herencia con clase abstracta</li>
+            <li>Interfaces (múltiple implementación)</li>
+            <li>Polimorfismo en tiempo de ejecución</li>
+            <li>Records (Java 16+) para DTOs inmutables</li>
+            <li>Enums con campos y métodos</li>
+            <li>Generics en clases y métodos</li>
+          </ul>
+        </div>
+        <div class="concept-group">
+          <h4>Java Moderno</h4>
+          <ul class="concept-list">
+            <li>Streams y Lambdas sobre Collections</li>
+            <li>Optional — null safety</li>
+            <li>Collections: List, Map, Set</li>
+            <li>Excepciones personalizadas checked/unchecked</li>
+            <li>LocalDate / LocalDateTime / Duration</li>
+            <li>Manejo de archivos (escritura de log)</li>
+            <li>Buenas prácticas: SOLID, nombrado, Javadoc</li>
+          </ul>
+        </div>
+      </div>
+      <div class="deliverable">
+        <strong>Entregable:</strong> Clases de dominio puras sin Spring — <code>Task</code>, <code>TaskStatus</code>, <code>Priority</code>, <code>Category</code> (enums), <code>TaskFilter</code> (record), <code>TaskService</code> en memoria con Streams + Optional + manejo completo de excepciones.
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="phase-group-label">Grupo 2 — Spring Boot</div>
+
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-num num-2">2</div>
+      <div>
+        <div class="phase-title">Spring Boot Core — Estructura del proyecto</div>
+        <div class="phase-desc">IoC · DI · Controllers · Services · Configuration · Profiles · Actuator</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="concepts-grid">
+        <div class="concept-group">
+          <h4>Spring Boot Core</h4>
+          <ul class="concept-list">
+            <li>Inversión de Control (IoC) — concepto y práctica</li>
+            <li>Inyección de dependencias por constructor</li>
+            <li>@SpringBootApplication y auto-config</li>
+            <li>@Component, @Service, @Repository</li>
+            <li>@Configuration y @Bean explícitos</li>
+          </ul>
+        </div>
+        <div class="concept-group">
+          <h4>Configuración</h4>
+          <ul class="concept-list">
+            <li>application.yml — estructura completa</li>
+            <li>Profiles: dev / prod</li>
+            <li>@Value y @ConfigurationProperties</li>
+            <li>Spring Boot Actuator</li>
+            <li>Health, Info, Metrics endpoints</li>
+          </ul>
+        </div>
+      </div>
+      <div class="deliverable">
+        <strong>Entregable:</strong> Proyecto Spring Boot corriendo en <code>localhost:8080</code>. Estructura de capas controller/service/repository, perfiles dev/prod activos, Actuator respondiendo en <code>/actuator/health</code>.
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="phase-group-label">Grupo 3 — REST API Completa</div>
+
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-num num-3">3</div>
+      <div>
+        <div class="phase-title">REST API + DTOs + Validación + Excepciones + Swagger</div>
+        <div class="phase-desc">Todos los verbos HTTP · Status codes · Headers · CORS · DTOs · Swagger · Postman</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="concepts-grid">
+        <div class="concept-group">
+          <h4>REST completo</h4>
+          <ul class="concept-list">
+            <li>@RestController, @RequestMapping</li>
+            <li>GET — listar y obtener tarea por id</li>
+            <li>POST — crear tarea</li>
+            <li>PUT — reemplazar tarea completa</li>
+            <li>PATCH — actualizar solo estado</li>
+            <li>DELETE — eliminar tarea</li>
+            <li>@PathVariable y @RequestParam</li>
+            <li>@RequestBody — JSON input</li>
+            <li>ResponseEntity con status codes</li>
+            <li>Headers personalizados</li>
+            <li>CORS configurado</li>
+          </ul>
+        </div>
+        <div class="concept-group">
+          <h4>Calidad de API</h4>
+          <ul class="concept-list">
+            <li>DTOs de Request separados de Response</li>
+            <li>@Valid + Bean Validation completo</li>
+            <li>@NotBlank, @Size, @Future, @Min</li>
+            <li>@ControllerAdvice global</li>
+            <li>Estructura ApiError estándar</li>
+            <li>Query Parameters: filtros</li>
+            <li>Pagination: page, size, sort</li>
+            <li>Filtering: por estado/prioridad/categoría</li>
+            <li>Sorting: por fecha, prioridad</li>
+            <li>Swagger / OpenAPI 3.0</li>
+            <li>Postman Collection exportada</li>
+          </ul>
+        </div>
+      </div>
+      <div class="deliverable">
+        <strong>Entregable:</strong> CRUD completo con datos en memoria. DTOs separados, validaciones activas, manejo de errores global con <code>ApiError</code>, paginación/filtros/sorting, documentación en <code>/swagger-ui.html</code>. Postman collection lista.
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="phase-group-label">Grupo 4 — PostgreSQL + Spring Data JPA</div>
+
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-num num-4">4</div>
+      <div>
+        <div class="phase-title">Spring Data JPA + Hibernate + H2 → PostgreSQL</div>
+        <div class="phase-desc">Entidades JPA · Repositorios · JPQL · Paginación real · Relaciones · Flyway</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="concepts-grid">
+        <div class="concept-group">
+          <h4>JPA / Hibernate</h4>
+          <ul class="concept-list">
+            <li>@Entity, @Table, @Column</li>
+            <li>@Id, @GeneratedValue (UUID)</li>
+            <li>JpaRepository y métodos derivados</li>
+            <li>@Query con JPQL</li>
+            <li>Relación @ManyToOne User→Task</li>
+            <li>Auditoría @CreatedDate, @LastModifiedDate</li>
+            <li>@Transactional</li>
+          </ul>
+        </div>
+        <div class="concept-group">
+          <h4>Avanzado</h4>
+          <ul class="concept-list">
+            <li>Paginación con Pageable / Page</li>
+            <li>Filtros dinámicos con Specification</li>
+            <li>Sorting por múltiples campos</li>
+            <li>Proyecciones (interfaces)</li>
+            <li>H2 Console en dev</li>
+            <li>Migración a PostgreSQL por perfil</li>
+            <li>Flyway — migraciones SQL versionadas</li>
+          </ul>
+        </div>
+      </div>
+      <div class="deliverable">
+        <strong>Entregable:</strong> Datos persistidos en H2 (dev) y PostgreSQL (prod). Entidades <code>Task</code> + <code>User</code> con relación. Endpoints con paginación real, filtros y sorting desde BD.
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="phase-group-label">Grupo 5 — Seguridad</div>
+
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-num num-5">5</div>
+      <div>
+        <div class="phase-title">Spring Security + JWT — Autenticación y Autorización</div>
+        <div class="phase-desc">SecurityFilterChain · BCrypt · JWT · Roles USER/ADMIN · @PreAuthorize</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="concepts-grid">
+        <div class="concept-group">
+          <h4>Spring Security</h4>
+          <ul class="concept-list">
+            <li>SecurityFilterChain (Spring Boot 3+)</li>
+            <li>UserDetails y UserDetailsService</li>
+            <li>BCryptPasswordEncoder</li>
+            <li>Registro de usuarios</li>
+            <li>Login con credenciales</li>
+            <li>Roles: USER / ADMIN</li>
+          </ul>
+        </div>
+        <div class="concept-group">
+          <h4>JWT</h4>
+          <ul class="concept-list">
+            <li>Generación de tokens JWT (JJWT)</li>
+            <li>JwtAuthenticationFilter</li>
+            <li>Validación y expiración del token</li>
+            <li>Endpoints públicos vs protegidos</li>
+            <li>@PreAuthorize con roles</li>
+            <li>Refresh token básico</li>
+          </ul>
+        </div>
+      </div>
+      <div class="deliverable">
+        <strong>Entregable:</strong> Entidad <code>User</code> con roles. <code>POST /auth/register</code> y <code>POST /auth/login</code> devolviendo JWT. Todos los endpoints de tareas requieren <code>Authorization: Bearer token</code>.
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="phase-group-label">Grupo 6 — Testing</div>
+
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-num num-6">6</div>
+      <div>
+        <div class="phase-title">Testing completo con JUnit 5 + Mockito</div>
+        <div class="phase-desc">Tests unitarios · Tests de integración · @WebMvcTest · @DataJpaTest</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="concepts-grid">
+        <div class="concept-group">
+          <h4>JUnit 5</h4>
+          <ul class="concept-list">
+            <li>@Test, @BeforeEach, @AfterEach</li>
+            <li>@DisplayName para nombres legibles</li>
+            <li>Assertions de JUnit y AssertJ</li>
+            <li>Mockito — @Mock, @InjectMocks</li>
+            <li>@MockBean en contexto Spring</li>
+          </ul>
+        </div>
+        <div class="concept-group">
+          <h4>Testing por capas</h4>
+          <ul class="concept-list">
+            <li>@WebMvcTest — solo controllers</li>
+            <li>@DataJpaTest — solo repositorios</li>
+            <li>@SpringBootTest — integración total</li>
+            <li>TestRestTemplate / MockMvc</li>
+            <li>Test de seguridad (con/sin token)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="deliverable">
+        <strong>Entregable:</strong> Suite de tests con: tests unitarios de <code>TaskService</code>, slice tests de <code>TaskController</code> y <code>TaskRepository</code>, 1 test e2e completo (crear → listar → actualizar → eliminar).
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="phase-group-label">Grupo 7 — Maven · Git · Docker · CI/CD</div>
+
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-num num-7">7</div>
+      <div>
+        <div class="phase-title">Maven + Git/GitHub + Docker + CI/CD</div>
+        <div class="phase-desc">Build tools · Versionado · Contenerización · Pipeline automático</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="concepts-grid">
+        <div class="concept-group">
+          <h4>Maven + Git</h4>
+          <ul class="concept-list">
+            <li>Maven lifecycle: compile, test, package</li>
+            <li>Maven profiles (dev/prod)</li>
+            <li>pom.xml — dependencias y plugins</li>
+            <li>JAR ejecutable con Spring Boot plugin</li>
+            <li>Git flow: main, develop, feature/*</li>
+            <li>README profesional con badges</li>
+          </ul>
+        </div>
+        <div class="concept-group">
+          <h4>Docker + CI/CD</h4>
+          <ul class="concept-list">
+            <li>Dockerfile multi-stage (build + runtime)</li>
+            <li>docker-compose: app + PostgreSQL</li>
+            <li>Variables de entorno en contenedor</li>
+            <li>GitHub Actions workflow</li>
+            <li>Build + test automático en cada push</li>
+            <li>Publicar imagen a Docker Hub / ECR</li>
+          </ul>
+        </div>
+      </div>
+      <div class="deliverable">
+        <strong>Entregable:</strong> <code>docker-compose up</code> levanta app + BD completo. GitHub con README, CI ejecutándose en cada push. Imagen Docker publicada en Docker Hub.
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="phase-group-label">Grupo 8 — Cloud AWS básico</div>
+
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-num num-8">8</div>
+      <div>
+        <div class="phase-title">AWS Básico — Despliegue en la nube</div>
+        <div class="phase-desc">EC2 · RDS · S3 · ECR · Elastic Beanstalk · IAM · VPC básico</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="concepts-grid">
+        <div class="concept-group">
+          <h4>Servicios AWS Core</h4>
+          <ul class="concept-list">
+            <li>IAM — usuarios, roles y políticas</li>
+            <li>VPC básico — subredes, security groups</li>
+            <li>EC2 — instancia para la app</li>
+            <li>RDS — PostgreSQL administrado</li>
+            <li>S3 — almacenamiento (logs / backups)</li>
+            <li>ECR — registro privado de imágenes Docker</li>
+          </ul>
+        </div>
+        <div class="concept-group">
+          <h4>Despliegue</h4>
+          <ul class="concept-list">
+            <li>Elastic Beanstalk con Docker</li>
+            <li>Variables de entorno en AWS (Parameter Store)</li>
+            <li>Application Load Balancer básico</li>
+            <li>Secrets Manager para credenciales BD</li>
+            <li>CloudWatch — logs y alarmas básicas</li>
+            <li>CI/CD con deploy automático a AWS</li>
+          </ul>
+        </div>
+      </div>
+      <div class="deliverable">
+        <strong>Entregable:</strong> TaskFlow desplegado en AWS. URL pública accesible, PostgreSQL en RDS, imagen en ECR, logs en CloudWatch. GitHub Action hace deploy automático al hacer push a <code>main</code>.
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="phase-group-label">Grupo 9 — Kubernetes</div>
+
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-num num-9">9</div>
+      <div>
+        <div class="phase-title">Kubernetes — Orquestación de contenedores</div>
+        <div class="phase-desc">Pods · Deployments · Services · ConfigMaps · Secrets · Ingress · EKS</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="concepts-grid">
+        <div class="concept-group">
+          <h4>Kubernetes Core</h4>
+          <ul class="concept-list">
+            <li>Conceptos: Pod, Node, Cluster</li>
+            <li>Deployment — replicas y rolling updates</li>
+            <li>Service — ClusterIP, NodePort, LoadBalancer</li>
+            <li>ConfigMap — configuración externalizada</li>
+            <li>Secret — credenciales en K8s</li>
+            <li>Namespace — entornos dev/prod</li>
+          </ul>
+        </div>
+        <div class="concept-group">
+          <h4>Avanzado y AWS EKS</h4>
+          <ul class="concept-list">
+            <li>Ingress + Ingress Controller (NGINX)</li>
+            <li>Health probes (liveness / readiness)</li>
+            <li>Resource limits (CPU / Memory)</li>
+            <li>HorizontalPodAutoscaler básico</li>
+            <li>kubectl — comandos esenciales</li>
+            <li>EKS (AWS) — cluster administrado</li>
+          </ul>
+        </div>
+      </div>
+      <div class="deliverable">
+        <strong>Entregable:</strong> Manifiestos YAML de K8s completos (<code>deployment.yaml</code>, <code>service.yaml</code>, <code>ingress.yaml</code>, <code>configmap.yaml</code>, <code>secret.yaml</code>). App corriendo en EKS con 2 réplicas, autoescalado configurado.
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="section-title">✅ Checklist global — todos los conceptos</div>
+
+  <table class="checklist-table">
+    <thead>
+      <tr><th>Concepto</th><th>Fase</th><th>Estado</th></tr>
+    </thead>
+    <tbody>
+      <tr class="group-row"><td colspan="3">☕ JAVA MODERNO</td></tr>
+      <tr><td>POO — Clases y objetos</td><td>F1</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Herencia con clase abstracta</td><td>F1</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Interfaces y polimorfismo</td><td>F1</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Records (Java 16+)</td><td>F1</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Enums con campos y métodos</td><td>F1</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Generics en clases y métodos</td><td>F1</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Collections (List, Map, Set)</td><td>F1</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Streams y Lambdas</td><td>F1</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Optional</td><td>F1</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Excepciones personalizadas</td><td>F1 + F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>LocalDate / LocalDateTime / Duration</td><td>F1 + F4</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Manejo de archivos</td><td>F1</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Buenas prácticas (SOLID, clean code)</td><td>F1</td><td class="status-pending">⬜ Pendiente</td></tr>
+
+      <tr class="group-row"><td colspan="3">🌱 SPRING BOOT</td></tr>
+      <tr><td>Spring Boot — estructura y auto-config</td><td>F2</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>IoC — Inversión de Control</td><td>F2</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Dependency Injection (constructor)</td><td>F2</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Controllers</td><td>F2 + F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Services</td><td>F2</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Repositories</td><td>F2 + F4</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Configuration y @Bean</td><td>F2</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Profiles (dev / prod)</td><td>F2</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Spring Data JPA</td><td>F4</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Hibernate</td><td>F4</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Validation (@Valid, Bean Validation)</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Exception Handling (@ControllerAdvice)</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>DTOs (Request / Response)</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Actuator</td><td>F2</td><td class="status-pending">⬜ Pendiente</td></tr>
+
+      <tr class="group-row"><td colspan="3">🌐 REST API</td></tr>
+      <tr><td>HTTP — protocolo y estructura</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>GET</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>POST</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>PUT</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>PATCH</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>DELETE</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>JSON</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>HTTP Status Codes</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Headers</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Request / Response</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Path Variables</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Query Parameters</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Request Body</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Pagination</td><td>F3 + F4</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Filtering</td><td>F3 + F4</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Sorting</td><td>F3 + F4</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Swagger / OpenAPI</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Postman</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>CORS</td><td>F3</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>JWT</td><td>F5</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Authentication / Authorization</td><td>F5</td><td class="status-pending">⬜ Pendiente</td></tr>
+
+      <tr class="group-row"><td colspan="3">🗄️ BASE DE DATOS</td></tr>
+      <tr><td>PostgreSQL — conexión y configuración</td><td>F4</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Flyway — migraciones SQL versionadas</td><td>F4</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Relaciones JPA (ManyToOne / OneToMany)</td><td>F4</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>JPQL con @Query</td><td>F4</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Specification (filtros dinámicos)</td><td>F4</td><td class="status-pending">⬜ Pendiente</td></tr>
+
+      <tr class="group-row"><td colspan="3">🧪 TESTING</td></tr>
+      <tr><td>JUnit 5 — tests unitarios</td><td>F6</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Mockito</td><td>F6</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>@WebMvcTest</td><td>F6</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>@DataJpaTest</td><td>F6</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>@SpringBootTest (integración)</td><td>F6</td><td class="status-pending">⬜ Pendiente</td></tr>
+
+      <tr class="group-row"><td colspan="3">⚙️ DEVOPS</td></tr>
+      <tr><td>Maven (lifecycle, profiles, JAR)</td><td>F7</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Git / GitHub (flow, README, badges)</td><td>F7</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Docker (Dockerfile multi-stage)</td><td>F7</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>docker-compose (app + PostgreSQL)</td><td>F7</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>CI/CD — GitHub Actions</td><td>F7</td><td class="status-pending">⬜ Pendiente</td></tr>
+
+      <tr class="group-row"><td colspan="3">☁️ AWS BÁSICO</td></tr>
+      <tr><td>IAM — usuarios, roles, políticas</td><td>F8</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>EC2 — instancia de cómputo</td><td>F8</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>RDS — PostgreSQL administrado</td><td>F8</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>S3 — almacenamiento de objetos</td><td>F8</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>ECR — registro de imágenes Docker</td><td>F8</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Elastic Beanstalk — despliegue</td><td>F8</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>CloudWatch — logs y monitoreo</td><td>F8</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>VPC básico, Security Groups</td><td>F8</td><td class="status-pending">⬜ Pendiente</td></tr>
+
+      <tr class="group-row"><td colspan="3">☸️ KUBERNETES</td></tr>
+      <tr><td>Pod, Node, Cluster — conceptos</td><td>F9</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Deployment — réplicas, rolling updates</td><td>F9</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Service (ClusterIP, LoadBalancer)</td><td>F9</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>ConfigMap y Secret en K8s</td><td>F9</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Ingress + Ingress Controller</td><td>F9</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>Liveness y Readiness probes</td><td>F9</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>HorizontalPodAutoscaler</td><td>F9</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>kubectl — comandos esenciales</td><td>F9</td><td class="status-pending">⬜ Pendiente</td></tr>
+      <tr><td>EKS — cluster administrado en AWS</td><td>F9</td><td class="status-pending">⬜ Pendiente</td></tr>
+    </tbody>
+  </table>
+
+  
+  <div class="note">
+    <strong>📌 Instrucciones para nuevo chat:</strong> Si abres un nuevo chat, adjunta el archivo Word de contexto maestro y di:
+    <em>"Estoy desarrollando TaskFlow (API REST Java 21 + Spring Boot, 9 fases). Adjunto el contexto maestro. Necesito continuar con la Fase X."</em>
+    Cada fase producirá su propio informe HTML detallado tipo tutorial + documento Markdown/Word.
+  </div>
+
+  <footer>Made with IBM Bob</footer>
+</div>
+</body>
+</html>

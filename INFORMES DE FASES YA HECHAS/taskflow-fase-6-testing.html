@@ -1,0 +1,554 @@
+
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TaskFlow — Fase 6: Testing</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.6;background:#fff;color:#1f2328}
+.page{max-width:760px;margin:0 auto;padding:40px 24px 60px}
+
+/* Header */
+.header{border-bottom:2px solid #e5e7eb;padding-bottom:20px;margin-bottom:28px}
+.header h1{font-size:22px;font-weight:800;color:#1f2328;margin-bottom:4px}
+.header-meta{font-size:12px;color:#57606a;margin-bottom:12px}
+.badge-row{display:flex;flex-wrap:wrap;gap:6px}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px}
+.b-green{background:#dcfce7;color:#15803d}
+.b-blue{background:#dbeafe;color:#1d4ed8}
+.b-purple{background:#ede9fe;color:#6d28d9}
+.b-gray{background:#f1f5f9;color:#475569}
+.b-orange{background:#ffedd5;color:#c2410c}
+.b-yellow{background:#fef9c3;color:#92400e}
+
+/* Intro */
+.intro{background:#f7f8fa;border:1px solid #e5e7eb;border-radius:6px;padding:14px 16px;margin-bottom:24px;font-size:13px;color:#57606a;line-height:1.6}
+
+/* Estado */
+h2{font-size:15px;font-weight:700;color:#1f2328;border-left:3px solid #3b82d4;padding-left:10px;margin:26px 0 12px}
+h3{font-size:13px;font-weight:700;color:#1f2328;margin:18px 0 8px}
+
+table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px}
+thead{background:#f7f8fa}
+th{text-align:left;padding:8px 10px;font-weight:700;color:#57606a;border-bottom:1px solid #e5e7eb;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+td{padding:8px 10px;border-bottom:1px solid #f0f0f0;vertical-align:top}
+tr:last-child td{border-bottom:none}
+
+/* Resultado */
+.result-hero{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:18px 20px;display:flex;align-items:center;gap:18px;margin-bottom:24px}
+.result-big{font-size:56px;font-weight:900;color:#15803d;line-height:1}
+.result-info strong{display:block;font-size:17px;color:#15803d;margin-bottom:4px}
+.result-info span{font-size:12px;color:#57606a}
+
+/* Pirámide */
+.pyramid{display:flex;flex-direction:column;align-items:center;gap:4px;margin:14px 0 20px}
+.prow{display:flex;align-items:center;justify-content:center;border-radius:4px;padding:7px 14px;font-size:12px;font-weight:600;color:#fff;text-align:center}
+.p1{background:#3b82d4;width:98%}.p2{background:#7c5cd8;width:78%}
+.p3{background:#0891b2;width:60%}.p4{background:#059669;width:44%}.p5{background:#57606a;width:28%}
+
+/* Árbol */
+.tree{background:#1e1e1e;border-radius:6px;padding:14px 16px;font-family:"Cascadia Code",Consolas,monospace;font-size:12px;color:#d4d4d4;margin-bottom:16px;overflow-x:auto;line-height:1.7}
+.tree .new{color:#4ec9b0}.tree .mod{color:#dcdcaa}.tree .com{color:#6a9955}
+
+/* Código */
+pre{background:#1e1e1e;border-radius:6px;padding:14px 16px;font-family:"Cascadia Code",Consolas,monospace;font-size:12px;color:#d4d4d4;overflow-x:auto;margin-bottom:16px;line-height:1.6}
+.kw{color:#569cd6}.ann{color:#dcdcaa}.str{color:#ce9178}.com{color:#6a9955}
+.cls{color:#4ec9b0}.met{color:#dcdcaa}.num{color:#b5cea8}
+
+code{font-family:"Cascadia Code",Consolas,monospace;font-size:11px;background:#f7f8fa;padding:1px 5px;border-radius:3px;color:#1d4ed8}
+
+/* Concepto */
+.concepto{margin-bottom:28px}
+.concepto-num{display:inline-block;background:#3b82d4;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;margin-bottom:8px}
+.concepto p{font-size:13px;color:#57606a;margin-bottom:10px;line-height:1.6}
+
+/* Hallazgo */
+.finding{background:#fef9c3;border:1px solid #fde68a;border-radius:6px;padding:12px 14px;margin-bottom:8px}
+.finding h4{font-size:12px;font-weight:700;color:#92400e;margin-bottom:4px}
+.finding p{font-size:12px;color:#78350f;line-height:1.5}
+.solution{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:12px 14px;margin-bottom:16px}
+.solution h4{font-size:12px;font-weight:700;color:#15803d;margin-bottom:4px}
+.solution p{font-size:12px;color:#166534;line-height:1.5}
+.note{background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#9a3412}
+
+/* Checklist */
+.cl-group{margin-bottom:18px}
+.cl-title{font-size:12px;font-weight:800;color:#57606a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #f0f0f0}
+.cl-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.ci{display:flex;align-items:center;gap:7px;padding:3px 0;font-size:12px}
+.ck-done{width:17px;height:17px;border-radius:3px;background:#dcfce7;color:#15803d;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.ck-pend{width:17px;height:17px;border-radius:3px;background:#f7f8fa;border:1px solid #e5e7eb;flex-shrink:0}
+
+/* Relaciones */
+.rel{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.rel-item{display:flex;align-items:flex-start;gap:10px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:5px;padding:9px 12px;font-size:12px}
+.rel-from{font-weight:700;color:#3b82d4;white-space:nowrap;min-width:200px}
+.rel-arrow{color:#9ca3af;flex-shrink:0;padding-top:1px}
+.rel-desc{color:#57606a;line-height:1.5}
+
+/* Arquitectura */
+.arch{background:#1e1e1e;border-radius:6px;padding:14px 16px;font-family:"Cascadia Code",Consolas,monospace;font-size:12px;color:#d4d4d4;margin-bottom:16px;line-height:1.9}
+.arch .layer{color:#4ec9b0}.arch .arrow{color:#569cd6}.arch .note{color:#6a9955}
+
+/* Próxima fase */
+.next{background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;padding:14px 16px;margin-top:24px}
+.next h4{font-size:13px;font-weight:700;color:#0369a1;margin-bottom:8px}
+.next ul{margin-left:18px;font-size:12px;color:#0c4a6e;line-height:1.8}
+
+footer{margin-top:48px;padding-top:16px;border-top:1px solid #e5e7eb;text-align:center;font-size:12px;color:#57606a}
+</style>
+</head>
+<body>
+<div class="page">
+
+
+<div class="header">
+  <h1>🧪 TaskFlow — Fase 6: Testing con JUnit 5 + Mockito</h1>
+  <div class="header-meta">Proyecto: TaskFlow API REST  |  Fase: 6 de 9  |  Fecha: 01/09/2026  |  Estado: COMPLETADA ✅</div>
+  <div class="badge-row">
+    <span class="badge b-orange">Java 21</span>
+    <span class="badge b-green">Spring Boot 4.1.1</span>
+    <span class="badge b-blue">JUnit Jupiter 6.0.3</span>
+    <span class="badge b-purple">Mockito 5.x</span>
+    <span class="badge b-gray">spring-security-test</span>
+    <span class="badge b-gray">H2 2.4.240</span>
+    <span class="badge b-gray">Maven Surefire 3.5.6</span>
+  </div>
+</div>
+
+
+<div class="intro">
+API REST de gestión de tareas construida con Java 21 + Spring Boot 4.1.1. Proyecto de aprendizaje progresivo que cubre el stack Java empresarial completo, útil como portafolio en GitHub y referencia para entrevistas técnicas.
+</div>
+
+
+<h2>📊 Estado del Proyecto</h2>
+<table>
+  <thead><tr><th>Fase</th><th>Tema</th><th>Estado</th></tr></thead>
+  <tbody>
+    <tr><td>Fase 1</td><td>Java Moderno — POO, Records, Enums, Streams, Lambdas, Optional</td><td>✅ Completada</td></tr>
+    <tr><td>Fase 2</td><td>Spring Boot Core — IoC, DI, Profiles, Actuator, @ConfigurationProperties</td><td>✅ Completada</td></tr>
+    <tr><td>Fase 3</td><td>REST API — DTOs, Validación, Swagger/OpenAPI, CORS, Exception Handling</td><td>✅ Completada</td></tr>
+    <tr><td>Fase 4</td><td>Spring Data JPA — Entidades, Repositorios, Flyway, H2, PostgreSQL</td><td>✅ Completada</td></tr>
+    <tr><td>Fase 5</td><td>Spring Security + JWT — Autenticación y Autorización</td><td>✅ Completada</td></tr>
+    <tr style="background:#eff6ff"><td><strong>Fase 6</strong></td><td><strong>JUnit 5 + Mockito — Pruebas unitarias e integración</strong></td><td><strong>✅ Completada</strong></td></tr>
+    <tr><td>Fase 7</td><td>Docker + Maven + GitHub + CI/CD</td><td>⬜ Pendiente</td></tr>
+    <tr><td>Fase 8</td><td>AWS básico</td><td>⬜ Pendiente</td></tr>
+    <tr><td>Fase 9</td><td>Kubernetes</td><td>⬜ Pendiente</td></tr>
+  </tbody>
+</table>
+
+
+<h2>🏗️ ¿Qué se construyó en esta fase?</h2>
+<p style="font-size:13px;color:#57606a;margin-bottom:14px;line-height:1.6">
+Se agregó una suite completa de pruebas automatizadas a TaskFlow. Hasta la Fase 5 la aplicación funcionaba correctamente pero no tenía ningún test — era imposible verificar automáticamente que los cambios futuros no rompen el comportamiento existente. En esta fase implementamos <strong>35 tests en 5 clases</strong>, cubriendo todas las capas: dominio puro (Mockito), capa JPA (@DataJpaTest), capa web (@WebMvcTest), integración total E2E (@SpringBootTest) y smoke test. La mayor dificultad fue la combinación de <strong>Spring Boot 4.1.1 + Spring Security 7</strong>, que requirió una solución de 3 piezas no documentada oficialmente.
+</p>
+
+
+<div class="result-hero">
+  <div class="result-big">35</div>
+  <div class="result-info">
+    <strong>Tests pasando — Failures: 0 · Errors: 0</strong>
+    <span>Total time: 15.4 s · BUILD SUCCESS · Perfil activo: dev · H2 in-memory</span>
+  </div>
+</div>
+
+
+<div class="tree">
+src/test/java/<br />
+├── com/taskflow/<br />
+│   ├── service/<br />
+│   │   └── <span class="new">TaskJpaServiceTest.java</span>         <span class="com">← NUEVO: 10 tests unitarios con Mockito</span><br />
+│   ├── repository/<br />
+│   │   └── <span class="new">TaskRepositoryTest.java</span>         <span class="com">← NUEVO: 5 tests @DataJpaTest</span><br />
+│   └── controller/<br />
+│       ├── <span class="new">TaskControllerWebMvcTest.java</span>   <span class="com">← NUEVO: 10 tests @WebMvcTest (slice)</span><br />
+│       └── <span class="new">TaskControllerIntegrationTest.java</span> <span class="com">← NUEVO: 9 tests E2E completos</span><br />
+└── taskflow/<br />
+    └── <span class="new">TaskflowApplicationTests.java</span>  <span class="com">← NUEVO: 1 smoke test (context loads)</span>
+</div>
+
+
+<h2>📐 Pirámide de Testing Implementada</h2>
+<div class="pyramid">
+  <div class="prow p1">E2E · @SpringBootTest + @AutoConfigureMockMvc · 9 tests · JWT real + Flyway + H2</div>
+  <div class="prow p2">Slice Web · @WebMvcTest · 10 tests · @MockitoBean + @WithMockUser</div>
+  <div class="prow p3">Slice JPA · @DataJpaTest · 5 tests · H2 create-drop · queries reales</div>
+  <div class="prow p4">Unitarios · @ExtendWith(MockitoExtension) · 10 tests · sin Spring</div>
+  <div class="prow p5">Smoke · 1 test · context loads</div>
+</div>
+
+<table>
+  <thead><tr><th>Clase</th><th>Tipo</th><th>Tests</th><th>Concepto principal</th></tr></thead>
+  <tbody>
+    <tr><td><code>TaskJpaServiceTest</code></td><td><span class="badge b-green">Unitario</span></td><td><strong>10</strong></td><td>@Mock · @InjectMocks · AssertJ · sin contexto Spring</td></tr>
+    <tr><td><code>TaskRepositoryTest</code></td><td><span class="badge b-blue">@DataJpaTest</span></td><td><strong>5</strong></td><td>Slice JPA · H2 create-drop · queries derivadas y JPQL</td></tr>
+    <tr><td><code>TaskControllerWebMvcTest</code></td><td><span class="badge b-purple">@WebMvcTest</span></td><td><strong>10</strong></td><td>Slice web · @MockitoBean · @WithMockUser · MockMvc</td></tr>
+    <tr><td><code>TaskControllerIntegrationTest</code></td><td><span class="badge b-orange">E2E</span></td><td><strong>9</strong></td><td>JWT real · Flyway · MockMvc · @Order flujo completo</td></tr>
+    <tr><td><code>TaskflowApplicationTests</code></td><td><span class="badge b-gray">Smoke</span></td><td><strong>1</strong></td><td>Context loads · arranque completo de la aplicación</td></tr>
+    <tr style="background:#f0fdf4"><td colspan="2"><strong>TOTAL</strong></td><td><strong>35</strong></td><td>BUILD SUCCESS · 0 failures · 0 errors</td></tr>
+  </tbody>
+</table>
+
+
+<h2>📚 Conceptos Aplicados — Tutorial</h2>
+
+
+<div class="concepto">
+<span class="concepto-num">1. Tests Unitarios con Mockito — @ExtendWith(MockitoExtension)</span>
+<p>Los tests unitarios prueban una sola clase en completo aislamiento. No levantan Spring, no tocan la BD, no hacen llamadas reales. <strong>@Mock</strong> crea un objeto simulado del colaborador; <strong>@InjectMocks</strong> inyecta todos los mocks en la clase bajo prueba. Son los tests más rápidos (millisegundos) y forman la base de la pirámide.</p>
+<pre><span class="com">// TaskJpaServiceTest.java — tests sin contexto Spring</span>
+<span class="ann">@ExtendWith</span>(MockitoExtension.class)     <span class="com">// activa Mockito, sin Spring</span>
+<span class="ann">@DisplayName</span>(<span class="str">"TaskJpaService — Tests Unitarios"</span>)
+<span class="kw">class</span> <span class="cls">TaskJpaServiceTest</span> {
+
+    <span class="ann">@Mock</span>  <span class="kw">private</span> <span class="cls">TaskRepository</span> taskRepository;    <span class="com">// colaborador simulado</span>
+    <span class="ann">@Mock</span>  <span class="kw">private</span> <span class="cls">UserRepository</span> userRepository;    <span class="com">// colaborador simulado</span>
+    <span class="ann">@InjectMocks</span> <span class="kw">private</span> <span class="cls">TaskJpaService</span> taskJpaService; <span class="com">// clase bajo prueba</span>
+
+    <span class="ann">@Test</span>
+    <span class="ann">@DisplayName</span>(<span class="str">"crear: request válido → retorna TareaResponse con datos correctos"</span>)
+    <span class="kw">void</span> <span class="met">crear_requestValido_retornaTareaResponse</span>() {
+        <span class="com">// ARRANGE — preparar datos y comportamiento del mock</span>
+        when(userRepository.findById(<span class="num">1L</span>)).thenReturn(Optional.of(usuarioPrueba));
+        when(taskRepository.save(any(TaskEntity.class))).thenReturn(tareaPrueba);
+
+        <span class="com">// ACT — ejecutar el método bajo prueba</span>
+        TareaResponse response = taskJpaService.crear(request);
+
+        <span class="com">// ASSERT — verificar resultado</span>
+        assertThat(response).isNotNull();
+        assertThat(response.getTitulo()).isEqualTo(<span class="str">"Tarea de prueba"</span>);
+        verify(taskRepository, times(<span class="num">1</span>)).save(any(TaskEntity.class));
+    }
+
+    <span class="ann">@Test</span>
+    <span class="ann">@DisplayName</span>(<span class="str">"cambiarEstado: desde estado COMPLETADA → lanza TaskStateException"</span>)
+    <span class="kw">void</span> <span class="met">cambiarEstado_desdeCompletada_lanzaExcepcion</span>() {
+        tareaPrueba.setStatus(TaskStatus.COMPLETADA);
+        when(taskRepository.findById(<span class="num">1L</span>)).thenReturn(Optional.of(tareaPrueba));
+
+        <span class="com">// assertThatThrownBy — AssertJ para verificar excepciones</span>
+        assertThatThrownBy(() -&gt; taskJpaService.cambiarEstado(<span class="num">1L</span>, request))
+                .isInstanceOf(TaskStateException.class);
+    }
+}</pre>
+</div>
+
+
+<div class="concepto">
+<span class="concepto-num">2. @DataJpaTest — Slice de Repositorio</span>
+<p><strong>@DataJpaTest</strong> levanta <em>solo</em> la capa JPA: entidades, repositorios y una BD embebida. No levanta controllers, security ni services. Cada test corre en una transacción que se revierte al terminar — la BD siempre limpia. Permite probar queries derivadas, JPQL y Specifications con datos reales.</p>
+<div class="note">⚠️ <strong>Nota Spring Boot 4.x:</strong> <code>TestEntityManager</code> fue eliminado. Se usan directamente los repositorios para insertar datos de prueba. <code>@DataJpaTest</code> omite Flyway por defecto — se configura con <code>ddl-auto=create-drop</code> para que Hibernate genere el esquema desde las entidades.</div>
+<pre><span class="ann">@DataJpaTest</span>
+<span class="ann">@ActiveProfiles</span>(<span class="str">"dev"</span>)
+<span class="ann">@TestPropertySource</span>(properties = <span class="str">"spring.jpa.hibernate.ddl-auto=create-drop"</span>)
+<span class="ann">@DisplayName</span>(<span class="str">"TaskRepository — Tests @DataJpaTest"</span>)
+<span class="kw">class</span> <span class="cls">TaskRepositoryTest</span> {
+
+    <span class="ann">@Autowired</span> <span class="kw">private</span> <span class="cls">TaskRepository</span> taskRepository;
+    <span class="ann">@Autowired</span> <span class="kw">private</span> <span class="cls">UserRepository</span> userRepository;
+
+    <span class="ann">@Test</span>
+    <span class="ann">@DisplayName</span>(<span class="str">"findVencidas: retorna tareas con fechaLimite pasada y estado activo"</span>)
+    <span class="kw">void</span> <span class="met">findVencidas_retornaTareasVencidas</span>() {
+        TaskEntity vencida = <span class="kw">new</span> TaskEntity(...);
+        vencida.setFechaLimite(LocalDate.now().minusDays(<span class="num">5</span>));  <span class="com">// pasada</span>
+
+        TaskEntity noVencida = <span class="kw">new</span> TaskEntity(...);
+        noVencida.setFechaLimite(LocalDate.now().plusDays(<span class="num">10</span>)); <span class="com">// futura</span>
+
+        taskRepository.save(vencida);
+        taskRepository.save(noVencida);
+
+        List&lt;TaskEntity&gt; resultado = taskRepository.findVencidas(
+                LocalDate.now(), List.of(PENDIENTE, EN_PROGRESO));
+
+        assertThat(resultado).hasSize(<span class="num">1</span>);
+        assertThat(resultado.get(<span class="num">0</span>).getTitulo()).isEqualTo(<span class="str">"Tarea vencida"</span>);
+    }
+}</pre>
+</div>
+
+
+<div class="concepto">
+<span class="concepto-num">3. @WebMvcTest — Slice de Controller</span>
+<p><strong>@WebMvcTest</strong> levanta solo la capa web: controllers, filtros y MockMvc. No levanta servicios ni repositorios reales — los dependencias se reemplazan con <strong>@MockitoBean</strong> (equivalente a <code>@MockBean</code> en Spring Framework 7, que eliminó el anterior). <strong>@WithMockUser</strong> simula un usuario autenticado sin generar un JWT real, ideal para probar reglas de autorización.</p>
+<div class="note">⚠️ <strong>Nota Spring Boot 4.x:</strong> En Spring Boot 4 el paquete cambió a <code>org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest</code>. <code>@MockBean</code> fue eliminado — se usa <code>@MockitoBean</code> de <code>org.springframework.test.context.bean.override.mockito</code>.</div>
+<pre><span class="ann">@WebMvcTest</span>(TaskController.class)
+<span class="ann">@Import</span>(TaskControllerWebMvcTest.TestSecurityConfig.class)
+<span class="ann">@DisplayName</span>(<span class="str">"TaskController — Slice Tests @WebMvcTest"</span>)
+<span class="kw">class</span> <span class="cls">TaskControllerWebMvcTest</span> {
+
+    <span class="ann">@MockitoBean</span> <span class="kw">private</span> <span class="cls">TaskJpaService</span> taskJpaService;  <span class="com">// reemplaza @MockBean</span>
+    <span class="ann">@MockitoBean</span> <span class="kw">private</span> <span class="cls">JwtService</span> jwtService;
+
+    <span class="ann">@Test</span>
+    <span class="ann">@WithMockUser</span>(roles = <span class="str">"USER"</span>)   <span class="com">// simula usuario autenticado sin JWT real</span>
+    <span class="ann">@DisplayName</span>(<span class="str">"POST /api/tareas/db → 201 con cuerpo correcto"</span>)
+    <span class="kw">void</span> <span class="met">crear_requestValido_retorna201</span>() <span class="kw">throws</span> Exception {
+        when(taskJpaService.crear(any())).thenReturn(tareaRespuesta);
+
+        mockMvc.perform(post(<span class="str">"/api/tareas/db"</span>)
+                        .with(csrf())
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath(<span class="str">"$.titulo"</span>).value(<span class="str">"Tarea de prueba"</span>))
+                .andExpect(jsonPath(<span class="str">"$.estado"</span>).value(<span class="str">"PENDIENTE"</span>));
+
+        verify(taskJpaService).crear(any());
+    }
+
+    <span class="ann">@Test</span>
+    <span class="ann">@WithMockUser</span>(roles = <span class="str">"USER"</span>)
+    <span class="ann">@DisplayName</span>(<span class="str">"DELETE con rol USER → 403 Forbidden"</span>)
+    <span class="kw">void</span> <span class="met">eliminar_conRolUser_retorna403</span>() <span class="kw">throws</span> Exception {
+        mockMvc.perform(delete(<span class="str">"/api/tareas/db/1"</span>).with(csrf()))
+                .andExpect(status().isForbidden());  <span class="com">// regla hasRole("ADMIN")</span>
+    }
+}</pre>
+</div>
+
+
+<div class="concepto">
+<span class="concepto-num">4. @SpringBootTest — Test de Integración E2E</span>
+<p><strong>@SpringBootTest</strong> levanta el contexto completo de Spring: BD H2, Flyway, Security, todos los beans. Junto con <strong>@AutoConfigureMockMvc</strong>, simula peticiones HTTP reales sin servidor. <strong>@TestMethodOrder + @Order</strong> garantiza un flujo secuencial: registrar → login → crear → listar → cambiar estado → eliminar.</p>
+<pre><span class="ann">@SpringBootTest</span>
+<span class="ann">@AutoConfigureMockMvc</span>
+<span class="ann">@ActiveProfiles</span>(<span class="str">"dev"</span>)
+<span class="ann">@TestMethodOrder</span>(MethodOrderer.OrderAnnotation.class)
+<span class="ann">@DisplayName</span>(<span class="str">"TaskController — Test E2E Integración"</span>)
+<span class="kw">class</span> <span class="cls">TaskControllerIntegrationTest</span> {
+
+    <span class="com">// Tokens y IDs compartidos entre tests del flujo</span>
+    <span class="kw">private static</span> String tokenUser;
+    <span class="kw">private static</span> String tokenAdmin;
+    <span class="kw">private static</span> Long tareaCreada;
+
+    <span class="ann">@Test</span> <span class="ann">@Order</span>(<span class="num">1</span>)
+    <span class="ann">@DisplayName</span>(<span class="str">"E2E Paso 1a: GET sin token → 401"</span>)
+    <span class="kw">void</span> <span class="met">sinToken_retorna401</span>() <span class="kw">throws</span> Exception {
+        mockMvc.perform(get(<span class="str">"/api/tareas/db"</span>))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath(<span class="str">"$.status"</span>).value(<span class="num">401</span>));
+    }
+
+    <span class="ann">@Test</span> <span class="ann">@Order</span>(<span class="num">2</span>)
+    <span class="ann">@DisplayName</span>(<span class="str">"E2E Paso 1b: register → 201 con token"</span>)
+    <span class="kw">void</span> <span class="met">register_retorna201ConToken</span>() <span class="kw">throws</span> Exception {
+        MvcResult result = mockMvc.perform(post(<span class="str">"/auth/register"</span>) ...)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath(<span class="str">"$.token"</span>).isNotEmpty())
+                .andReturn();
+        <span class="com">// guardar token para el resto del flujo</span>
+        tokenUser = objectMapper.readTree(result.getResponse()
+                .getContentAsString()).get(<span class="str">"token"</span>).asText();
+    }
+
+    <span class="ann">@Test</span> <span class="ann">@Order</span>(<span class="num">8</span>)
+    <span class="ann">@DisplayName</span>(<span class="str">"E2E Paso 6a: DELETE con rol USER → 403"</span>)
+    <span class="kw">void</span> <span class="met">delete_conRolUser_retorna403</span>() <span class="kw">throws</span> Exception {
+        mockMvc.perform(delete(<span class="str">"/api/tareas/db/"</span> + tareaCreada)
+                        .header(<span class="str">"Authorization"</span>, <span class="str">"Bearer "</span> + tokenUser))
+                .andExpect(status().isForbidden());
+    }
+
+    <span class="ann">@Test</span> <span class="ann">@Order</span>(<span class="num">9</span>)
+    <span class="ann">@DisplayName</span>(<span class="str">"E2E Paso 6b: DELETE con rol ADMIN → 204"</span>)
+    <span class="kw">void</span> <span class="met">delete_conRolAdmin_retorna204</span>() <span class="kw">throws</span> Exception {
+        mockMvc.perform(delete(<span class="str">"/api/tareas/db/"</span> + tareaCreada)
+                        .header(<span class="str">"Authorization"</span>, <span class="str">"Bearer "</span> + tokenAdmin))
+                .andExpect(status().isNoContent());  <span class="com">// 204</span>
+    }
+}</pre>
+</div>
+
+
+<div class="concepto">
+<span class="concepto-num">5. Hallazgo técnico crítico — Spring Boot 4.1.1 + Spring Security 7 + @WebMvcTest</span>
+<p>Esta combinación presenta un comportamiento no documentado oficialmente que requirió una solución de 3 piezas. Es el problema más complejo de esta fase y un conocimiento clave para cualquier proyecto SB4.</p>
+
+<div class="finding">
+  <h4>Problema 1: @EnableWebSecurity en @Configuration importada → 404 en todos los controllers</h4>
+  <p>Usar <code>@EnableWebSecurity</code> en la inner class <code>TestSecurityConfig</code> deshabilita la auto-configuración de WebMvc de Spring Boot. El <code>DispatcherServlet</code> no registra los controllers → todos los requests devuelven <code>404 No static resource api/tareas/db</code>.</p>
+</div>
+
+<div class="finding">
+  <h4>Problema 2: Sin @EnableWebSecurity → No qualifying bean of type 'HttpSecurity'</h4>
+  <p>Sin <code>@EnableWebSecurity</code>, Spring no registra el bean <code>HttpSecurity</code> necesario para construir el <code>SecurityFilterChain</code> en el <code>TestSecurityConfig</code>. El contexto falla al arrancar.</p>
+</div>
+
+<div class="finding">
+  <h4>Problema 3: @WithMockUser sin efecto → todos los requests dan 401</h4>
+  <p>Cuando la security config se importa manualmente, el <code>SecurityMockMvcConfigurer</code> no se aplica automáticamente al <code>MockMvc</code> de <code>@WebMvcTest</code>. <code>@WithMockUser</code> no inyecta el <code>SecurityContext</code> → todos dan 401.</p>
+</div>
+
+<div class="solution">
+  <h4>✅ Solución: 3 piezas combinadas</h4>
+  <p>
+    <strong>Pieza 1 — </strong><code>@WebMvcTest(excludeAutoConfiguration = SecurityAutoConfiguration.class)</code><br />
+    Evita cargar el <code>SecurityConfig</code> real (con <code>JwtAuthenticationFilter</code>) que bloquearía todos los requests.<br /><br />
+    <strong>Pieza 2 — </strong><code>@ImportAutoConfiguration(ServletWebSecurityAutoConfiguration.class)</code><br />
+    Provee el bean <code>HttpSecurity</code> necesario para el <code>TestSecurityConfig</code>, sin traer la config real. Este auto-config contiene un inner <code>EnableWebSecurityConfiguration</code> con <code>@EnableWebSecurity</code> que registra el bean <code>HttpSecurity</code>.<br /><br />
+    <strong>Pieza 3 — </strong><code>MockMvcBuilders.webAppContextSetup(wac).apply(springSecurity()).build()</code> en <code>@BeforeEach</code><br />
+    Aplica el <code>SecurityMockMvcConfigurer</code> que conecta <code>@WithMockUser</code> con el <code>SecurityContext</code> de cada request, sin perder los auto-configurers de <code>@WebMvcTest</code> (message converters, exception resolvers, etc.).
+  </p>
+</div>
+
+<pre><span class="com">// Solución completa — TestSecurityConfig + anotaciones de la clase</span>
+<span class="ann">@WebMvcTest</span>(
+    value = TaskController.class,
+    excludeAutoConfiguration = SecurityAutoConfiguration.class  <span class="com">// Pieza 1</span>
+)
+<span class="ann">@Import</span>(TaskControllerWebMvcTest.TestSecurityConfig.class)
+<span class="ann">@ImportAutoConfiguration</span>(ServletWebSecurityAutoConfiguration.class) <span class="com">// Pieza 2</span>
+<span class="kw">class</span> <span class="cls">TaskControllerWebMvcTest</span> {
+
+    <span class="ann">@TestConfiguration</span>
+    <span class="kw">static class</span> <span class="cls">TestSecurityConfig</span> {
+        <span class="ann">@Bean</span>
+        <span class="kw">public</span> SecurityFilterChain <span class="met">testSecurityFilterChain</span>(HttpSecurity http) {
+            http.csrf(disable).sessionManagement(STATELESS)
+                .exceptionHandling(ex -&gt; ex
+                    .authenticationEntryPoint((req, res, e) -&gt;
+                        res.sendError(SC_UNAUTHORIZED))  <span class="com">// → 401 (no 403)</span>
+                )
+                .authorizeHttpRequests(auth -&gt; auth
+                    .requestMatchers(DELETE, <span class="str">"/api/tareas/**"</span>).hasRole(<span class="str">"ADMIN"</span>)
+                    .anyRequest().authenticated()
+                );
+            <span class="kw">return</span> http.build();
+        }
+    }
+
+    <span class="ann">@Autowired</span> <span class="kw">private</span> WebApplicationContext wac;
+    <span class="kw">private</span> MockMvc mockMvc;
+
+    <span class="ann">@BeforeEach</span>
+    <span class="kw">void</span> <span class="met">setUp</span>() {
+        mockMvc = MockMvcBuilders             <span class="com">// Pieza 3: construir MockMvc manual</span>
+                .webAppContextSetup(wac)
+                .apply(springSecurity())      <span class="com">// conecta @WithMockUser con SecurityContext</span>
+                .build();
+    }
+}</pre>
+</div>
+
+
+<h2>✅ Checklist de Conceptos Aplicados</h2>
+
+<div class="cl-group">
+  <div class="cl-title">☕ Java / Spring Boot (acumulado)</div>
+  <div class="cl-grid">
+    <div class="ci"><div class="ck-done">✓</div>POO — Clases y objetos</div>
+    <div class="ci"><div class="ck-done">✓</div>Herencia e interfaces</div>
+    <div class="ci"><div class="ck-done">✓</div>Generics · Lambdas · Streams</div>
+    <div class="ci"><div class="ck-done">✓</div>Optional · Excepciones personalizadas</div>
+    <div class="ci"><div class="ck-done">✓</div>Records · Enums con comportamiento</div>
+    <div class="ci"><div class="ck-done">✓</div>LocalDate / LocalDateTime</div>
+    <div class="ci"><div class="ck-done">✓</div>IoC / DI — inyección por constructor</div>
+    <div class="ci"><div class="ck-done">✓</div>@Configuration / @Bean · Profiles</div>
+    <div class="ci"><div class="ck-done">✓</div>Spring Data JPA · Hibernate · Flyway</div>
+    <div class="ci"><div class="ck-done">✓</div>Spring Security + JWT (Fase 5)</div>
+  </div>
+</div>
+
+<div class="cl-group">
+  <div class="cl-title">🧪 JUnit 5 + Mockito — Fase 6</div>
+  <div class="cl-grid">
+    <div class="ci"><div class="ck-done">✓</div>@Test · @BeforeEach · @DisplayName</div>
+    <div class="ci"><div class="ck-done">✓</div>Assertions JUnit y AssertJ</div>
+    <div class="ci"><div class="ck-done">✓</div>@Mock · @InjectMocks (Mockito puro)</div>
+    <div class="ci"><div class="ck-done">✓</div>@MockitoBean en contexto Spring</div>
+    <div class="ci"><div class="ck-done">✓</div>@WebMvcTest — solo controllers</div>
+    <div class="ci"><div class="ck-done">✓</div>@DataJpaTest — solo repositorios</div>
+    <div class="ci"><div class="ck-done">✓</div>@SpringBootTest — integración total</div>
+    <div class="ci"><div class="ck-done">✓</div>MockMvc — peticiones HTTP simuladas</div>
+    <div class="ci"><div class="ck-done">✓</div>@WithMockUser — seguridad en tests</div>
+    <div class="ci"><div class="ck-done">✓</div>Test sin token → 401 · con token → 200</div>
+    <div class="ci"><div class="ck-done">✓</div>@TestMethodOrder + @Order (flujo E2E)</div>
+    <div class="ci"><div class="ck-done">✓</div>Pirámide de testing completa</div>
+  </div>
+</div>
+
+<div class="cl-group">
+  <div class="cl-title">⬜ Pendientes próximas fases</div>
+  <div class="cl-grid">
+    <div class="ci"><div class="ck-pend"></div>Maven lifecycle · Dockerfile multi-stage</div>
+    <div class="ci"><div class="ck-pend"></div>GitHub Actions CI/CD</div>
+    <div class="ci"><div class="ck-pend"></div>AWS EC2 / RDS / ECR</div>
+    <div class="ci"><div class="ck-pend"></div>Kubernetes · EKS</div>
+  </div>
+</div>
+
+
+<h2>🏛️ Arquitectura — Estrategia de Testing</h2>
+<div class="arch">
+<span class="layer">Test Unitario</span>  (<span class="note">@ExtendWith(MockitoExtension)</span>)<br />
+  ↓ sin Spring, sin BD, solo lógica pura<br />
+<span class="layer">TaskJpaService</span> + <span class="layer">@Mock TaskRepository</span> + <span class="layer">@Mock UserRepository</span><br />
+<br />
+<span class="layer">Slice @DataJpaTest</span>  (<span class="note">solo JPA, H2 create-drop, sin controllers</span>)<br />
+  ↓ queries derivadas, JPQL, Specifications<br />
+<span class="layer">TaskRepository</span> ←→ <span class="layer">H2 in-memory</span><br />
+<br />
+<span class="layer">Slice @WebMvcTest</span>  (<span class="note">solo capa web, sin BD, sin servicios reales</span>)<br />
+  ↓ controllers + seguridad + MockMvc + @WithMockUser<br />
+<span class="layer">TaskController</span> + <span class="layer">@MockitoBean TaskJpaService</span> + <span class="layer">TestSecurityConfig</span><br />
+<br />
+<span class="layer">Integración E2E</span>  (<span class="note">@SpringBootTest contexto completo</span>)<br />
+  ↓ JWT real · Flyway V1+V2+V3 · H2 in-memory · todos los beans<br />
+<span class="layer">MockMvc</span> → <span class="layer">AuthController / TaskController</span> → <span class="layer">TaskJpaService</span> → <span class="layer">TaskRepository</span> → <span class="layer">H2</span>
+</div>
+
+
+<h2>🔗 Relaciones entre Conceptos</h2>
+<div class="rel">
+  <div class="rel-item"><div class="rel-from">@ExtendWith(MockitoExtension)</div><div class="rel-arrow">→</div><div class="rel-desc"><code>@Mock</code> y <code>@InjectMocks</code>: activa el motor de Mockito para crear objetos simulados e inyectarlos sin levantar Spring.</div></div>
+  <div class="rel-item"><div class="rel-from">@DataJpaTest</div><div class="rel-arrow">→</div><div class="rel-desc"><code>ddl-auto=create-drop</code>: Flyway no se ejecuta en slice tests — Hibernate genera el esquema directamente desde las entidades <code>@Entity</code>.</div></div>
+  <div class="rel-item"><div class="rel-from">@WebMvcTest + Security</div><div class="rel-arrow">→</div><div class="rel-desc"><code>excludeAutoConfiguration + @ImportAutoConfiguration(ServletWebSecurityAutoConfiguration)</code>: el balance exacto para tener <code>HttpSecurity</code> disponible sin cargar el <code>SecurityConfig</code> real con <code>JwtAuthenticationFilter</code>.</div></div>
+  <div class="rel-item"><div class="rel-from">webAppContextSetup(wac)</div><div class="rel-arrow">→</div><div class="rel-desc"><code>.apply(springSecurity())</code>: registra el <code>SecurityMockMvcConfigurer</code> que conecta <code>@WithMockUser</code> con el <code>SecurityContext</code> de cada request del test.</div></div>
+  <div class="rel-item"><div class="rel-from">@SpringBootTest E2E</div><div class="rel-arrow">→</div><div class="rel-desc">Flyway ejecuta las 3 migraciones (V1 tablas, V2 datos, V3 seguridad). Los datos de <code>ana@taskflow.com</code> con rol ADMIN están disponibles para el flujo E2E.</div></div>
+  <div class="rel-item"><div class="rel-from">@TestMethodOrder + @Order</div><div class="rel-arrow">→</div><div class="rel-desc">Permite el flujo E2E: el token obtenido en el paso 2 (register) se guarda en un campo <code>static</code> y se reutiliza en los pasos 4-9 sin necesidad de re-autenticar.</div></div>
+</div>
+
+
+<h2>🎯 Resultados Verificados — Suite Completa</h2>
+<table>
+  <thead><tr><th>#</th><th>Test</th><th>Tipo</th><th>HTTP</th><th>Resultado</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>GET sin token → 401</td><td>E2E + WebMvcTest</td><td>401</td><td>✅</td></tr>
+    <tr><td>2</td><td>POST /auth/register → 201 con token</td><td>E2E</td><td>201</td><td>✅ Token JWT generado</td></tr>
+    <tr><td>3</td><td>POST /auth/login ADMIN → 200</td><td>E2E</td><td>200</td><td>✅ rol: "ADMIN"</td></tr>
+    <tr><td>4</td><td>POST /api/tareas/db con token → 201</td><td>E2E + WebMvcTest</td><td>201</td><td>✅ Tarea creada</td></tr>
+    <tr><td>5</td><td>GET /api/tareas/db con token → 200</td><td>E2E + WebMvcTest</td><td>200</td><td>✅ Lista paginada</td></tr>
+    <tr><td>6</td><td>GET con filtro categoria=TRABAJO</td><td>E2E</td><td>200</td><td>✅ Filtrado correcto</td></tr>
+    <tr><td>7</td><td>PATCH estado PENDIENTE → EN_PROGRESO</td><td>E2E + WebMvcTest</td><td>200</td><td>✅ Estado actualizado</td></tr>
+    <tr><td>8</td><td>DELETE con rol USER → 403</td><td>E2E + WebMvcTest</td><td>403</td><td>✅ Acceso denegado</td></tr>
+    <tr><td>9</td><td>DELETE con rol ADMIN → 204</td><td>E2E + WebMvcTest</td><td>204</td><td>✅ Tarea eliminada</td></tr>
+    <tr><td>10</td><td>POST título vacío → 400 (validación)</td><td>WebMvcTest</td><td>400</td><td>✅ Bean Validation</td></tr>
+    <tr><td>11</td><td>GET /api/tareas/db/999 → 404</td><td>WebMvcTest</td><td>404</td><td>✅ TaskNotFoundException</td></tr>
+    <tr><td>12</td><td>cambiarEstado desde COMPLETADA → excepción</td><td>Unitario</td><td>—</td><td>✅ TaskStateException</td></tr>
+    <tr><td>13</td><td>Context loads (smoke test)</td><td>Smoke</td><td>—</td><td>✅ Aplicación arranca</td></tr>
+    <tr style="background:#f0fdf4"><td colspan="4"><strong>TOTAL: 35 tests</strong></td><td><strong>✅ BUILD SUCCESS</strong></td></tr>
+  </tbody>
+</table>
+
+
+<div class="next">
+  <h4>⏭️ Próxima Fase: Maven + Git/GitHub + Docker + CI/CD</h4>
+  <ul>
+    <li>Maven lifecycle completo: compile, test, package · Maven profiles dev/prod · JAR ejecutable</li>
+    <li>Git flow: main, develop, feature/* · README profesional con badges de CI</li>
+    <li>Dockerfile multi-stage: stage build (Maven) + stage runtime (JRE mínimo)</li>
+    <li>docker-compose: app + PostgreSQL + variables de entorno</li>
+    <li>GitHub Actions workflow: build + test automático en cada push + publicar imagen Docker Hub/ECR</li>
+  </ul>
+</div>
+
+<footer>TaskFlow API · Fase 6 completada el 01/09/2026 · Java 21 + Spring Boot 4.1.1 + JUnit Jupiter 6.0.3 + Mockito 5.x<br /><br />Made with IBM Bob</footer>
+</div>
+</body>
+</html>
