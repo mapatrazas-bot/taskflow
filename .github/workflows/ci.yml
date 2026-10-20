@@ -10,6 +10,9 @@ jobs:
   build-and-test:
     name: Build & Test (Java 21)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./taskflow
 
     steps:
       - name: Checkout del código
@@ -23,23 +26,11 @@ jobs:
           cache: maven
           cache-dependency-path: 'taskflow/pom.xml'
 
-      - name: Preparar Maven Wrapper
-        run: |
-          cd taskflow
-          sed -i 's/\r$//' ./mvnw
-          chmod +x ./mvnw
-
       - name: Ejecutar Compilación y Tests (35 Tests)
-        run: |
-          cd taskflow
-          ./mvnw clean test
+        run: mvn clean test -B
 
       - name: Empaquetar JAR
-        run: |
-          cd taskflow
-          ./mvnw package -DskipTests
+        run: mvn package -DskipTests -B
 
       - name: Validar Build de Docker
-        run: |
-          cd taskflow
-          docker build -t taskflow-api:test .
+        run: docker build -t taskflow-api:test .

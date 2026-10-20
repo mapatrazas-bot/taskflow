@@ -8,6 +8,10 @@ jobs:
   build-and-deploy:
     name: Build, Push to ACR & Deploy to Azure Web App
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./taskflow
+
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
@@ -20,16 +24,8 @@ jobs:
           cache: maven
           cache-dependency-path: 'taskflow/pom.xml'
 
-      - name: Preparar Maven Wrapper
-        run: |
-          cd taskflow
-          sed -i 's/\r$//' ./mvnw
-          chmod +x ./mvnw
-
-      - name: Ejecutar Tests Automatizados
-        run: |
-          cd taskflow
-          ./mvnw clean test
+      - name: Ejecutar Tests Automatizados (35 Tests)
+        run: mvn clean test -B
 
       - name: Iniciar sesión en Azure Container Registry (ACR)
         uses: azure/docker-login@v1
@@ -40,7 +36,6 @@ jobs:
 
       - name: Construir y Subir Imagen Docker a ACR
         run: |
-          cd taskflow
           docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/taskflow-api:latest .
           docker push ${{ secrets.ACR_LOGIN_SERVER }}/taskflow-api:latest
 
