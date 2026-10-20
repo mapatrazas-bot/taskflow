@@ -23,9 +23,10 @@ jobs:
           cache: maven
           cache-dependency-path: 'taskflow/pom.xml'
 
-      - name: Dar permisos de ejecución al Maven Wrapper
+      - name: Preparar Maven Wrapper
         run: |
           cd taskflow
+          sed -i 's/\r$//' ./mvnw
           chmod +x ./mvnw
 
       - name: Ejecutar Compilación y Tests (35 Tests)

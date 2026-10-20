@@ -20,10 +20,15 @@ jobs:
           cache: maven
           cache-dependency-path: 'taskflow/pom.xml'
 
+      - name: Preparar Maven Wrapper
+        run: |
+          cd taskflow
+          sed -i 's/\r$//' ./mvnw
+          chmod +x ./mvnw
+
       - name: Ejecutar Tests Automatizados
         run: |
           cd taskflow
-          chmod +x ./mvnw
           ./mvnw clean test
 
       - name: Iniciar sesión en Azure Container Registry (ACR)
