@@ -1,0 +1,47 @@
+name: TaskFlow Azure CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    name: Build, Push to ACR & Deploy to Azure Web App
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+          cache-dependency-path: 'taskflow/pom.xml'
+
+      - name: Ejecutar Tests Automatizados
+        run: |
+          cd taskflow
+          chmod +x ./mvnw
+          ./mvnw clean test
+
+      - name: Iniciar sesión en Azure Container Registry (ACR)
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Construir y Subir Imagen Docker a ACR
+        run: |
+          cd taskflow
+          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/taskflow-api:latest .
+          docker push ${{ secrets.ACR_LOGIN_SERVER }}/taskflow-api:latest
+
+      - name: Desplegar en Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'taskflow-api-prod'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          images: '${{ secrets.ACR_LOGIN_SERVER }}/taskflow-api:latest'
